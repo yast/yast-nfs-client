@@ -32,7 +32,7 @@
     import "Report";
     import "Progress";
 
-    Progress::off ();
+    boolean progress_orig = Progress::set (false);
     Report::DisplayErrors (false, 0);
 
     map service_on = $[

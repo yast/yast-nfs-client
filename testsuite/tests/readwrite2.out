@@ -4,6 +4,8 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Write - nfs is in use - start services
@@ -45,6 +47,8 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Write - nfs is in use - so, sart services
@@ -88,6 +92,8 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Write - nfs not used - so, stopping services
@@ -104,6 +110,8 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Write - nfs not used; leave services stopped
