@@ -36,18 +36,20 @@
 
     map Aliases = $[
 	"fstab"   : ``(FstabDialog ()),
-	"end"     : ``(SaveDialog ())
+//	"end"     : ``(SaveDialog ())
 	];
 
     map Sequence = $[
 	"ws_start"  : "fstab",
 	"fstab"       : $[
-	    `next   : "end",
+	    `next   : `next,
 	    `abort  : `abort
 	    ],
+/*
 	"end"       : $[
 	    `finish    : `ws_finish
 	    ]
+*/
 	];
 
     if (!Require::RequireAndConflict (["portmap"], [],
@@ -65,12 +67,15 @@
 
     any result = WizardSequencer (Aliases, Sequence);
 
-    if (result == `ws_finish)
+    if (result == `next)
     {
 	if (Nfs::Write ())
 	{
 	    // message popup
+	    /* #28322
+	       No need to signal success. Failure has been signalled already.
 	    Popup::Message (_("All the settings were written and are ready to use."));
+	    */
 	}
     }
 
