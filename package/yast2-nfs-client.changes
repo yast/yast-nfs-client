@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Feb 12 10:42:29 CET 2003 - mvidner@suse.de
+
+- Changed _auto::Result to Export (nashif).
+- 2.7.2
+
+-------------------------------------------------------------------
 Mon Feb  3 17:08:12 CET 2003 - mvidner@suse.de
 
 - Added Read to _auto (nashif).
