@@ -1,13 +1,7 @@
 /**
- * File:
- *   nfs.ycp
- *
- * Module:
- *   Configuration of nfs
- *
- * Summary:
- *   Main file
- *
+ * File:	clients/nfs.ycp
+ * Package:	Configuration of NFS
+ * Summary:	Main file
  * Authors:
  *   Jan Holesovsky <kendy@suse.cz>
  *   Dan Vesely <dan@suse.cz>
@@ -15,60 +9,114 @@
  *
  * $Id$
  *
- * Module for the configuration of the nfs client
- *
- */
-
-/***
- * <h3>Configuration of the nfs</h3>
+ * Main file for nfs configuration. Uses all other files.
  */
 
 {
 
-    textdomain "nfs";
+/***
+ * <h3>Configuration of NFS</h3>
+ */
 
-    import "Nfs";
-    import "Wizard";
-    import "Popup";
-    import "Sequencer";
+textdomain "nfs";
 
-    include "nfs/ui.ycp";
-    include "nfs/routines.ycp";
+/* The main () */
+y2milestone ("----------------------------------------");
+y2milestone ("NFS module started");
 
-    map Aliases = $[
-	"fstab"   : ``(FstabDialog ()),
-//	"end"     : ``(SaveDialog ())
-	];
+import "Nfs";
+import "Progress";
+import "Report";
+import "Summary";
 
-    map Sequence = $[
-	"ws_start"  : "fstab",
-	"fstab"       : $[
-	    `next   : `next,
-	    `abort  : `abort
+import "CommandLine";
+include "nfs/wizards.ycp";
+
+boolean NfsListHandler (map options) {
+    CommandLine::Print (_("Not implemented yet"));
+    return false;
+}
+
+boolean NfsAddHandler (map options) {
+    CommandLine::Print (_("Not implemented yet"));
+    return false;
+}
+
+boolean NfsEditHandler (map options) {
+    CommandLine::Print (_("Not implemented yet"));
+    return false;
+}
+
+boolean NfsDeleteHandler (map options) {
+    CommandLine::Print (_("Not implemented yet"));
+    return false;
+}
+
+map cmdline_description = $[
+    "id"	: "nfs",
+    /* Command line help text for the nfs module */
+    "help"	: _("Configuration of NFS client"),
+    "guihandler"        : NfsSequence,
+    "initialize"        : Nfs::Read,
+    "finish"            : Nfs::Write,
+    "actions"           : $[
+	"list"		: $[
+	    "handler"	: NfsListHandler,
+	    "help"	: _("List configured NFS mounts"),
 	    ],
-/*
-	"end"       : $[
-	    `finish    : `ws_finish
-	    ]
-*/
-	];
+	"add"		: $[
+	    "handler"	: NfsAddHandler,
+	    "help"	: _("Add an NFS mount"),
+	    ],
+	"edit"		: $[
+	    "handler"	: NfsEditHandler,
+	    "help"	: _("Edit an NFS mount"),
+	    ],
+	"delete"	: $[
+	    "handler"	: NfsDeleteHandler,
+	    "help"	: _("Delete an NFS mount"),
+	    ],
+    ],
+    "options"		: $[
+	// TODO adjust names? create comaptibility aliases?
+	"spec"		: $[
+	    "type"	: "string", // host:path
+	    // fstab(5): fs_spec
+	    "help"	: _("Remote filesystem"),
+	    ],
+	"file"		: $[
+	    "type"	: "string", // path
+	    // fstab(5): fs_file
+	    "help"	: _("Local mount point"),
+	    ],
+	// use defaults when not specified? describe in help?
+	"mntopts"	: $[
+	    "type"	: "string", // a list?
+	    // fstab(5): fs_mntopts
+	    "help"	: _("Mount options"),
+	    ],
+    ],
+    "mappings"		: $[
+	"list"		: [],
+	"add"		: ["spec", "file", "mntopts",],
+	// either of spec and file is key
+	"edit"		: ["spec", "file", "mntopts",],
+	// either of spec and file is key
+	"delete"	: ["spec", "file",],
+    ]
+];
 
-    if (!IsPortmapInstalled())
-    {
-	return;
-    }
+/* main ui function */
+any ret = nil;
 
-    Nfs::Read();
+ret = CommandLine::Run(cmdline_description);
+y2debug("ret=%1", ret);
 
-    Wizard::CreateDialog ();
-    Wizard::SetDesktopIcon("nfs");
+/* Finish */
+y2milestone("NFS module finished");
+y2milestone("----------------------------------------");
 
-    any result = Sequencer::Run(Aliases, Sequence);
+return ret;
 
-    if (result == `next)
-    {
-	Nfs::Write();
-    }
-
-    UI::CloseDialog();
+/* EOF */
 }

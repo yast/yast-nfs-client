@@ -28,6 +28,27 @@
     import "Popup";
 
     /**
+     * Read settings dialog
+     * @return `abort if aborted and `next otherwise
+     */
+    symbol ReadDialog() {
+	boolean ret = nil;
+	// move portmap check somewhere else?
+	// this may be too early
+	ret = IsPortmapInstalled () && Nfs::Read ();
+	return ret ? `next : `abort;
+    }
+
+    /**
+     * Write settings dialog
+     * @return `abort if aborted and `next otherwise
+     */
+    symbol WriteDialog() {
+	boolean ret = Nfs::Write ();
+	return ret ? `next : `abort;
+    }
+
+    /**
      * Caches names of nfs servers for GetFstabEntry
      */
 

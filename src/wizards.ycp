@@ -1,0 +1,62 @@
+/**
+ * File:	include/nfs/wizards.ycp
+ * Package:	Configuration of nfs
+ * Summary:	Wizards definitions
+ * Authors:	XXmaintainerXX <XXemailXX>
+ *
+ * $Id$
+ */
+
+{
+
+textdomain "nfs";
+
+import "Sequencer";
+import "Wizard";
+
+include "nfs/ui.ycp";
+
+any MainSequence ()
+{
+    return FstabDialog ();
+}
+
+/**
+ * Whole configuration of NFS client
+ * @return sequence result
+ */
+any NfsSequence ()
+{
+    map aliases = $[
+	"read"	: [ ``( ReadDialog () ), true ],
+	"main"	:   ``( MainSequence () ),
+	"write"	: [ ``( WriteDialog () ), true ]
+    ];
+
+    map sequence = $[
+	"ws_start" : "read",
+	"read" : $[
+	    `abort	: `abort,
+	    `next	: "main"
+	],
+	"main" : $[
+	    `abort	: `abort,
+	    `next	: "write"
+	],
+	"write" : $[
+	    `abort	: `abort,
+	    `next	: `next
+	]
+    ];
+
+    Wizard::CreateDialog ();
+    Wizard::SetDesktopIcon ("nfs");
+
+    any ret = Sequencer::Run (aliases, sequence);
+
+    UI::CloseDialog ();
+    return ret;
+}
+
+/* EOF */
+}

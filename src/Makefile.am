@@ -9,7 +9,8 @@ client_DATA =		\
 
 myinclude_DATA =	\
 	routines.ycp	\
-	ui.ycp
+	ui.ycp		\
+	wizards.ycp
 
 module_DATA =		\
 	Nfs.ycp

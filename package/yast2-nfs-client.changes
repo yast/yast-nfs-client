@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jun 21 10:41:30 CEST 2004 - mvidner@suse.cz
+
+- Added a skeleton of the command line interface
+- 2.10.0
+
+-------------------------------------------------------------------
 Fri Apr  2 15:08:31 CEST 2004 - mvidner@suse.cz
 
 - changed license to GPL
