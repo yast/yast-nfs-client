@@ -225,7 +225,7 @@ map cmdline_description = $[
 	    "type"	: "string", // host:path
 	    // command line option help
 	    // fstab(5): fs_spec
-	    "help"	: _("Remote filesystem (in the form 'host:path')"),
+	    "help"	: _("Remote file system (in the form 'host:path')"),
 	    ],
 	"file"		: $[
 	    "type"	: "string", // path
