@@ -30,7 +30,8 @@
     import "Nfs";
     import "Wizard";
     import "Popup";
-    include "wizard/sequencer.ycp";
+    import "Sequencer";
+
     include "nfs/ui.ycp";
     include "nfs/routines.ycp";
 
@@ -60,8 +61,9 @@
     Nfs::Read();
 
     Wizard::CreateDialog ();
+    Wizard::SetDesktopIcon("nfs");
 
-    any result = WizardSequencer (Aliases, Sequence);
+    any result = Sequencer::Run(Aliases, Sequence);
 
     if (result == `next)
     {

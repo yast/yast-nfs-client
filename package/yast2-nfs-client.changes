@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar  8 19:59:57 CET 2004 - lslezak@suse.cz
+
+- use Sequencer::
+- set icon
+- version 2.9.7
+
+-------------------------------------------------------------------
 Fri Mar  5 15:49:18 CET 2004 - mvidner@suse.cz
 
 - added type information (lslezak)
