@@ -40,7 +40,7 @@ Summary:	YaST2 - Configuration of NFS, developer documentation
 @YAST2DIR@/clients/nfs_auto.ycp
 @YAST2DIR@/clients/nfs_write.ycp
 @YAST2DIR@/modules/Nfs.ycp
-@YAST2DIR@/menuentries/menuentry_nfs.ycp
+@YAST2DIR@/menuentries/menuentry_nfs.y2cc
 @YAST2DIR@/menuentries/menuentry_nfs.y2cc
 
 %files devel
