@@ -71,6 +71,9 @@ else if (func == "Change") {
 else if (func == "Result") {
     ret = Nfs::Export();
 }
+else if (func == "Read") {
+    ret = Nfs::Read();
+}
 /* Write givven settings */
 else if (func == "Write") {
     import "Progress";
