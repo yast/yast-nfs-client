@@ -1,0 +1,57 @@
+[Desktop Entry]
+Type=Application
+Categories=Qt;X-SuSE-YaST-Net_advanced;
+
+X-KDE-ModuleType=Library
+X-KDE-RootOnly=true
+X-KDE-HasReadOnlyMode=true
+X-KDE-Library=yast2
+X-KDE-FactoryName=nfs
+
+X-SuSE-YaST-Group=Net_advanced
+X-SuSE-YaST-Argument=
+X-SuSE-YaST-RootOnly=true
+X-SuSE-YaST-AutoInst=all
+X-SuSE-YaST-Geometry=
+X-SuSE-YaST-SortKey=
+X-SuSE-YaST-AutoinstResource=
+
+Icon=nfs
+Exec=/sbin/yast2 nfs 
+
+Name=NFS Client
+GenericName=Configure NFS client.
+Name[cs]=Klient NFS
+GenericName[cs]=Konfigurovat klient NFS
+Name[de]=NFS-Client
+GenericName[de]=Konfiguration des NFS-Clients
+Name[es]=Cliente NFS
+GenericName[es]=Configurar el cliente NFS
+Name[hu]=NFS kliens
+GenericName[hu]=Az NFS kliens beállítása
+Name[it]=Client NFS
+GenericName[it]=Configura il client NFS.
+Name[ko]=NFS 클라이언트
+GenericName[ko]=NFS 클라이언트 설정
+Name[nl]=NFS cliënt
+GenericName[nl]=Configureer NFS cliënt.
+Name[pt]=Cliente NFS
+GenericName[pt]=Configurar cliente NFS.
+Name[sk]=Klient NFS
+GenericName[sk]=Konfigurácia klienta NFS
+Name[sv]=NFS-klient
+GenericName[sv]=Ställ in NFS-klient
+Name[bg]=NFS клиент
+GenericName[bg]=Настройка на NFS клиента.
+GenericName[da]=Konfigurér NFS-klient.
+Name[el]=Πελάτης NFS
+GenericName[el]=Ρυθμίστε τον πελάτη NFS.
+Name[fr]=Client NFS
+GenericName[fr]=Configuration du client NFS.
+Name[ja]=NFS クライアント
+GenericName[ja]=NFS クライアントの設定
+GenericName[lt]=Konfigūruoti NFS klientą.
+GenericName[ru]=Настройка NFS-клиента
+Name[sl]=Odjemalec NFS
+GenericName[sl]=Nastavitev NFS odjemalca
+GenericName[tr]=NFS istemcisini yapılandır
