@@ -428,7 +428,7 @@ in a terminal.</P>
 	   }
 	   else if (ret == `abort && !Popup::ReallyAbort (true))
 	   {
-	       continue;
+	       ret = `again;
 	   }
 	}
 	while (ret != `back && ret != `next && ret != `abort);
