@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Sep 14 17:32:45 CEST 2001 - mvidner@suse.cz
+
+- Added missing keyboard focus to OK buttons (#9915) (2.4.11)
+
+-------------------------------------------------------------------
 Thu Sep  6 10:31:24 CEST 2001 - mvidner@suse.cz
 
 - Dialog size and spacing fixes (for ncurses). (2.4.10)
