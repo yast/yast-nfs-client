@@ -182,10 +182,10 @@ with a / and it must not contain spaces.")))));
         {
             list value = splitstring (select (option_list, i), "=");
             // To translators: error popup
-            if (size (value) != 2) return sformat (UI (_("Wrong option format: %1")), select (option_list, i));
+            if (size (value) != 2) return sformat (_("Wrong option format: %1"), select (option_list, i));
             // To translators: error popup
-            if (!contains (with_value, select (value, 0))) return sformat (UI (_("Wrong option: %1")), select (value, 0));
-            if (size (select (value, 1)) == 0) return sformat (UI (_("Empty value for option: %1")), select (value, 0));
+            if (!contains (with_value, select (value, 0))) return sformat (_("Wrong option: %1"), select (value, 0));
+            if (size (select (value, 1)) == 0) return sformat (_("Empty value for option: %1"), select (value, 0));
             i = i + 1;
         }
      
