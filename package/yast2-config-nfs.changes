@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Nov 13 09:31:34 CET 2001 - mvidner@suse.cz
+
+- Added default values for lookups.
+- 2.5.1
+
+-------------------------------------------------------------------
 Thu Sep 20 20:25:21 CEST 2001 - mvidner@suse.cz
 
 - Fixed #11079: noauto and other generic options were refused.
