@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon May 27 11:56:22 CEST 2002 - mvidner@suse.cz
+
+- Current autoyast interface (nashif) 
+- WM close button works as Abort
+- Fix for automake 1.6
+- 2.6.1
+
+-------------------------------------------------------------------
 Fri Feb 15 13:52:12 CET 2002 - mvidner@suse.cz
 
 - Another proofreading.
