@@ -51,7 +51,7 @@
 		    if (! SCR::Execute (.target.mkdir, lookup(entry, "file")))
 		    {
 			// error popup message
-			UI::MessagePopup(sformat(_("I was unable to create directory '%1'."), lookup(entry, "file")));
+			UI::MessagePopup(sformat(_("Unable to create directory '%1'."), lookup(entry, "file")));
 			return false;
 		    }
 		}
@@ -64,9 +64,10 @@
 	if (fstab != nil && SCR::Write(.etc.fstab, fstab) == nil)
 	{
 	    // error popup message
-	    UI::MessagePopup(_("I was unable to write to /etc/fstab.
+	    UI::MessagePopup(_("Unable to write to /etc/fstab.
 There will be no changes in the
-configuration of the NFS client."));
+configuration of the NFS client.
+"));
 	    return false;
 	}
 
@@ -85,7 +86,7 @@ configuration of the NFS client."));
 	    if (SCR::Execute(.target.bash, "/etc/init.d/nfs status") != 0)
 	    {
 		// error popup message
-		UI::MessagePopup(_("I was unable to mount the NFS entries from /etc/fstab."));
+		UI::MessagePopup(_("Unable to mount the NFS entries from /etc/fstab."));
 		return false;
 	    }
 	}
