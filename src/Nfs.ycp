@@ -24,6 +24,7 @@
     import "Report";
     import "Runlevel";
     import "Summary";
+    import "Progress";
 
     include "nfs/routines.ycp";
 
@@ -205,7 +206,29 @@
     global define boolean Write () ``{
 	if (WriteOnly ())
 	{
+	    // dialog label
+	    Progress::New (_("Writing NFS Configuration..."), " ", 2, [
+	    // progress stage label
+	    _("Stop services"),
+	    // progress stage label
+	    _("Start services"),
+           ], [
+	    // progress step label
+	    _("Stopping services..."),
+	    // progress step label
+	    _("Starting services..."),
+	    // final progress step label
+	    _("Finished") ],
+	    "" );
+
+	    // help text
+	    Wizard::RestoreHelp(_("Writing NFS client settings"));
+
+	    Progress::NextStage ();
+
 	    Runlevel::RunInitScript ("nfs", "stop");
+
+	    Progress::NextStage ();
 	    if (size (nfs_entries) > 0)
 	    {
 		if (Runlevel::ServiceStatus ("portmap") != 0)
@@ -222,6 +245,7 @@
 		    return false;
 		}
 	    }
+	    Progress::NextStage ();
 	    return true;
 	}
 	else

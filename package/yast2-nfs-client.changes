@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 14 16:25:04 CEST 2003 - jsuchome@suse.de
+
+- added writing progress bar (due to #28729)
+- 2.8.4
+
+-------------------------------------------------------------------
 Mon Aug 11 10:54:51 CEST 2003 - lslezak@suse.cz
 
 - new Mount and Unmount functions
