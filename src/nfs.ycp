@@ -28,9 +28,9 @@
     textdomain "nfs";
 
     import "Nfs";
+    import "Wizard";
     include "require.ycp";
     include "ui/common_popups.ycp";
-    include "ui/wizard_dialog.ycp";
     include "wizard/sequencer.ycp";
     include "nfs/ui.ycp";
 
@@ -61,8 +61,7 @@
 
     Nfs::Read();
 
-    UI::CreateWizardDialog ();
-    //UI (`ReplaceWizardAbortButton(`Empty (`id (`abort))));
+    Wizard::CreateDialog ();
 
     any result = WizardSequencer (Aliases, Sequence);
 

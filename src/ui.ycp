@@ -232,7 +232,7 @@ in a terminal.</P>
 		`VSpacing(0.2)
 		);
 
-	UI::SetWizardContents(_("Configuration of the NFS client"),
+	Wizard::SetContents(_("Configuration of the NFS client"),
 			      contents, help_text, true, true);
 	UI::ChangeWidget (`id(`next), `Label, FinishButtonLabel());
 
