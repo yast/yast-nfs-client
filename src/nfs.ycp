@@ -27,29 +27,167 @@ y2milestone ("NFS module started");
 import "Nfs";
 import "Progress";
 import "Report";
+import "String";
 import "Summary";
 
 import "CommandLine";
+
 include "nfs/wizards.ycp";
 
+// handler for nfs summary
 boolean NfsListHandler (map options) {
-    CommandLine::Print (_("Not implemented yet"));
+
+
+    list<map<string,any> > nfs_entries = Nfs::nfs_entries;
+    if (size (nfs_entries) < 1)
+    {
+	CommandLine::Print (Summary::NotConfigured ());
+	return false;
+    }
+    list<list<string> > items	= [];
+    foreach (term i, FstabTableItems (nfs_entries), {
+	items = add (items, [i[1]:"", i[2]:"", i[3]:"", i[4]:""]);
+    });
+
+    CommandLine::Print (String::TextTable ([
+	   _("Server")+"  ",
+	   _("Remote filesystem")+"  ",
+	   _("Mountpoint")+"  ",
+	   _("Options")+"  "
+	], items, $[])
+    );
     return false;
 }
 
 boolean NfsAddHandler (map options) {
-    CommandLine::Print (_("Not implemented yet"));
-    return false;
+
+    list<map<string,any> > nfs_entries = Nfs::nfs_entries;
+
+    list specl		= splitstring (options["spec"]:"", ":");
+    string server	= specl[0]:"";
+    string pth		= specl[1]:"";
+    string mount	= options["file"]:"";
+    list<map> existing	= (list<map>) union (Nfs::non_nfs_entries, nfs_entries);
+
+    if (!CheckHostName (server) || !CheckPath (pth) ||
+	!CheckPath (mount) || IsMpInFstab (existing, mount))
+	return false;
+
+    if (! haskey (options, "mntops"))
+	options["mntops"]	= "defaults";
+
+    string options_error = check_options (options["mntops"]:"");
+    if (size (options_error) > 0)
+    {
+	Report::Error (options_error);
+	return false;
+    }
+
+    nfs_entries = add (nfs_entries, (map<string,any>) options);
+    Nfs::nfs_entries = nfs_entries;
+    return true;
 }
 
 boolean NfsEditHandler (map options) {
-    CommandLine::Print (_("Not implemented yet"));
-    return false;
+
+    list<map<string,any> > nfs_entries = Nfs::nfs_entries;
+
+    string spec	= options["spec"]:"";
+    string file	= options["file"]:"";
+
+    if (spec == "" && file == "")
+    {
+	// error
+	CommandLine::Print (_("No NFS mount specified."));
+	return false;
+    }
+    list<integer> entries	= [];
+    integer i			= 0;
+    foreach (map<string,any> entry, nfs_entries, {
+	if (entry["spec"]:"" == spec || entry["file"]:"" == file)
+	{
+	    entries	= add (entries, i);
+	    y2internal ("to change: %1", entry);
+	}
+	i = i + 1;
+    });
+    if (size (entries) == 0)
+    {
+	// error message
+	CommandLine::Print (_("No NFS mount matching the criteria found."));
+	return false;
+    }
+    if (size (entries) > 1)
+    {
+	list<list<string> > items	= [];
+	foreach (term i, FstabTableItems (nfs_entries), {
+	    items = add (items, [i[1]:"", i[2]:"", i[3]:"", i[4]:""]);
+	});
+
+	// error message
+	CommandLine::Print (_("Multiple NFS mounts match the criteria:"));
+	foreach (integer e, entries, {
+	    map entry	= nfs_entries[e]:$[];
+	    CommandLine::Print (
+		sformat("spec=%1, file=%2", entry["spec"]:"",entry["file"]:""));
+	});
+	return false;
+    }
+
+    // now edit existing entry and check the validity
+    integer entryno	= entries[0]:0;
+    map entry		= union (nfs_entries[entryno]:$[], options);
+
+    list specl		= splitstring (entry["spec"]:"", ":");
+    string server	= specl[0]:"";
+    string pth		= specl[1]:"";
+    string mount	= entry["file"]:"";
+    list<map> existing	= (list<map>)
+	union (Nfs::non_nfs_entries, remove (nfs_entries, entryno));
+
+    if (!CheckHostName (server) || !CheckPath (pth) ||
+	!CheckPath (mount) || IsMpInFstab (existing, mount))
+	return false;
+
+    string options_error = check_options (entry["mntops"]:"");
+    if (size (options_error) > 0)
+    {
+	Report::Error (options_error);
+	return false;
+    }
+
+    nfs_entries[entryno]	= (map<string,any>) entry;
+    Nfs::nfs_entries		= nfs_entries;
+    return true;
 }
 
 boolean NfsDeleteHandler (map options) {
-    CommandLine::Print (_("Not implemented yet"));
-    return false;
+
+    list<map<string,any> > nfs_entries = Nfs::nfs_entries;
+
+    string spec	= options["spec"]:"";
+    string file	= options["file"]:"";
+
+    if (spec == "" && file == "")
+    {
+	// error
+	CommandLine::Print (_("No NFS mount specified."));
+	return false;
+    }
+    boolean deleted	= false;
+    nfs_entries	= filter (map<string,any> entry, nfs_entries, {
+	if ((spec != "" && entry["spec"]:"" != spec) ||
+	    (file != "" && entry["file"]:"" != file))
+	    return true;
+	else
+	{
+	    deleted = true;
+	    return false;
+	}
+    });
+
+    Nfs::nfs_entries = nfs_entries;
+    return deleted;
 }
 
 map cmdline_description = $[
@@ -60,7 +198,7 @@ map cmdline_description = $[
     "initialize"        : Nfs::Read,
     "finish"            : Nfs::Write,
     "actions"           : $[
-	"list"		: $[
+	"list"		: $[ // TODO summary is probably better...
 	    "handler"	: NfsListHandler,
 	    // command line action help
 	    "help"	: _("List configured NFS mounts"),
@@ -87,7 +225,7 @@ map cmdline_description = $[
 	    "type"	: "string", // host:path
 	    // command line option help
 	    // fstab(5): fs_spec
-	    "help"	: _("Remote filesystem"),
+	    "help"	: _("Remote filesystem (in the form 'host:path')"),
 	    ],
 	"file"		: $[
 	    "type"	: "string", // path
@@ -96,18 +234,18 @@ map cmdline_description = $[
 	    "help"	: _("Local mount point"),
 	    ],
 	// use defaults when not specified? describe in help?
-	"mntopts"	: $[
+	"mntops"	: $[
 	    "type"	: "string", // a list?
 	    // command line option help
-	    // fstab(5): fs_mntopts
+	    // fstab(5): fs_mntops
 	    "help"	: _("Mount options"),
 	    ],
     ],
     "mappings"		: $[
 	"list"		: [],
-	"add"		: ["spec", "file", "mntopts",],
+	"add"		: ["spec", "file", "mntops",],
 	// either of spec and file is key
-	"edit"		: ["spec", "file", "mntopts",],
+	"edit"		: ["spec", "file", "mntops",],
 	// either of spec and file is key
 	"delete"	: ["spec", "file",],
     ]

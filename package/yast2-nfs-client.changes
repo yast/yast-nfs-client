@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jan 14 10:00:18 CET 2005 - jsuchome@suse.cz
+
+- added command line interface functionality
+- 2.11.3
+
+-------------------------------------------------------------------
 Mon Jan  3 13:54:22 CET 2005 - mvidner@suse.cz
 
 - Adjusted for firewall's move to yast2.rpm.
