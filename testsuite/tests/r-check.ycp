@@ -1,0 +1,28 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Routines testuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    include "nfs/routines.ycp";
+
+    DUMP ("check_options");
+    TEST (``(check_options ("")), [], nil);
+    TEST (``(check_options ("defaults")), [], nil);
+    TEST (``(check_options ("nolock,bg")), [], nil);
+    TEST (``(check_options ("nolock,nobg")), [], nil);
+    TEST (``(check_options ("nolock,rsize=8192")), [], nil);
+    TEST (``(check_options ("nolock, bg")), [], nil);
+    TEST (``(check_options ("nolock,unknownoption")), [], nil);
+    TEST (``(check_options ("nolock,unknownassignment=true")), [], nil);
+    TEST (``(check_options ("nolock,rsize=")), [], nil);
+    TEST (``(check_options ("nolock,two=equal=signs")), [], nil);
+}

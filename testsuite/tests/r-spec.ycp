@@ -1,0 +1,25 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Routines testuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    include "nfs/routines.ycp";
+
+    DUMP ("SpecToServPath");
+    TEST (``(SpecToServPath ("big.foo.com:/share/data")), [], nil);
+    TEST (``(SpecToServPath ("only.server.com:")), [], nil);
+    TEST (``(SpecToServPath ("nocolon.only.server.com")), [], nil);
+    TEST (``(SpecToServPath (":/only/path")), [], nil);
+    TEST (``(SpecToServPath ("/nocolon/only/path")), [], nil);
+    TEST (``(SpecToServPath ("two:colons:used")), [], nil);
+    TEST (``(SpecToServPath ("")), [], nil);
+}

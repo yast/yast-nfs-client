@@ -1,0 +1,5 @@
+Dump	StripExtraSlash
+Return	
+Return	/
+Return	/normal/path
+Return	/trailing/slash

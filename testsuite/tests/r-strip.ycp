@@ -1,0 +1,22 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Routines testuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    include "nfs/routines.ycp";
+
+    DUMP ("StripExtraSlash");
+    TEST (``(StripExtraSlash ("")), [], nil);
+    TEST (``(StripExtraSlash ("/")), [], nil);
+    TEST (``(StripExtraSlash ("/normal/path")), [], nil);
+    TEST (``(StripExtraSlash ("/trailing/slash/")), [], nil);
+}

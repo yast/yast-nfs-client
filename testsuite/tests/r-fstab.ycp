@@ -1,0 +1,38 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Routines testuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    include "nfs/routines.ycp";
+
+    list nfs_entries = [
+	$[
+	    "file":"/home",
+	    "freq":0,
+	    "mntops":"defaults",
+	    "passno":0,
+	    "spec":"foo.bar.com:/home",
+	    "vfstype":"nfs"
+	 ],
+	$[
+	    "file":"/var/spool/mail",
+	    "freq":0,
+	    "mntops":"defaults",
+	    "passno":0,
+	    "spec":"foo.bar.com:/var/spool/mail",
+	    "vfstype":"nfs"
+	 ]
+	];
+
+    DUMP ("FstabTableItems");
+    TEST (``(FstabTableItems (nfs_entries)), [], nil);
+}

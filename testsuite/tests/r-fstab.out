@@ -1,0 +1,2 @@
+Dump	FstabTableItems
+Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "defaults ")]
