@@ -99,10 +99,9 @@ with mount-point '%1'."), mpoint));
 	return true;
     };
 
-    // duplicated in nfs/routines.ycp and nfs_server/routines.ycp
     /**
      * Check for the validity of a path/mountpoint:
-     * nonempty, fewer than 70 chars, no blanks, starts with a slash.
+     * nonempty, fewer than 70 chars, starts with a slash.
      * If invalid, a message is displayed.
      * @param name	path
      * @return		whether valid
@@ -110,14 +109,15 @@ with mount-point '%1'."), mpoint));
     global define boolean CheckPath(string name) ``{
 	if (size(name) > 0 &&
 	    size(name) < 70 &&
-	    substring(name, 0, 1) == "/" &&
-	    findfirstof(name, " \t") == nil)
+	    substring(name, 0, 1) == "/")
+	{
 	    return true;
-	else
-	    // error popup message
-	    UI::MessagePopup(sformat(_("You entered a wrong path. It must be
-shorter than 70 characters, it must begin
-with a / and it must not contain spaces.")));
+	}
+
+	// error popup message (spaces are now allowed)
+	UI::MessagePopup(sformat(_("You entered a wrong path.
+It must be shorter than 70 characters
+and it must begin with a slash (/).")));
 	return false;
     };
 
