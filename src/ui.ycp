@@ -115,11 +115,14 @@
 				`id(`serverent),
 				// text entry label
 				_("Host name of the &NFS server:"), server),
+			    `HSpacing(0.5),
 			    `VBox(
-				`VSpacing(),
-				// pushbutton label
-				`Bottom(`PushButton(`id(`choose),
-						    _("Choo&se")))))),
+				`Bottom (
+				    // pushbutton label
+				    `PushButton (`id (`choose), _("Choo&se"))
+				    )
+				)
+			    )),
 		    `HBox(
 			`TextEntry(`id(`pathent),
 				   // textentry label
@@ -129,10 +132,13 @@
 			    `TextEntry(`id(`mountent),
 				       // textentry label
 				       _("&Mountpoint (local):"), mount),
+			    `HSpacing(0.5),
 			    `VBox (
-				`VSpacing (),
-				// button label
-				`PushButton(`id(`browse), _("&Browse")))
+				`Bottom (
+				    // button label
+				    `PushButton(`id(`browse), _("&Browse"))
+				    )
+				)
 			    )),
 		    // textentry label
 		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
@@ -295,9 +301,10 @@ in a terminal.</P>
 		);
 
 	// dialog heading
-	Wizard::SetContents(_("Configuration of the NFS client"),
-			      contents, help_text, true, true);
-	UI::ChangeWidget (`id(`next), `Label, FinishButtonLabel());
+	Wizard::SetContentsButtons(_("Configuration of the NFS client"),
+				   contents, help_text,
+				   BackButtonLabel (),
+				   FinishButtonLabel ());
 
 	UI::ChangeWidget (`id(`editbut), `Enabled, false);
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
@@ -311,6 +318,11 @@ in a terminal.</P>
 	   integer entryno = UI::QueryWidget(`id(`fstable), `CurrentItem);
 	   UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
 	   UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
+
+	   // Kludge, because a `Table still does not have a shortcut.
+	   // Simple to solve here: there's only the table and buttons,
+	   // so it is OK to always set focus to the table
+	   UI::SetFocus (`id (`fstable));
 
 	   ret = UI::UserInput();
 	   if (ret == `cancel)
