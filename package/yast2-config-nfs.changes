@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Sep 20 20:25:21 CEST 2001 - mvidner@suse.cz
+
+- Fixed #11079: noauto and other generic options were refused.
+- Also correctly says Wrong option instead of Wrong option format
+- and strips spaces instead of giving a confusing error.
+- 2.4.12
+
+-------------------------------------------------------------------
 Fri Sep 14 17:32:45 CEST 2001 - mvidner@suse.cz
 
 - Added missing keyboard focus to OK buttons (#9915) (2.4.11)
