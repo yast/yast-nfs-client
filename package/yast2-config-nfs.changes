@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Jul 30 11:41:13 CEST 2001 - mvidner@suse.cz
+
+- Turned off autoheader.
+- UI bug in test suite: sformat(UI(_(...))) -> sformat(_(...))
+- Replaced _("&OK") by OKButtonLabel() etc.
+- Unified the buttons to Add-Edit-Delete.
+- Made keyboard shortcuts unique.
+- version 2.4.4
+
+-------------------------------------------------------------------
 Tue Jul 24 15:07:50 CEST 2001 - mvidner@suse.cz
 
 - Fixed a stupid error in the specfile.
