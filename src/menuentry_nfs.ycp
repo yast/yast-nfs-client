@@ -1,0 +1,43 @@
+/**
+ * File:
+ *   menuentry_nfs.ycp
+ *
+ * Module:
+ *   Configuration of nfs
+ *
+ * Summary:
+ *   Menuentry file
+ *
+ * Authors:
+ *   Dan Vesely <dan@suse.cz>
+ *
+ * $Id$
+ *
+ * Menuentry for NFS client
+ */
+
+{
+    textdomain "lan";
+
+
+    return( [ "nfs", $[
+	`menuentry    : UI(_("NFS client")),
+
+	`arguments    : [ ],
+
+	`group        : "Net_advanced", 
+
+	`icon         : "nfs.png",
+
+	`widget       :  `RichText(
+
+	   UI(_("Launch this module to configure NFS client.")) +
+	   UI(_("<p>You need to be logged in as <i>root</i> in order to do this.</p>"))),
+
+	`helptext     : UI(_("Configure NFS client.")),
+
+	`codefragment : nil 
+
+	]
+    ]);
+}
