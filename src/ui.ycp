@@ -39,7 +39,7 @@
      * @param items	a list of items
      * @return		one item or nil
      */
-    global define string ChooseItem (string title, list<string> items) ``{
+    define string ChooseItem (string title, list<string> items) ``{
 	string item = nil;
 
 	UI::OpenDialog (
@@ -78,7 +78,7 @@
      * @param hosts	a list of hostnames
      * @return		a hostname
      */
-    global define string ChooseHostName(list<string> hosts) ``{
+    define string ChooseHostName(list<string> hosts) ``{
 	Wizard::SetScreenShotName ("nfs-client-1aa-hosts");
 	// selection box label
 	// changed from "Remote hosts" because now it shows
@@ -93,7 +93,7 @@
      * @param hosts	a list of export
      * @return		an export
      */
-    global define string ChooseExport (list<string> exports) ``{
+    define string ChooseExport (list<string> exports) ``{
 	Wizard::SetScreenShotName ("nfs-client-1ab-exports");
 	// selection box label
 	string ret = ChooseItem (_("&Exported Directories"), exports);
@@ -107,7 +107,7 @@
      * @param button pushbutton widget
      * @return a HBox
      */
-    global define term TextAndButton (term text, term button) ``{
+    define term TextAndButton (term text, term button) ``{
 	return `HBox (
 	    `Bottom (text),
 	    `HSpacing(0.5),
@@ -120,7 +120,7 @@
      * @param existing	list of fstab entries for duplicate mount-point checking
      * @return		a nfs_entry or nil
      */
-    global define map GetFstabEntry(map fstab_ent, list<map> existing) ``{
+    define map GetFstabEntry(map fstab_ent, list<map> existing) ``{
 	Wizard::SetScreenShotName ("nfs-client-1a-edit");
 
 	string server = "";
@@ -232,14 +232,14 @@
 	    else if (ret == `browse)
 	    {
 		string dir = (string) UI::QueryWidget(`id (`mountent), `Value);
-		if (size (dir) == 0)
+		if (dir == nil || size (dir) == 0)
 		{
 		    dir = "/";
 		}
 
 		dir = UI::AskForExistingDirectory(dir, _("Select mount point"));
 
-		if (size (dir) > 0)
+		if (dir != nil && size(dir) > 0)
 		{
 		    UI::ChangeWidget (`id (`mountent), `Value, dir);
 		}
@@ -318,7 +318,7 @@ interactively.</p>");
      * NFS client dialog itselfs
      * @return `back, `abort or `next
      */
-    global define symbol FstabDialog () ``{
+    define symbol FstabDialog () ``{
 	Wizard::SetScreenShotName ("nfs-client-1-fstab");
 
 	// Help, part 1 of 3
