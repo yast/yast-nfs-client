@@ -39,19 +39,19 @@
 	{
 	    // filter out any nfs entries
 	    fstab = filter(`entry, fstab, ``{
-		return (lookup(entry, "vfstype") != "nfs");
+		return (lookup(entry, "vfstype", "") != "nfs");
 	    });
 	}
 	else
 	{
 	    // create mount points
 	    foreach(`entry, fstab, ``{
-		if (lookup(entry, "vfstype") == "nfs") {
+		if (lookup(entry, "vfstype", "") == "nfs") {
 		    import_nfs = true;
-		    if (! SCR::Execute (.target.mkdir, lookup(entry, "file")))
+		    if (! SCR::Execute (.target.mkdir, lookup(entry, "file", "")))
 		    {
 			// error popup message
-			UI::MessagePopup(sformat(_("Unable to create directory '%1'."), lookup(entry, "file")));
+			UI::MessagePopup(sformat(_("Unable to create directory '%1'."), lookup(entry, "file", "")));
 			return false;
 		    }
 		}

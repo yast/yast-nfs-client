@@ -71,11 +71,11 @@
 	string options = "defaults";
 
 	if (fstab_ent != nil) {
-	    term couple = SpecToServPath(lookup(fstab_ent, "spec"));
+	    term couple = SpecToServPath(lookup(fstab_ent, "spec", ""));
 	    server = select(couple, 0);
 	    pth = select(couple, 1);
-	    mount = lookup(fstab_ent, "file");
-	    options = lookup(fstab_ent, "mntops");
+	    mount = lookup(fstab_ent, "file", "");
+	    options = lookup(fstab_ent, "mntops", "");
 	}
 
 	UI::OpenDialog(`opt(`decorated),
@@ -216,13 +216,13 @@ in a terminal.</P>
 ");
 
 
-	list fstab = lookup(nfs_config, "fstab");
+	list fstab = lookup(nfs_config, "fstab", []);
 	list nfs_fstab = filter(`entry, fstab, ``{
-	    return (lookup(entry, "vfstype") == "nfs");
+	    return (lookup(entry, "vfstype", "") == "nfs");
 	});
 
 	fstab = filter(`entry, fstab, ``{
-	    return (lookup(entry, "vfstype") != "nfs");
+	    return (lookup(entry, "vfstype", "") != "nfs");
 	});
 
 	term contents =

@@ -32,9 +32,10 @@
     global define FstabTableItems(list fstab) ``{
 	integer count = 0;
 	return maplist(`entry, fstab, ``{
-	    term sp = SpecToServPath(lookup(entry, "spec"));
+	    term sp = SpecToServPath(lookup(entry, "spec", ""));
 	    term it = `item(`id(count), select(sp, 0)+" ", select(sp, 1)+" ",
-			    lookup(entry, "file")+" ", lookup(entry, "mntops")+" ");
+			    lookup(entry, "file", "")+" ",
+			    lookup(entry, "mntops", "")+" ");
 
 	    count = count+1;
 	    return it;
@@ -117,7 +118,7 @@ and it must not contain spaces.")));
      */
     global define IsMpInFstab(list fstab, string mpoint) ``{
 	list tmp = filter(`fse, fstab, ``{
-	    return (lookup(fse, "file") == mpoint);
+	    return (lookup(fse, "file", "") == mpoint);
 	});
 
 	if (size(tmp) == 0)
