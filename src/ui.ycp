@@ -26,22 +26,6 @@
     include "ui/file_popups.ycp";
     include "ui/common_popups.ycp";
 
-    /* Changes values on the TextEntries */
-    global define FillEntries(map entry) ``{
-        string val = lookup(entry, "spec");
-        if (val != nil) {
-            term sp = SpecToServPath(val);
-            UI(`ChangeWidget(`id(`serverent), `Value, select(sp, 0)));
-            UI(`ChangeWidget(`id(`pathent), `Value, select(sp, 1)));
-        }
-        val = lookup(entry, "file");
-        if (val != nil)
-            UI(`ChangeWidget(`id(`mountent), `Value, val));
-        val = lookup(entry, "mntops");
-        if (val != nil)
-            UI(`ChangeWidget(`id(`optionsent), `Value, val));
-    };
-        
 
     /**
      * Give me one name from the list of hosts 
