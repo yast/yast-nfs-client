@@ -83,6 +83,7 @@ just 0..9, A..Z, a..z, dots, - and _.")));
      * Check if a mountpoint is in the fstab. If yes, display a message.
      * @param fstab	in .etc.fstab format (must contain the key "file")
      * @param mpoint	mount point
+     * @return		is it there?
      */
     global define boolean IsMpInFstab(list(map) fstab, string mpoint) ``{
 	list tmp = filter(`fse, fstab, ``{

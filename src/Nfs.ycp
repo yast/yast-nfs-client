@@ -87,6 +87,7 @@
 
     /**
      * Reads NFS settings from the SCR (.etc.fstab)
+     * @return true on success
      */
     global define boolean Read () ``{
 	list(map) fstab = SCR::Read (.etc.fstab);
