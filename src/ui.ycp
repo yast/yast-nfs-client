@@ -103,35 +103,47 @@
 	    options = lookup(fstab_ent, "mntops", "");
 	}
 
-	UI::OpenDialog(`opt(`decorated),
-		       `HBox(`HSpacing(1),
-			     `VBox(`VSpacing(0.2),
-				   `VSquash(`HBox(
-				       `TextEntry(`id(`serverent),
-						  // text entry label
-						  _("Host name of the &NFS server:"), server),
-				       `VBox(`VSpacing(),
-					     // pushbutton label
-					     `Bottom(`PushButton(`id(`choose), _("Choo&se")))))),
+	UI::OpenDialog(
+	    `opt(`decorated),
+	    `HBox(
+		`HSpacing(1),
+		`VBox(
+		    `VSpacing(0.2),
+		    `VSquash(
+			`HBox(
+			    `TextEntry(
+				`id(`serverent),
+				// text entry label
+				_("Host name of the &NFS server:"), server),
+			    `VBox(
+				`VSpacing(),
+				// pushbutton label
+				`Bottom(`PushButton(`id(`choose),
+						    _("Choo&se")))))),
+		    `HBox(
+			`TextEntry(`id(`pathent),
 				   // textentry label
-				   `HBox(`TextEntry(`id(`pathent), _("&Remote filesystem:"), pth),
-					 `HSpacing(0.5),
-					 `HBox (
-					 // textentry label
-					 `TextEntry(`id(`mountent), _("&Mountpoint (local):"), mount),
-					 `VBox (`VSpacing (),
-						`PushButton(`id(`browse), _("&Browse")))
-					     )),
-				   // textentry label
-				   `TextEntry(`id(`optionsent), _("O&ptions:"), options),
-				   `VSpacing(0.2),
-				   // ok pushbutton: confirm the dialog
-				   `HBox(`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
-					 `PushButton(`id(`cancel), CancelButtonLabel()),
-					 `PushButton(`id(`help), HelpButtonLabel())),
-				   `VSpacing(0.2)),
-			     `HSpacing(1)
-			   ));
+				   _("&Remote filesystem:"), pth),
+			`HSpacing(0.5),
+			`HBox (
+			    `TextEntry(`id(`mountent),
+				       // textentry label
+				       _("&Mountpoint (local):"), mount),
+			    `VBox (
+				`VSpacing (),
+				// button label
+				`PushButton(`id(`browse), _("&Browse")))
+			    )),
+		    // textentry label
+		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
+		    `VSpacing(0.2),
+		    `HBox(
+			`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
+			`PushButton(`id(`cancel), CancelButtonLabel()),
+			`PushButton(`id(`help), HelpButtonLabel())),
+		    `VSpacing(0.2)),
+		`HSpacing(1)
+		));
 	UI::SetFocus (`id (`serverent));
 
 	any ret = nil;
@@ -219,7 +231,7 @@ the <i>Browse</i> button you can select your mount point
 interactively)</p>");
 		// help text 3/3
 		helptext = helptext + _("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>");
-
+		// popup heading
 		UI::LongTextPopup (_("Help"), `RichText (helptext), 50, 15);
 	    }
 	}
@@ -262,9 +274,15 @@ in a terminal.</P>
 	term contents =
 	    `VBox(
 		`Table(`id(`fstable), `opt(`notify, `immediate),
-		       // table headers: "Server", "Remote filesystem", "Mountpoint", "Options"
-		       `header(_("Server")+"  ", _("Remote filesystem")+"  ",
-			       _("Mountpoint")+"  ", _("Options")+"  "),
+		       `header(
+			   // table header
+			   _("Server")+"  ",
+			   // table header
+			   _("Remote filesystem")+"  ",
+			   // table header
+			   _("Mountpoint")+"  ",
+			   // table header
+			   _("Options")+"  "),
 		       FstabTableItems(nfs_entries)),
 		// button label
 		`HBox(`PushButton(`id(`newbut), _("A&dd")),
@@ -276,6 +294,7 @@ in a terminal.</P>
 		`VSpacing(0.2)
 		);
 
+	// dialog heading
 	Wizard::SetContents(_("Configuration of the NFS client"),
 			      contents, help_text, true, true);
 	UI::ChangeWidget (`id(`next), `Label, FinishButtonLabel());
@@ -359,6 +378,7 @@ in a terminal.</P>
     global define symbol SaveDialog () ``{
 	SetScreenShotName ("nfs-client-2-save");
 
+	// yes-no popup
 	string message = _("The entered values will be written now.
 Do you really want to use the new settings?");
 	symbol ret = `back;

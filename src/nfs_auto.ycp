@@ -65,13 +65,16 @@
 		  `RichText( `id(`summary), Nfs::Summary()),
 		  `VSpacing(),
 		  `HBox(
+		      // button label
 			`PushButton(`id(`configure), _("&Configure NFS Client")),
 			`HStretch(),
+		      // button label
 			`PushButton(`id(`reset), _("&Reset Configuration"))
 			),
 		  `VSpacing()
 		  );
 
+	// dialog heading
 	Wizard::SetContents(_("NFS Client Configuration"),
 			    contents, "", true, true);
     }

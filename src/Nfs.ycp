@@ -289,6 +289,7 @@ the NFS client configuration.\n"));
     global define string Summary () ``{
 	string summary = "";
 	string nc = Summary::NotConfigured ();
+	// summary header
 	summary = Summary::AddHeader(summary, _("NFS entries"));
 	integer entries = size(nfs_entries);
 	y2milestone("Entries: %1", nfs_entries);

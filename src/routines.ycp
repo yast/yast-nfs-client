@@ -165,6 +165,7 @@ and it must begin with a slash (/).")));
 	    if (!contains (with_value, v0)) return sformat (_("Wrong option: %1"), v0);
 	    // To translators: error popup
 	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), opt);
+	    // To translators: error popup
 	    if (v1 == "") return sformat (_("Empty value for option: %1"), v0);
 	    i = i + 1;
 	}
