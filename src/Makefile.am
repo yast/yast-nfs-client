@@ -22,4 +22,14 @@ config_DATA = nfs.y2cc
 
 desktop_DATA = nfs.desktop
 
+symlinks:
+	test -L nfs || ln -sf . nfs
+
+ycpchook = symlinks
+
+YCPCFLAGS=-I.
+
+
+include $(top_srcdir)/Makefile.am.common
+
 EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(config_DATA) $(desktop_DATA)
