@@ -16,19 +16,19 @@
 
     list nfs_fstab = [
 	$[
-	    "file":"/home", 
-	    "freq":0, 
-	    "mntops":"defaults", 
-	    "passno":0, 
-	    "spec":"foo.bar.com:/home", 
+	    "file":"/home",
+	    "freq":0,
+	    "mntops":"defaults",
+	    "passno":0,
+	    "spec":"foo.bar.com:/home",
 	    "vfstype":"nfs"
-	 ], 
+	 ],
 	$[
-	    "file":"/var/spool/mail", 
-	    "freq":0, 
-	    "mntops":"defaults", 
-	    "passno":0, 
-	    "spec":"foo.bar.com:/var/spool/mail", 
+	    "file":"/var/spool/mail",
+	    "freq":0,
+	    "mntops":"defaults",
+	    "passno":0,
+	    "spec":"foo.bar.com:/var/spool/mail",
 	    "vfstype":"nfs"
 	 ]
 	];
