@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jan 20 10:20:15 CET 2003 - mvidner@suse.de
+
+- Using the new *_auto dispatcher (nashif).
+- Added function key shortcuts in ncurses.
+- 2.7.0
+
+-------------------------------------------------------------------
 Mon Aug 26 15:46:55 CEST 2002 - mvidner@suse.cz
 
 - Make "yast2 nfs-client" invoke "yast2 nfs" (#17570).
