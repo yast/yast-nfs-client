@@ -27,7 +27,7 @@
      * Creates a list of ui table items for nfs fstab entries
      * @param fstab	list of nfs fstab entries
      * @return		itemized table entries
-     * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab));
+     * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
      */
     global define list(term) FstabTableItems(list(map) fstab) ``{
 	integer count = 0;

@@ -14,7 +14,7 @@
     include "testsuite.ycp";
     include "nfs/routines.ycp";
 
-    list nfs_fstab = [
+    list nfs_entries = [
 	$[
 	    "file":"/home",
 	    "freq":0,
@@ -34,7 +34,7 @@
 	];
 
     DUMP ("FstabTableItems");
-    TEST (``(FstabTableItems (nfs_fstab)), [], nil);
+    TEST (``(FstabTableItems (nfs_entries)), [], nil);
 
     DUMP ("SpecToServPath");
     TEST (``(SpecToServPath ("big.foo.com:/share/data")), [], nil);
