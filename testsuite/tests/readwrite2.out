@@ -69,6 +69,14 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
+Read	.init.scripts.exists "portmap" true
+Read	.init.scripts.exists "portmap" true
+Read	.init.scripts.runlevel "portmap" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.comment "portmap" $["nfs":$[], "portmap":$[]]
+Read	.init.scripts.exists "nfs" true
+Read	.init.scripts.exists "nfs" true
+Read	.init.scripts.runlevel "nfs" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
 Return	true
 Dump	
@@ -82,5 +90,15 @@ Dump
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
+Read	.init.scripts.exists "portmap" true
+Read	.init.scripts.exists "portmap" true
+Read	.init.scripts.runlevel "portmap" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
+Read	.init.scripts.comment "portmap" $["nfs":$[], "portmap":$[]]
+Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/portmap" $["exit":0, "stderr":"", "stdout":""]
+Read	.init.scripts.exists "nfs" true
+Read	.init.scripts.exists "nfs" true
+Read	.init.scripts.runlevel "nfs" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
+Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
+Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfs" $["exit":0, "stderr":"", "stdout":""]
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
 Return	true
