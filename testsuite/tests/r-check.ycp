@@ -14,6 +14,10 @@
     include "testsuite.ycp";
     include "nfs/routines.ycp";
 
+    string OK_Name     = "foo.bar.com.tw";
+    string TooLongName = "123456789012345678901234567890123456789012345678901234567890";
+    string IllegalName = "Something:wrong";
+
     DUMP ("check_options");
     TEST (``(check_options ("")), [], nil);
     TEST (``(check_options ("defaults")), [], nil);
@@ -25,4 +29,17 @@
     TEST (``(check_options ("nolock,unknownassignment=true")), [], nil);
     TEST (``(check_options ("nolock,rsize=")), [], nil);
     TEST (``(check_options ("nolock,two=equal=signs")), [], nil);
+
+    DUMP ("CheckHostName");
+    TEST (``(CheckHostName (OK_Name)), [], nil);
+    TEST (``(CheckHostName (TooLongName)), [], nil);
+    TEST (``(CheckHostName (IllegalName)), [], nil);
+    // Too long & illegal char
+    TEST (``(CheckHostName (IllegalName + ":")), [], nil);
+
+    DUMP ("StripExtraSlash");
+    // "no strip needed"
+    TEST (``(StripExtraSlash ("/usr/bin")), [], nil);
+    // Slash is present
+    TEST (``(StripExtraSlash ("/usr/bin/")), [], nil);
 }

@@ -9,3 +9,11 @@ Return	Wrong option: unknownoption
 Return	Wrong option: unknownassignment
 Return	Empty value for option: rsize
 Return	Wrong option: two
+Dump	CheckHostName
+Return	true
+Return	false
+Return	false
+Return	false
+Dump	StripExtraSlash
+Return	/usr/bin
+Return	/usr/bin

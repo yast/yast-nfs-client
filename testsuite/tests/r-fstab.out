@@ -1,2 +1,12 @@
 Dump	FstabTableItems
-Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "defaults ")]
+Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "defaults "), `item (`id (2), "foo.bar.com.tw ", "/local/install ", "/install ", "hard,intr ")]
+Dump	IsMpInFstab
+Return	true
+Return	true
+Return	false
+Dump	CheckPath
+Return	false
+Return	false
+Return	false
+Return	false
+Return	true
