@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Mar 15 09:39:59 CET 2004 - mvidner@suse.cz
+
+- fixed canceling Abort (#35991)
+- tell the user if showmount is missing
+- re-enabled testsuite
+- 2.9.9
+
+-------------------------------------------------------------------
 Wed Mar 10 08:56:43 CET 2004 - kkaempf@suse.de
 
 - disable testsuite
