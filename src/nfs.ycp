@@ -11,6 +11,7 @@
  * Authors:
  *   Jan Holesovsky <kendy@suse.cz>
  *   Dan Vesely <dan@suse.cz>
+ *   Martin Vidner <mvidner@suse.cz>
  *
  * $Id$
  *
@@ -26,6 +27,7 @@
 
     textdomain "nfs";
 
+    include "require.ycp";
     include "ui/common_popups.ycp";
     include "ui/wizard_dialog.ycp";
     include "wizard/sequencer.ycp";
@@ -52,6 +54,13 @@
         "start_client" : true,
         "fstab"        : SCR(`Read(.etc.fstab))
         ];
+
+    if (!RequireAndConflict (["portmap"], [], 
+_("<p>To access the Network Filesystem, the <b>%1</b> package must be installed.</p>
+<p>Do you wish to install it now?</p>")))
+    {
+	return;
+    }
 
     UI (`CreateWizardDialog ());
     //UI (`ReplaceWizardAbortButton(`Empty (`id (`abort))));
