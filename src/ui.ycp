@@ -145,23 +145,34 @@
 		mount = StripExtraSlash (UI::QueryWidget(`id(`mountent), `Value));
 		options = deletechars (UI::QueryWidget(`id(`optionsent), `Value), " ");
 
+		ret = nil;
 		string options_error = check_options (options);
-		if (size (options_error) > 0)
+		if (!CheckHostName (server))
+		{
+		    UI::SetFocus (`id (`serverent));
+		}
+		else if (! CheckPath (pth))
+		{
+		    UI::SetFocus (`id (`pathent));
+		}
+		else if (! CheckPath (mount) || IsMpInFstab (existing, mount))
+		{
+		    UI::SetFocus (`id (`mountent));
+		}
+		else if (size (options_error) > 0)
 		{
 		    UI::ErrorPopup(options_error);
-		    continue;
+		    UI::SetFocus (`id (`optionsent));
 		}
-
-		if (CheckHostName(server) && CheckPath(pth) &&
-		    CheckPath(mount) &&
-		    !IsMpInFstab(existing, mount)) {
+		else
+		{
 		    fstab_ent = $[
 			"spec"    : server+":"+pth,
 			"file"    : mount,
 			"mntops"  : options,
 			];
-		} else
-		    ret = nil;
+		    ret = `ok;
+		}
 	    }
 	    if (ret == `help) {
 		//help text 1/3
