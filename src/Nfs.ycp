@@ -117,8 +117,13 @@
 			    ));
     }
 
+    /**
+     * Escape spaces " " -> "\\040".
+     * @param a string or nil
+     * @return escaped string or nil
+     */
     define string EscapeSpaces1 (string s) ``{
-	return mergestring (splitstring (s, " "), "\\040");
+	return s == nil ? nil : mergestring (splitstring (s, " "), "\\040");
     }
 
     /**
@@ -129,13 +134,22 @@
     define list(map) UnescapeSpaces (list(map) entries) ``{
 	return maplist (map entry, entries, ``(
 			    mapmap (string key, string value, entry, ``(
-					// escaped space, \040, is /\\040/
-					// which is "\\\\040"
 					[ key,
 					  is (value, string)?
-					  gsub ("\\\\040", " ", value): value ]
+					  UnescapeSpaces1 (value): value ]
 					))
 			    ));
+    }
+
+    /**
+     * Un-escape spaces "\\040" -> " "
+     * @param a string or nil
+     * @return escaped string or nil
+     */
+    define string UnescapeSpaces1 (string s) ``{
+	// escaped space, \040, is /\\040/
+	// which is "\\\\040"
+	return s == nil ? nil : gsub ("\\\\040", " ", s);
     }
 
     /**

@@ -75,8 +75,22 @@
 		    "spec":"foo.bar.com:/var/spool/mail",
 		    "vfstype":"nfs",
 		],
+		$[
+		    "file":"/a\\040space",
+		    "freq":1,
+		    "mntops":"defaults",
+		    "passno":3,
+		    "spec":"/dev/hda7",
+		    "vfstype":"reiserfs"
 		],
-	    "sysconfig": $[
+		$[
+		    "file":"/b\\040space",
+		    "freq":0,
+		    "mntops":"defaults",
+		    "passno":0,
+		    "spec":"foo.bar.com:/space\\040dir",
+		    "vfstype":"nfs",
+		],
 		],
 	    ],
 	];
