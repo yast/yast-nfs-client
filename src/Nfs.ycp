@@ -98,18 +98,85 @@
 	return  entries;
     }
 
+    /* ------------------------------------------------------------ */
+    // Space escaping.
+    // This should be done by the agent, but any-agent sucks.
+
+    /**
+     * Escape spaces " " -> "\\040" in all values of all entries
+     * @param entries a list of maps, such as nfs_entries
+     * @return escaped entries
+     */
+    define list(map) EscapeSpaces (list(map) entries) ``{
+	return maplist (map entry, entries, ``(
+			    mapmap (string key, string value, entry, ``(
+					[ key,
+					  is (value, string)?
+					  EscapeSpaces1 (value): value ]
+					))
+			    ));
+    }
+
+    define string EscapeSpaces1 (string s) ``{
+	return mergestring (splitstring (s, " "), "\\040");
+    }
+
+    /**
+     * Un-escape spaces "\\040" -> " " in all values of all entries
+     * @param entries a list of maps, such as nfs_entries
+     * @return escaped entries
+     */
+    define list(map) UnescapeSpaces (list(map) entries) ``{
+	return maplist (map entry, entries, ``(
+			    mapmap (string key, string value, entry, ``(
+					// escaped space, \040, is /\\040/
+					// which is "\\\\040"
+					[ key,
+					  is (value, string)?
+					  gsub ("\\\\040", " ", value): value ]
+					))
+			    ));
+    }
+
+    /**
+     * (like awk gsub, but return the result, not number of replacements)
+     * replaces from back!
+     */
+    define string gsub (string regex, string replacement, string s) ``{
+	string temp = nil;
+	while (true)
+	{
+	    // argh, regexpsub logs an error if it cannot sub
+	    if (! regexpmatch (s, ".*" + regex + ".*"))
+	    {
+		break;
+	    }
+	    temp = regexpsub (s, "(.*)"+regex+"(.*)", "\\1"+replacement+"\\2");
+	    if (temp == nil)
+	    {
+		break;
+	    }
+	    s = temp;
+	}
+	return s;
+    }
+
+    /* ------------------------------------------------------------ */
+
     /**
      * Reads NFS settings from the SCR (.etc.fstab)
      * @return true on success
      */
     global define boolean Read () ``{
 	list(map) fstab = SCR::Read (.etc.fstab);
+	fstab = UnescapeSpaces (fstab);
+
 	// For simplicity, this leaves also the unused fileds in the maps.
-	nfs_entries = filter (`entry, fstab, ``{
-	    return (lookup (entry, "vfstype", "") == "nfs");
+	nfs_entries = filter (map entry, fstab, ``{
+	    return (entry["vfstype"]:"" == "nfs");
 	});
-	non_nfs_entries = filter (`entry, fstab, ``{
-	    return (lookup (entry, "vfstype", "") != "nfs");
+	non_nfs_entries = filter (map entry, fstab, ``{
+	    return (entry["vfstype"]:"" != "nfs");
 	});
 
 	return true;
@@ -158,25 +225,27 @@
     global define boolean WriteOnly () ``{
 	// Merge with non-nfs entries from fstab:
 	list(map) fstab = SCR::Read (.etc.fstab);
-	fstab = filter (`entry, fstab, ``{
-	    return (lookup (entry, "vfstype", "") != "nfs");
+	// unescape deferred for optimization
+	fstab = filter (map entry, fstab, ``{
+	    return (entry["vfstype"]:"" != "nfs");
 	});
-	foreach (`entry, nfs_entries, ``{
+	fstab = UnescapeSpaces (fstab);
+	foreach (map entry, nfs_entries, ``{
 	    fstab = add (fstab, union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
 
 	    // create mount points
-	    string file = lookup(entry, "file", "");
+	    string file = entry["file"]:"";
 	    if (! SCR::Execute (.target.mkdir, file))
 	    {
 		// error popup message
-		Report::Error (sformat (_("Unable to create directory '%1'."), file));
-		return false;
+		Report::Warning (sformat (_("Unable to create directory '%1'."), file));
 	    }
 	});
 
 
 	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
 
+	fstab = EscapeSpaces (fstab);
 	if (!SCR::Write(.etc.fstab, fstab))
 	{
 	    // error popup message
