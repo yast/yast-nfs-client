@@ -29,7 +29,7 @@
     textdomain "nfs";
 
     import "Nfs";
-
+    import "Wizard";
     include "nfs/ui.ycp";
 
     list args = Args ();
