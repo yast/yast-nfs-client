@@ -29,7 +29,7 @@
 
     import "Nfs";
     import "Wizard";
-    include "require.ycp";
+    import "Require";
     import "Popup";
     include "wizard/sequencer.ycp";
     include "nfs/ui.ycp";
@@ -50,7 +50,7 @@
 	    ]
 	];
 
-    if (!RequireAndConflict (["portmap"], [],
+    if (!Require::RequireAndConflict (["portmap"], [],
 			     // notification 1/2
 			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +
 			     // notification 2/2
