@@ -1,9 +1,9 @@
 @HEADER-COMMENT@
 
-# neededforbuild  yast2-devel-packages yast2-packager
+# neededforbuild  yast2-devel-packages
 
 @HEADER@
-Requires:	yast2 yast2-packager
+Requires:	yast2
 # .net.hostnames.rpc
 Requires:	yast2-core >= 2.8.0
 

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Feb 19 13:11:54 CET 2004 - lslezak@suse.cz
+
+- removed yast2-packager from neededforbuild
+- version 2.9.4
+
+-------------------------------------------------------------------
 Fri Feb 13 15:46:34 CET 2004 - lslezak@suse.cz
 
 - NI fixes (backquote in agent, nil checking, removed globals)
