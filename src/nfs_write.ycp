@@ -33,7 +33,7 @@
 	y2error ("Exactly one argument required.");
 	return false;
     }
-    if (! is (WFM::Args (0), map))
+    if (! is (WFM::Args (0), list))
     {
 	y2error ("The argument must be a map.");
 	return false;
