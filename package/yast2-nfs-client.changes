@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Mar 28 14:28:44 CET 2003 - mvidner@suse.de
+
+- Made the host browsing list display only NFS servers
+  instead of all hosts on the LAN.
+- Added a button to select from a list of exported directories
+  of a NFS server.
+- 2.8.0
+
+-------------------------------------------------------------------
 Mon Mar  3 14:28:31 CET 2003 - mvidner@suse.de
 
 - Import accepts empty list and can reset settings (nashif).
