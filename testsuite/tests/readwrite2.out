@@ -40,6 +40,8 @@ Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs start" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs status" $["TERM":"raw"] 0
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs is in use & stopped
@@ -85,6 +87,8 @@ Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs start" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs status" $["TERM":"raw"] 0
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & running
@@ -103,6 +107,8 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & services are stopped
@@ -121,4 +127,6 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
+Read	.init.scripts.exists "SuSEfirewall2_init" true
+Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true

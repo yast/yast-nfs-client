@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jan 31 13:50:04 CET 2005 - mvidner@suse.cz
+
+- Adjusted testsuite for changes in firewall (build fix).
+- 2.11.4
+
+-------------------------------------------------------------------
 Fri Jan 14 10:00:18 CET 2005 - jsuchome@suse.cz
 
 - added command line interface functionality
