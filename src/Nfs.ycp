@@ -6,23 +6,21 @@
  *   Configuration of nfs
  *
  * Summary:
- *   Writing only client
+ *   NFS client configuration data, I/O functions.
  *
  * Authors:
  *   Jan Holesovsky <kendy@suse.cz>
  *   Dan Vesely <dan@suse.cz>
+ *   Martin Vidner <mvidner@suse.cz>
  *
  * $Id$
- *
- * This is a write-only client. It takes its arguments and just
- * write the settings.
  */
 
 {
     module "Nfs";
 
     textdomain "nfs";
-    
+
     import "Runlevel";
 
     /**
@@ -49,7 +47,7 @@
 	    //Leave empty.
 	    return true;
 	}
-	
+
 	boolean missing = false;
 	foreach (`k, ["nfs_entries"], ``{
 	    if (! haskey (settings, k))
@@ -65,6 +63,16 @@
 
 	nfs_entries = lookup (settings, "nfs_entries", []);
 	return true;
+    }
+
+    /**
+     * Dump the NFS settings to a map, for autoinstallation use.
+     * @return a map containing a single map.
+     */
+    global define map Export () ``{
+	return $[
+	    "nfs_entries": nfs_entries,
+	    ];
     }
 
     /**
