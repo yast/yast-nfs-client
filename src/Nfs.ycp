@@ -433,10 +433,10 @@ the NFS client configuration.\n"));
 	list<map> mounts = (list<map>) SCR::Read(.proc.mounts);
 	boolean found = false;
 
-	foreach(map m, mounts,
+	foreach(map<string, any> m, mounts,
 	    ``{
-		string type = m["vfstype"]:nil;
-		string file = m["file"]:nil;
+		string type = (string) (m["vfstype"]:nil);
+		string file = (string) (m["file"]:nil);
 
 		if (type == "nfs" && file == mpoint)
 		{
