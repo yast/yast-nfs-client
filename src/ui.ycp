@@ -72,8 +72,8 @@
 
 	if (fstab_ent != nil) {
 	    term couple = SpecToServPath(lookup(fstab_ent, "spec", ""));
-	    server = select(couple, 0);
-	    pth = select(couple, 1);
+	    server = select(couple, 0, "");
+	    pth = select(couple, 1, "");
 	    mount = lookup(fstab_ent, "file", "");
 	    options = lookup(fstab_ent, "mntops", "");
 	}
@@ -264,7 +264,7 @@ in a terminal.</P>
 	   else if (ret == `editbut)
 	   {
 		   integer count = 0;
-		   map entry = GetFstabEntry (select (nfs_entries, entryno), // Default values
+		   map entry = GetFstabEntry (select (nfs_entries, entryno, $[]), // Default values
 					      union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
 		   if (entry != nil)
 		   {
