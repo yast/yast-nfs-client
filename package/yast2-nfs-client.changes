@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar  3 14:28:31 CET 2003 - mvidner@suse.de
+
+- Import accepts empty list and can reset settings (nashif).
+- 2.7.3
+
+-------------------------------------------------------------------
 Wed Feb 12 10:42:29 CET 2003 - mvidner@suse.de
 
 - Changed _auto::Result to Export (nashif).
