@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr  2 15:08:31 CEST 2004 - mvidner@suse.cz
+
+- changed license to GPL
+- 2.9.11
+
+-------------------------------------------------------------------
 Wed Mar 31 17:43:15 CEST 2004 - mvidner@suse.cz
 
 - use nfsboot (sm_notify) instead of nfslock (rpc.statd) (#36737)
