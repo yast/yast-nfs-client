@@ -23,6 +23,7 @@
 
     import "Report";
     import "Runlevel";
+    import "Summary";
 
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
@@ -41,42 +42,52 @@
      * @param settings	a map with a single key: nfs_entries
      * @return	success
      */
-    global define boolean Import (map settings) ``{
-	if (size (settings) == 0)
+    global define boolean Import (list settings) ``{
+	if (size(settings) == 0)
 	{
-	    //Provide defaults for autoinstallation editing:
-	    //Leave empty.
 	    return true;
 	}
 
 	boolean missing = false;
-	foreach (`k, ["nfs_entries"], ``{
-	    if (! haskey (settings, k))
-	    {
-		y2error ("Missing at Import: '%1'.", k);
-		missing = true;
-	    }
+	foreach(`s,settings,``{
+	    foreach (`k, ["server_path", "mount_point", "nfs_options"], ``{
+		if (! haskey (s, k))
+		{
+		    y2error ("Missing at Import: '%1'.", k);
+		    missing = true;
+		}
+	    });
 	});
 	if (missing)
 	{
 	    return false;
 	}
 
-	nfs_entries = maplist(map entry, lookup (settings, "nfs_entries", []), ``{
-		return($[
-			"spec":entry["server_path"]:"",
-			"file":entry["mount_point"]:"",
-			"mntops":entry["nfs_options"]:""
-			]);
-	});
+	Set(settings);
 	return true;
     }
 
     /**
-     * Dump the NFS settings to a map, for autoinstallation use.
-     * @return a map containing a single map.
+     * Set module data
+     * @param list module settings
+     * @return void
      */
-    global define map Export () ``{
+    global define void Set(list settings) ``{
+	nfs_entries = maplist(map entry, settings, ``{
+	    return($[
+		     "spec":entry["server_path"]:"",
+		     "file":entry["mount_point"]:"",
+		     "mntops":entry["nfs_options"]:""
+		   ]);
+	});
+	return;
+    }
+
+    /**
+     * Dump the NFS settings to a map, for autoinstallation use.
+     * @return a list of nfs entries.
+     */
+    global define list Export () ``{
 	list entries = maplist(map entry, nfs_entries, ``{
 		return($[
 			"server_path":entry["spec"]:"",
@@ -84,9 +95,7 @@
 			"nfs_options":entry["mntops"]:""
 			]);
 	});
-	return $[
-	    "nfs_entries": entries,
-	    ];
+	return  entries;
     }
 
     /**
@@ -190,4 +199,18 @@ the NFS client configuration.\n"));
 	return true;
     }
 
+    /**
+     * Summary()
+     * @return Html formatted configuration summary
+     */
+    global define string Summary () ``{
+	string summary = "";
+	string nc = Summary::NotConfigured ();
+	summary = Summary::AddHeader(summary, _("NFS entries"));
+	integer entries = size(nfs_entries);
+	y2milestone("Entries: %1", nfs_entries);
+	string configured = sformat("%1 entries configured.", entries);
+	summary = Summary::AddLine(summary, (entries>0) ? configured :  nc);
+	return summary;
+    }
 }

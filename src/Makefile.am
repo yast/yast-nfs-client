@@ -4,23 +4,20 @@
 # $Id$
 #
 
-clientsdir = $(YAST2DIR)/clients
-yincludedir = $(YAST2DIR)/include/nfs
-modulesdir = $(YAST2DIR)/modules
-menudir = $(YAST2DIR)/menuentries
+myincludedir = @yincludedir@/nfs
 
-clients_DATA =		\
+client_DATA =		\
 	nfs_write.ycp   \
 	nfs_auto.ycp	\
 	nfs.ycp
 
-yinclude_DATA =		\
+myinclude_DATA =		\
 	routines.ycp	\
 	ui.ycp
 
-modules_DATA = \
+module_DATA = \
 	Nfs.ycp
 
-menu_DATA = menuentry_nfs.y2cc
+config_DATA = nfs.y2cc
 
-EXTRA_DIST = $(clients_DATA) $(yinclude_DATA) $(modules_DATA) $(menu_DATA)
+EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(config_DATA) 

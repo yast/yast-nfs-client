@@ -38,25 +38,72 @@
 	y2error ("Did not get the settings, probably some mistake...");
 	return false;
     }
-    if ( !is ( Args (0), map ) )
+    if ( !is ( Args (0), list ) )
     {
 	y2error ("Bad argument for nfs_auto: %1", Args (0));
 	return false;
     }
+    list settings = [];
+    {
+	integer i = 0;
+	while (i < size (Args()))
+	{
+	    if (is (Args (i), list) && nil != Args (i))	settings = Args (i);
+	    i = i + 1;
+	}
+    }
 
     // The settings are in the first argument
-    map settings = select (args, 0, $[]);
-    y2milestone("Imported: (%1)", settings);
 
+    y2milestone("Imported: (%1)", settings);
     Nfs::Import ( settings );
 
-    Wizard::CreateDialog ();
-    symbol ret = FstabDialog ();
-    UI::CloseDialog ();
+    define set_contents() ``{
+	term contents =
+	    `VBox(
+		  `VSpacing(1),
+		  `RichText( `id(`summary), Nfs::Summary()),
+		  `VSpacing(),
+		  `HBox(
+			`PushButton(`id(`configure), _("&Configure NFS Client")),
+			`HStretch(),
+			`PushButton(`id(`reset), _("&Reset Configuration"))
+			)
+		  );
 
-    if (ret == `next)
-    {
-	return Nfs::Export ();
+	Wizard::SetContents(_("NFS Client Configuration"),
+			    contents, "", true, true);
     }
-    return $[];
+
+    // Create Summary and buttons for launching
+    // in auto mode
+
+    set_contents();
+    any result = nil;
+    any ret = nil;
+    repeat {
+	ret = UI::UserInput();
+	if (ret == `configure)
+	{
+	    Wizard::CreateDialog ();
+	    result = FstabDialog ();
+	    UI::CloseDialog ();
+
+	    if (result == `next || result == `finish)
+	    {
+		settings = Nfs::Export ();
+	    }
+	    Nfs::Set(settings);
+	    set_contents();
+	}
+	else if ( ret == `reset)
+	{
+	    settings= $[];
+	    Nfs::Set(settings);
+	    set_contents();
+	}
+    } until (ret == `back || ret == `next || ret ==`key);
+
+    return [ret, settings];
 }
+
