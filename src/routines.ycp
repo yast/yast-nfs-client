@@ -25,11 +25,11 @@
 
     /**
      * Creates a list of ui table items for nfs fstab entries
-     * @param fstab list of nfs fstab entries
-     * @return list itemized table entries
+     * @param fstab	list of nfs fstab entries
+     * @return		itemized table entries
      * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab));
      */
-    global define FstabTableItems(list fstab) ``{
+    global define list(term) FstabTableItems(list(map) fstab) ``{
 	integer count = 0;
 	return maplist(`entry, fstab, ``{
 	    term sp = SpecToServPath(lookup(entry, "spec", ""));
@@ -44,9 +44,9 @@
 
     /**
      * @param spec	"server:/path/specification"
-     * @return term	`couple("server", "/path/specification")
+     * @return		`couple("server", "/path/specification")
      */
-    global define SpecToServPath(string spec) ``{
+    global define term SpecToServPath(string spec) ``{
 	integer colonpos = findfirstof(spec, ":");
 	string serv = "";
 	if (colonpos != nil) {
@@ -61,9 +61,9 @@
      * Check for the validity of a hostname: nonempty, shorter than 50 chars,
      * [-A-Za-z._]. If invalid, a message is displayed.
      * @param name	a hostname
-     * @return boolean	whether valid
+     * @return		whether valid
      */
-    global define CheckHostName(string name) ``{
+    global define boolean CheckHostName(string name) ``{
 	if (size(name) > 0 &&
 	    size(name) < 50 &&
 	    name == filterchars(name,
@@ -78,45 +78,11 @@ just 0..9, A..Z, a..z, dots, - and _.")));
     };
 
     /**
-     * OBSOLETE, see check_options.
-     * Check for the validity of mount options:
-     * nonempty, fewer than 70 chars, [0-9a-z=] no blanks.
-     * If invalid, a message is displayed.
-     * @param name	comma delimited options
-     * @return boolean	whether valid
-     */
-    global define CheckOptions(string name) ``{
-
-	list keywords = ["async", "atime", "defaults", "dev", "exec", "noatime", "noauto", "nodev", "noexec",
-			"nosuid", "nouser", "remount", "ro", "rw", "suid", "sync", "user", "uid", "gid",
-			"setuid", "setgid", "mode", "protect", "usemp", "verbose", "prefix", "volume", "reserved",
-			"root", "bs", "grpquota", "noquota", "quota", "usrquota", "bsddf", "minixdf", "check", "errors",
-			"grpid", "bsdgroups", "nogrpid", "sysvgroups", "resgid", ""];
-
-
-	list names = splitstring (name, ",");
-	boolean wrong = contains (maplist (`n, names, ``(findfirstnotof (n, "0123456789abcdefghijklmnopqrstuvwxyz=") != nil)), true);
-
-	if (!wrong &&
-	    size(name) > 0 &&
-	    size(name) < 70 &&
-	    findfirstof(name, " \t") == nil)
-	    return true;
-	else
-	    // error popup message
-	    UI::MessagePopup(sformat(_("You entered a wrong options string.
-It must be shorter than 70 characters
-and it must not contain spaces.")));
-	return false;
-    };
-
-    /**
      * Check if a mountpoint is in the fstab. If yes, display a message.
-     * @param fstab	in .etc.fstab format
+     * @param fstab	in .etc.fstab format (must contain the key "file")
      * @param mpoint	mount point
-     * @return boolean
      */
-    global define IsMpInFstab(list fstab, string mpoint) ``{
+    global define boolean IsMpInFstab(list(map) fstab, string mpoint) ``{
 	list tmp = filter(`fse, fstab, ``{
 	    return (lookup(fse, "file", "") == mpoint);
 	});
@@ -136,9 +102,9 @@ with mount-point '%1'."), mpoint));
      * nonempty, fewer than 70 chars, no blanks, starts with a slash.
      * If invalid, a message is displayed.
      * @param name	path
-     * @return boolean	whether valid
+     * @return		whether valid
      */
-    global define CheckPath(string name) ``{
+    global define boolean CheckPath(string name) ``{
 	if (size(name) > 0 &&
 	    size(name) < 70 &&
 	    substring(name, 0, 1) == "/" &&
@@ -156,9 +122,9 @@ with a / and it must not contain spaces.")));
      * Checks the nfs options for /etc/fstab:
      * nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
      * @param options	options
-     * @return locale	a locale with error message, emtpy string if ok
+     * @return		a translated string with error message, emtpy string if ok
      */
-    global define check_options (string options) ``{
+    global define string check_options (string options) ``{
 
 	// To translators: error popup
 	if (size (options) == 0)   return _("Empty options string not allowed!");
@@ -203,9 +169,9 @@ with a / and it must not contain spaces.")));
     /**
      * Strips a superfluous slash off the end of a pathname.
      * @param	p	pathname
-     * @return	string	stripped pathname
+     * @return		stripped pathname
      */
-    global define StripExtraSlash (string p) ``{
+    global define string StripExtraSlash (string p) ``{
 	if (regexpmatch (p, "^.+/$"))
 	{
 	    return regexpsub (p, "^(.+)/$", "\\1");
