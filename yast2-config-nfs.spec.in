@@ -45,5 +45,4 @@ make check
 @YAST2DIR@/include/nfs/*
 @YAST2DIR@/clients/nfs.ycp
 @YAST2DIR@/menuentries/menuentry_nfs.ycp
-%dir @DOCDIR@
-@DOCDIR@/*
+%doc @DOCDIR@
