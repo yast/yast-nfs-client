@@ -24,6 +24,7 @@
     import "Report";
     import "Service";
     import "Summary";
+    import "SuSEFirewall";
     import "Progress";
     import "Wizard";
 
@@ -203,6 +204,8 @@
 	    return (entry["vfstype"]:"" != "nfs");
 	});
 
+	SuSEFirewall::Read ();
+
 	return true;
     }
 
@@ -261,6 +264,8 @@ the NFS client configuration.\n"));
 	    Service::Enable("nfsboot");
 	}
 
+	SuSEFirewall::WriteOnly ();
+
 	return true;
     }
 
@@ -311,6 +316,9 @@ the NFS client configuration.\n"));
 		    return false;
 		}
 	    }
+
+	    SuSEFirewall::ActivateConfiguration ();
+
 	    Progress::NextStage ();
 	    return true;
 	}

@@ -11,6 +11,7 @@
  * Authors:
  *   Jan Holesovsky <kendy@suse.cz>
  *   Dan Vesely <dan@suse.cz>
+ *   Martin Vidner <mvidner@suse.cz>
  *
  * $Id$
  *
@@ -21,11 +22,12 @@
 {
     textdomain "nfs";
 
+    import "CWMFirewallInterfaces";
+    import "Label";
     import "Nfs";
+    import "Popup";
     import "Wizard";
     include "nfs/routines.ycp";
-    import "Label";
-    import "Popup";
 
     /**
      * Read settings dialog
@@ -342,6 +344,15 @@ interactively.</p>");
     define symbol FstabDialog () ``{
 	Wizard::SetScreenShotName ("nfs-client-1-fstab");
 
+	boolean changed = false;
+
+	// firewall widget using CWM
+	map<string, any> fw_settings = $[
+	    "services": [ "nfs" ],
+	    "display_details": true,
+	    ];
+	map<string,any> fw_cwm_widget = CWMFirewallInterfaces::CreateOpenFirewallWidget (fw_settings);
+
 	// Help, part 1 of 3
 	string help_text = _("<P>The table contains all the NFS entries which will be written to /etc/fstab.
 For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
@@ -356,6 +367,9 @@ use <B>Back</B>.</P>\n");
 	help_text = help_text + _("<P>For further information about fstab please type <B>man fstab</B>
 in a terminal.</P>
 ");
+
+	help_text = help_text + fw_cwm_widget["help"]:"";
+
 
 	list<map<string,any> > nfs_entries = Nfs::nfs_entries;
 
@@ -378,6 +392,8 @@ in a terminal.</P>
 		      `PushButton(`id(`editbut), `opt (`key_F4), _("&Edit")),
 		      // button label
 		      `PushButton(`id(`delbut), `opt (`key_F5), _("De&lete"))),
+		`VSpacing (1),
+		fw_cwm_widget["custom_widget"]:`Empty (),
 		// frame label
 		`VSpacing(0.2)
 		);
@@ -388,9 +404,13 @@ in a terminal.</P>
 				   Label::BackButton (),
 				   Label::FinishButton ());
 
+	// initialize the widget (set the current value)
+	CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
+
 	UI::ChangeWidget (`id(`editbut), `Enabled, false);
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
 
+	map event = nil;
 	any ret = nil;
 
 	do
@@ -405,12 +425,18 @@ in a terminal.</P>
 	   // so it is OK to always set focus to the table
 	   UI::SetFocus (`id (`fstable));
 
-	   ret = UI::UserInput();
+	   event = UI::WaitForEvent ();	   
+	   ret = event["ID"]:nil;
 	   if (ret == `cancel)
 	   {
 	       ret = `abort;
 	   }
 
+	   // handle the events, enable/disable the button, show the popup if button clicked
+	   CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", event);
+	   changed =
+	       true ||		// TODO: fw changed, #44106
+	       true;		// TODO: nfs changed
 	   entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 
 	   if (ret == `newbut)
@@ -447,7 +473,7 @@ in a terminal.</P>
 
 		   UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	   }
-	   else if (ret == `abort && !Popup::ReallyAbort (true))
+	   else if (ret == `abort && changed && !Popup::ReallyAbort (true))
 	   {
 	       ret = `again;
 	   }
@@ -456,6 +482,9 @@ in a terminal.</P>
 
 	if (ret == `next)
 	{
+	    // grab current settings, store them to SuSEFirewall::
+	    CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
+
 	    Nfs::nfs_entries = nfs_entries;
 	}
 
