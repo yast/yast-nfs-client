@@ -271,6 +271,11 @@ in a terminal.</P>
 	   UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
 
 	   ret = UI::UserInput();
+	   if (ret == `cancel)
+	   {
+	       ret = `abort;
+	   }
+
 	   entryno = UI::QueryWidget(`id(`fstable), `CurrentItem);
 
 	   if (ret == `newbut)
