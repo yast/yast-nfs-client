@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jul 17 13:46:09 CEST 2002 - mvidner@suse.cz
+
+- Allow directories with spaces (#15524).
+- 2.6.8
+
+-------------------------------------------------------------------
 Fri Jul 12 16:08:16 CEST 2002 - arvin@suse.de
 
 - use proper namespace for Args and CallFunction (#16776)
