@@ -36,8 +36,12 @@
 	string hname = nil;
 
 	UI::OpenDialog(
-	    // selection box label
-	    `VBox(`SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
+	    `VBox(`HSpacing(40),
+		  `HBox(
+		      // selection box label
+		      `SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
+		      `VSpacing(10)
+		      ),
 		  `HBox(`PushButton(`id(`ok), OKButtonLabel()),
 			`PushButton(`id(`cancel), CancelButtonLabel()))));
 	any ret = nil;
@@ -78,14 +82,15 @@
 		       `HBox(`HSpacing(1),
 			     `VBox(`VSpacing(0.2),
 				   `VSquash(`HBox(
-			       // text entry label
 				       `TextEntry(`id(`serverent),
+						  // text entry label
 						  _("&Hostname of the NFS server:"), server),
 				       `VBox(`VSpacing(),
 					     // pushbutton label
 					     `Bottom(`PushButton(`id(`choose), _("&Choose")))))),
 				   // textentry label
 				   `HBox(`TextEntry(`id(`pathent), _("&Remote filesystem:"), pth),
+					 `HSpacing(0.5),
 					 `HBox (
 					 // textentry label
 					 `TextEntry(`id(`mountent), _("&Mountpoint (local):"), mount),
