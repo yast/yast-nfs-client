@@ -77,6 +77,7 @@ just 0..9, A..Z, a..z, dots, - and _.")));
     };
 
     /**
+     * OBSOLETE, see check_options.
      * Check for the validity of mount options:
      * nonempty, fewer than 70 chars, [0-9a-z=] no blanks.
      * If invalid, a message is displayed.
@@ -164,8 +165,13 @@ with a / and it must not contain spaces.")));
 
 
 	list option_list = splitstring (options, ",");
+	// these can be negated by "no"
 	list non_value   = ["bg", "fg", "soft", "hard", "intr", "posix", "cto", "ac",
-			    "lock", "tcp", "udp", "defaults"];
+			    "lock", "tcp", "udp",
+			    // these are common for all fs types
+			    "atime", "auto", "dev", "exec", "suid", "user"];
+	// these cannot be negated
+	list non_value1 = ["defaults", "async", "sync", "ro", "rw"];
 	list with_value  = ["rsize", "wsize", "timeo", "retrans", "acregmin", "acregmax",
 			    "acdirmin", "acdirmin", "acdirmax", "actimeo", "retry", "namlen",
 			    "port", "mountport", "mountport", "mounthost", "mountprog",
@@ -177,14 +183,15 @@ with a / and it must not contain spaces.")));
 	option_list = filter (`e, option_list, ``(!contains (non_value, e)));
 	non_value   = maplist (`e, non_value, ``(sformat ("no%1", e)));
 	option_list = filter (`e, option_list, ``(!contains (non_value, e)));
+	option_list = filter (`e, option_list, ``(!contains (non_value1, e)));
 
 	while (i < size (option_list))
 	{
 	    list value = splitstring (select (option_list, i), "=");
 	    // To translators: error popup
-	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), select (option_list, i));
-	    // To translators: error popup
 	    if (!contains (with_value, select (value, 0))) return sformat (_("Wrong option: %1"), select (value, 0));
+	    // To translators: error popup
+	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), select (option_list, i));
 	    if (size (select (value, 1)) == 0) return sformat (_("Empty value for option: %1"), select (value, 0));
 	    i = i + 1;
 	}
