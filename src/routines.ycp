@@ -22,7 +22,7 @@
     textdomain "nfs";
 
     import "Popup";
-    import "Require";
+    import "Package";
 
     /**
      * @param spec	"server:/path/specification"
@@ -195,10 +195,6 @@ and it must begin with a slash (/).")));
      * @return boolean true if portmap is installed
      */
     define boolean IsPortmapInstalled() ``{
-	return Require::RequireAndConflict (["portmap"], [],
-			     // notification 1/2
-			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +
-			     // notification 2/2
-			     _("<p>Do you want to install it now?</p>"));
+	return Package::Install ("portmap");
     }
 }
