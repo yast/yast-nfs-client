@@ -40,6 +40,8 @@ Summary:	Configuration of nfs
 @moduledir@/Nfs.ycp
 %dir @configdir@
 @configdir@/nfs.y2cc
+%dir @desktopdir@
+@desktopdir@/nfs.desktop
 %dir @scrconfdir@
 @scrconfdir@/net_showexports.scr
 %dir @agentdir@
