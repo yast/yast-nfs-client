@@ -22,6 +22,7 @@
     textdomain "nfs";
 
     import "Popup";
+    import "Require";
 
     /**
      * Creates a list of ui table items for nfs fstab entries
@@ -187,5 +188,17 @@ and it must begin with a slash (/).")));
 	{
 	    return p;
 	}
+    }
+
+    /**
+     * Check whether pormap is installed, ask user to install it if it is missing
+     * @return boolean true if portmap is installed
+     */
+    global define boolean IsPortmapInstalled() ``{
+	return Require::RequireAndConflict (["portmap"], [],
+			     // notification 1/2
+			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +
+			     // notification 2/2
+			     _("<p>Do you want to install it now?</p>"));
     }
 }

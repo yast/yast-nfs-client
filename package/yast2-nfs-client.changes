@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Aug 11 10:54:51 CEST 2003 - lslezak@suse.cz
+
+- new Mount and Unmount functions
+- added yast2-packager to neededforbuild
+- merged proofread texts
+- version 2.8.3
+
+-------------------------------------------------------------------
 Mon Aug  4 17:18:07 CEST 2003 - mvidner@suse.cz
 
 - Kicked the "Really save?" and "Successfully saved" popups (#28322).

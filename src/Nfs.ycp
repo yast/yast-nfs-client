@@ -25,6 +25,8 @@
     import "Runlevel";
     import "Summary";
 
+    include "nfs/routines.ycp";
+
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
      */
@@ -34,6 +36,9 @@
      * Read only, intended for checking mount-point uniqueness.
      */
     global list(map) non_nfs_entries = [];
+
+    // list of created directories
+    list(string) created_dirs = [];
 
     /**
      * Get all NFS configuration from a map.
@@ -139,7 +144,7 @@
 
     /**
      * Un-escape spaces "\\040" -> " "
-     * @param a string or nil
+     * @param s string or nil
      * @return escaped string or nil
      */
     define string UnescapeSpaces1 (string s) ``{
@@ -293,4 +298,150 @@ the NFS client configuration.\n"));
 	summary = Summary::AddLine(summary, (entries>0) ? configured :  nc);
 	return summary;
     }
+
+
+    /**
+     * Mount NFS directory
+     * @param server remote server name
+     * @param share name of the exported directory
+     * @param mpoint mount point (can be empty or nil, in this case it will be mounted in temporary directory)
+     * @param options mount options - e.g. "ro,hard,intr", see man nfs
+     * @return string directory where volume was mounted or nil if mount failed
+     */
+
+    global define string Mount(string server, string share, string mpoint, string options) ``{
+
+	if (size(server) == 0 || size(share) == 0)
+	{
+	    return nil;
+	}
+
+	// check if options are valid
+	if (size(options) > 0)
+	{
+	    if (check_options(options) != "")
+	    {
+		y2warning("invalid mount options: %1", options);
+		return nil;
+	    }
+	}
+
+	// mount to temporary directory if mpoint is nil
+	if (mpoint == nil)
+	{
+	    string tmpdir = SCR::Read(.target.tmpdir);
+
+	    if (tmpdir == nil || tmpdir == "")
+	    {
+		y2security("Warning: using /tmp directory!");
+		tmpdir = "/tmp";
+	    }
+
+	    mpoint = tmpdir + "/nfs" + sformat("%1", size(created_dirs));	// use num to allow parallel mounts
+	}
+
+	// check mount point
+	if (CheckPath(mpoint) == false)
+	{
+	    // mount point is not valid
+	    y2warning("invalid mount point: %1", mpoint);
+	    return nil;
+	}
+
+	// check whether portmapper is installed
+	if (IsPortmapInstalled() == false)
+	{
+	    y2warning("portmap is not installed");
+	    return nil;
+	}
+
+	// start portmapper if it isn't running
+	if (Runlevel::ServiceStatus("portmap") != 0)
+	{
+	    if (Runlevel::RunInitScript("portmap", "start") != 0)
+	    {
+		y2warning("portmap cannot be started");
+		return nil;
+	    }
+	}
+
+	// create mount point if it doesn't exist
+	if (SCR::Read(.target.dir, mpoint) == nil)
+	{
+	    if (!SCR::Execute(.target.mkdir, mpoint))
+	    {
+		y2warning("cannot create mount point %1", mpoint);
+		return nil;
+	    }
+
+	    // remember name of created directory
+	    created_dirs = add(created_dirs, mpoint);
+	}
+
+	// build mount command
+	string command = sformat("/bin/mount %1 %2:%3 %4", (size(options) > 0) ? "-o " + options : "", server, share, mpoint);
+
+	// execute mount command
+	return (SCR::Execute(.target.bash, command) == 0) ? mpoint : nil;
+    }
+
+    /**
+     * Unmount NFS directory from the system
+     * @param mpoint NFS mount point to unmount
+     * @return boolean true on success
+     */
+    global define boolean Unmount(string mpoint) ``{
+	if (size(mpoint) == 0)
+	{
+	    return false;
+	}
+
+	// unmount directory if it's NFS mountpoint
+	list(map) mounts = SCR::Read(.proc.mounts);
+	boolean found = false;
+
+	foreach(map m, mounts,
+	    ``{
+		string type = m["vfstype"]:nil;
+		string file = m["file"]:nil;
+
+		if (type == "nfs" && file == mpoint)
+		{
+		    found = true;
+		}
+	    }
+	);
+
+	if (found)
+	{
+	    string command = sformat("/bin/umount %1", mpoint);
+
+	    if (SCR::Execute(.target.bash, command) != 0)
+	    {
+		return false;
+	    }
+	}
+	else
+	{
+	    y2warning("%1 is not NFS mount point", mpoint);
+	    return false;
+	}
+
+	// if the directory was created by Mount call and it is empty then remove it
+	if (contains(created_dirs, mpoint) && SCR::Read(.target.dir, mpoint) == [])
+	{
+	    string command = sformat("/bin/rmdir %1", mpoint);
+
+	    if (SCR::Execute(.target.bash, command) != 0)
+	    {
+		return false;
+	    }
+
+	    // remove directory from list
+	    created_dirs = filter(string d, created_dirs, ``(d != mpoint));
+	}
+
+	return true;
+    }
+
 }

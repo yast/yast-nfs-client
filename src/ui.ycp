@@ -78,7 +78,7 @@
 	// selection box label
 	// changed from "Remote hosts" because now it shows
 	// NFS servers only
-	string ret = ChooseItem (_("&NFS servers"), hosts);
+	string ret = ChooseItem (_("&NFS Servers"), hosts);
 	Wizard::RestoreScreenShotName ();
 	return ret;
     }
@@ -91,7 +91,7 @@
     global define string ChooseExport (list(string) exports) ``{
 	Wizard::SetScreenShotName ("nfs-client-1ab-exports");
 	// selection box label
-	string ret = ChooseItem (_("&Exported directories"), exports);
+	string ret = ChooseItem (_("&Exported Directories"), exports);
 	Wizard::RestoreScreenShotName ();
 	return ret;
     }
@@ -279,17 +279,18 @@
 	    {
 		//help text 1/3
 		// change: locally defined -> servers on LAN
-		string helptext = _("<p>Please enter the <b>hostname</b> of the NFS server; the
+		string helptext = _("<p>Enter the <b>host name</b> of the NFS server.  The
 <i>Choose</i> button enables you to browse through a list of
-NFS servers on the local network.</p>");
+NFS servers on the local network.</p>
+");
 		// help text 2/3
 		// added "Select" button
 		helptext = helptext + _("<p>You must also supply the directory on the remote NFS server and a
-local <b>mountpoint</b>, on which the directory will be mounted. (With
-the <i>Select</i> button you can select from the exported directories
-of the chosen server and with
-the <i>Browse</i> button you can select your mount point
-interactively)</p>");
+local <b>mount point</b> at which the directory should be mounted. With
+<i>Select</i>, select from the exported directories
+of the chosen server.  With
+<i>Browse</i>, select your mount point
+interactively.</p>");
 		// help text 3/3
 		helptext = helptext + _("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>");
 		// popup heading

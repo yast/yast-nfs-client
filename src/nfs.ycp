@@ -29,10 +29,10 @@
 
     import "Nfs";
     import "Wizard";
-    import "Require";
     import "Popup";
     include "wizard/sequencer.ycp";
     include "nfs/ui.ycp";
+    include "nfs/routines.ycp";
 
     map Aliases = $[
 	"fstab"   : ``(FstabDialog ()),
@@ -52,11 +52,7 @@
 */
 	];
 
-    if (!Require::RequireAndConflict (["portmap"], [],
-			     // notification 1/2
-			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +
-			     // notification 2/2
-			     _("<p>Do you want to install it now?</p>")))
+    if (!IsPortmapInstalled())
     {
 	return;
     }
