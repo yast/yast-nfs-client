@@ -28,12 +28,18 @@
     import "Popup";
 
     /**
+     * Caches names of nfs servers for GetFstabEntry
+     */
+
+    list<string> hosts = nil;
+
+    /**
      * Let the user choose one of a list of items
      * @param title	selectionbox title
      * @param items	a list of items
      * @return		one item or nil
      */
-    global define string ChooseItem (string title, list(string) items) ``{
+    global define string ChooseItem (string title, list<string> items) ``{
 	string item = nil;
 
 	UI::OpenDialog (
@@ -72,7 +78,7 @@
      * @param hosts	a list of hostnames
      * @return		a hostname
      */
-    global define string ChooseHostName(list(string) hosts) ``{
+    global define string ChooseHostName(list<string> hosts) ``{
 	Wizard::SetScreenShotName ("nfs-client-1aa-hosts");
 	// selection box label
 	// changed from "Remote hosts" because now it shows
@@ -87,7 +93,7 @@
      * @param hosts	a list of export
      * @return		an export
      */
-    global define string ChooseExport (list(string) exports) ``{
+    global define string ChooseExport (list<string> exports) ``{
 	Wizard::SetScreenShotName ("nfs-client-1ab-exports");
 	// selection box label
 	string ret = ChooseItem (_("&Exported Directories"), exports);
@@ -114,7 +120,7 @@
      * @param existing	list of fstab entries for duplicate mount-point checking
      * @return		a nfs_entry or nil
      */
-    global define map GetFstabEntry(map fstab_ent, list(map) existing) ``{
+    global define map GetFstabEntry(map fstab_ent, list<map> existing) ``{
 	Wizard::SetScreenShotName ("nfs-client-1a-edit");
 
 	string server = "";
@@ -192,7 +198,7 @@
 		{
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
-		    hosts = sort(SCR::Read(.net.hostnames.rpc, "nfs"));
+		    hosts = (list<string>) sort((list<string>) SCR::Read(.net.hostnames.rpc, "nfs"));
 		    UI::CloseDialog();
 		    if (hosts == nil) hosts = [];
 		}
@@ -204,14 +210,14 @@
 	    }
 	    else if (ret == `pathent_list)
 	    {
-		string server = UI::QueryWidget(`id(`serverent), `Value);
+		string server = (string) UI::QueryWidget(`id(`serverent), `Value);
 		UI::OpenDialog (
 		    `Label (
 			// Popup dialog, %1 is a host name
 			sformat (_("Getting directory list for \"%1\"..."),
 				 server)
 			));
-		list (string) dirs = SCR::Read (.net.showexports, server);
+		list<string> dirs = (list<string>) SCR::Read (.net.showexports, server);
 		if (dirs == nil)
 		{
 		    dirs = ["internal error"];
@@ -225,7 +231,7 @@
 	    }
 	    else if (ret == `browse)
 	    {
-		string dir = UI::QueryWidget(`id (`mountent), `Value);
+		string dir = (string) UI::QueryWidget(`id (`mountent), `Value);
 		if (size (dir) == 0)
 		{
 		    dir = "/";
@@ -240,10 +246,10 @@
 	    }
 	    else if (ret == `ok)
 	    {
-		server = UI::QueryWidget(`id(`serverent), `Value);
-		pth = StripExtraSlash (UI::QueryWidget(`id(`pathent), `Value));
-		mount = StripExtraSlash (UI::QueryWidget(`id(`mountent), `Value));
-		options = deletechars (UI::QueryWidget(`id(`optionsent), `Value), " ");
+		server = (string) UI::QueryWidget(`id(`serverent), `Value);
+		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
+		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
+		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
 
 		ret = nil;
 		string options_error = check_options (options);
@@ -365,12 +371,11 @@ in a terminal.</P>
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
 
 	any ret = nil;
-	list hosts = nil;
 
 	do
 	{
 
-	   integer entryno = UI::QueryWidget(`id(`fstable), `CurrentItem);
+	   integer entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 	   UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
 	   UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
 
@@ -385,11 +390,11 @@ in a terminal.</P>
 	       ret = `abort;
 	   }
 
-	   entryno = UI::QueryWidget(`id(`fstable), `CurrentItem);
+	   entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 
 	   if (ret == `newbut)
 	   {
-	       map entry = GetFstabEntry (nil, union (Nfs::non_nfs_entries, nfs_entries));
+	       map entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
 
 	       if (entry != nil)
 		   nfs_entries = add (nfs_entries, entry);
@@ -400,7 +405,7 @@ in a terminal.</P>
 	   {
 		   integer count = 0;
 		   map entry = GetFstabEntry (nfs_entries[entryno]:$[], // Default values
-					      union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
+					      (list<map>) union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
 		   if (entry != nil)
 		   {
 		       integer count = 0;
@@ -434,7 +439,7 @@ in a terminal.</P>
 	}
 
 	Wizard::RestoreScreenShotName ();
-	return ret;
+	return (symbol) ret;
     }
 
 }
