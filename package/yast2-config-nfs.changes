@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Aug 21 16:50:27 CEST 2001 - mvidner@suse.cz
+
+- Only one <p> per string. (2.4.6)
+
+-------------------------------------------------------------------
 Tue Aug  7 17:15:57 CEST 2001 - mvidner@suse.cz
 
 - Changed from RPM Requires to require.ycp.
