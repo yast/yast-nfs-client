@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Aug 26 15:46:55 CEST 2002 - mvidner@suse.cz
+
+- Make "yast2 nfs-client" invoke "yast2 nfs" (#17570).
+- 2.6.11
+
+-------------------------------------------------------------------
 Sun Aug 11 22:55:43 CEST 2002 - mvidner@suse.cz
 
 - Let the table keep the keyboard focus (#16116 workaround).
