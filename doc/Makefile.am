@@ -1,5 +1,5 @@
 #
-# Makefile.am for y2c_nfs/doc
+# Makefile.am for nfs-client/doc
 #
 # $Id$
 #
