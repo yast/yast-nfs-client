@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Mar 16 15:49:07 CET 2005 - mvidner@suse.cz
+
+- Recent releases of SUSE Linux ignore ICMP broadcasts,
+  so use RPC broadcasts for finding NFS servers (#71064).
+- 2.11.7
+
+-------------------------------------------------------------------
 Thu Feb 10 17:53:08 CET 2005 - mvidner@suse.cz
 
 - Another testsuite adjustment for firewall.
