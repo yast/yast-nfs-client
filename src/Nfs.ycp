@@ -25,6 +25,7 @@
     import "Runlevel";
     import "Summary";
     import "Progress";
+    import "Wizard";
 
     include "nfs/routines.ycp";
 
