@@ -28,7 +28,7 @@
      * @param spec	"server:/path/specification"
      * @return		`couple("server", "/path/specification")
      */
-    global define term SpecToServPath(string spec) ``{
+    define term SpecToServPath(string spec) ``{
 	integer colonpos = findfirstof(spec, ":");
 	string serv = "";
 	if (colonpos != nil) {
@@ -45,7 +45,7 @@
      * @return		itemized table entries
      * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
      */
-    global define list<term> FstabTableItems(list<map> fstab) ``{
+    define list<term> FstabTableItems(list<map> fstab) ``{
 	integer count = 0;
 	return maplist(map entry, fstab, ``{
 	    term sp = SpecToServPath(entry["spec"]:"");
@@ -66,7 +66,7 @@
      * @param name	a hostname
      * @return		whether valid
      */
-    global define boolean CheckHostName(string name) ``{
+    define boolean CheckHostName(string name) ``{
 	if (size(name) > 0 &&
 	    size(name) < 50 &&
 	    name == filterchars(name,
@@ -86,7 +86,7 @@ just 0..9, A..Z, a..z, dots, - and _.")));
      * @param mpoint	mount point
      * @return		is it there?
      */
-    global define boolean IsMpInFstab(list<map> fstab, string mpoint) ``{
+    define boolean IsMpInFstab(list<map> fstab, string mpoint) ``{
 	list tmp = filter(map fse, fstab, ``{
 	    return (fse["file"]:"" == mpoint);
 	});
@@ -107,7 +107,7 @@ with mount-point '%1'."), mpoint));
      * @param name	path
      * @return		whether valid
      */
-    global define boolean CheckPath(string name) ``{
+    define boolean CheckPath(string name) ``{
 	if (size(name) > 0 &&
 	    size(name) < 70 &&
 	    substring(name, 0, 1) == "/")
@@ -128,7 +128,7 @@ and it must begin with a slash (/).")));
      * @param options	options
      * @return		a translated string with error message, emtpy string if ok
      */
-    global define string check_options (string options) ``{
+    define string check_options (string options) ``{
 
 	// To translators: error popup
 	if (size (options) == 0)   return _("Empty options string not allowed!");
@@ -179,7 +179,7 @@ and it must begin with a slash (/).")));
      * @param	p	pathname
      * @return		stripped pathname
      */
-    global define string StripExtraSlash (string p) ``{
+    define string StripExtraSlash (string p) ``{
 	if (regexpmatch (p, "^.+/$"))
 	{
 	    return regexpsub (p, "^(.+)/$", "\\1");
@@ -194,7 +194,7 @@ and it must begin with a slash (/).")));
      * Check whether pormap is installed, ask user to install it if it is missing
      * @return boolean true if portmap is installed
      */
-    global define boolean IsPortmapInstalled() ``{
+    define boolean IsPortmapInstalled() ``{
 	return Require::RequireAndConflict (["portmap"], [],
 			     // notification 1/2
 			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +

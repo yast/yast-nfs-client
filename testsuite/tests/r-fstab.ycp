@@ -16,7 +16,7 @@
 
     string PathTooLong = "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
 
-    list nfs_entries = [
+    list<map> nfs_entries = [
 	$[
 	    "file":"/home",
 	    "freq":0,

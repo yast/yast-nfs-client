@@ -1,8 +1,4 @@
-#
-# Makefile.am for y2c_nfs/src
-#
-# $Id$
-#
+# Makefile.am for source/nfs-client/src
 
 myincludedir = @yncludedir@/nfs
 
@@ -11,25 +7,24 @@ client_DATA =		\
 	nfs-client.ycp  \
 	nfs.ycp
 
-myinclude_DATA =		\
+myinclude_DATA =	\
 	routines.ycp	\
 	ui.ycp
 
-module_DATA = \
+module_DATA =		\
 	Nfs.ycp
 
 config_DATA = nfs.y2cc
 
 desktop_DATA = nfs.desktop
 
-symlinks:
-	test -L nfs || ln -sf . nfs
+nfs:
+	ln -sf . nfs
 
-ycpchook = symlinks
+ycpchook = nfs
 
-YCPCFLAGS=-I.
-
-
-include $(top_srcdir)/Makefile.am.common
+YCPCFLAGS = -I.
 
 EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(config_DATA) $(desktop_DATA)
+
+include $(top_srcdir)/Makefile.am.common
