@@ -69,7 +69,7 @@
 
     /**
      * Set module data
-     * @param list module settings
+     * @param settings module settings
      * @return void
      */
     global define void Set(list settings) ``{
@@ -119,7 +119,7 @@
 
     /**
      * Escape spaces " " -> "\\040".
-     * @param a string or nil
+     * @param s a string or nil
      * @return escaped string or nil
      */
     define string EscapeSpaces1 (string s) ``{
