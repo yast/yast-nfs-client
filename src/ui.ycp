@@ -22,27 +22,10 @@
     textdomain "nfs";
 
     import "Nfs";
+    import "Wizard";
     include "nfs/routines.ycp";
     include "ui/file_popups.ycp";
     include "ui/common_popups.ycp";
-
-    /**
-     * Declare a name for the current dialog
-     * to ease making screenshots.
-     * @param s eg. "nfs-client-1-conntype"
-     */
-    global define void SetScreenShotName (string s) ``{
-	UI::SetModulename (s);
-    }
-
-    /**
-     * Restore the screenshot name
-     * (currently sets fixed default name)
-     */
-    global define void RestoreScreenShotName () ``{
-	UI::SetModulename ("yast2");
-    }
-
 
     /**
      * Give me one name from the list of hosts
@@ -50,7 +33,7 @@
      * @return		a hostname
      */
     global define string ChooseHostName(list(string) hosts) ``{
-	SetScreenShotName ("nfs-client-1aa-hosts");
+	Wizard::SetScreenShotName ("nfs-client-1aa-hosts");
 	string hname = nil;
 
 	UI::OpenDialog(
@@ -60,8 +43,12 @@
 		      `SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
 		      `VSpacing(10)
 		      ),
-		  `HBox(`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
-			`PushButton(`id(`cancel), CancelButtonLabel()))));
+		  `HBox(`PushButton(`id(`ok),
+				    `opt(`default, `key_F10),
+				    OKButtonLabel()),
+			`PushButton(`id(`cancel),
+				    `opt (`key_F9),
+				    CancelButtonLabel()))));
 	any ret = nil;
 	do
 	{
@@ -74,7 +61,7 @@
 	    hname = UI::QueryWidget(`id(`hosts), `CurrentItem);
 	}
 	UI::CloseDialog();
-	RestoreScreenShotName ();
+	Wizard::RestoreScreenShotName ();
 
 	return hname;
     };
@@ -87,7 +74,7 @@
      * @return		a nfs_entry or nil
      */
     global define map GetFstabEntry(map fstab_ent, list(map) existing) ``{
-	SetScreenShotName ("nfs-client-1a-edit");
+	Wizard::SetScreenShotName ("nfs-client-1a-edit");
 
 	string server = "";
 	string pth = "";
@@ -144,9 +131,9 @@
 		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
 		    `VSpacing(0.2),
 		    `HBox(
-			`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
-			`PushButton(`id(`cancel), CancelButtonLabel()),
-			`PushButton(`id(`help), HelpButtonLabel())),
+			`PushButton(`id(`ok), `opt(`default, `key_F10), OKButtonLabel()),
+			`PushButton(`id(`cancel), `opt (`key_F9), CancelButtonLabel()),
+			`PushButton(`id(`help), `opt (`key_F1), HelpButtonLabel())),
 		    `VSpacing(0.2)),
 		`HSpacing(1)
 		));
@@ -244,7 +231,7 @@ interactively)</p>");
 	while (ret != `ok && ret != `cancel);
 
 	UI::CloseDialog();
-	RestoreScreenShotName ();
+	Wizard::RestoreScreenShotName ();
 
 	if (ret == `ok)
 	    return fstab_ent;
@@ -258,7 +245,7 @@ interactively)</p>");
      * @return `back, `abort or `next
      */
     global define symbol FstabDialog () ``{
-	SetScreenShotName ("nfs-client-1-fstab");
+	Wizard::SetScreenShotName ("nfs-client-1-fstab");
 
 	// Help, part 1 of 3
 	string help_text = _("<P>The table contains all the NFS entries which will be written to /etc/fstab.
@@ -291,11 +278,11 @@ in a terminal.</P>
 			   _("Options")+"  "),
 		       FstabTableItems(nfs_entries)),
 		// button label
-		`HBox(`PushButton(`id(`newbut), _("A&dd")),
+		`HBox(`PushButton(`id(`newbut), `opt (`key_F3), _("A&dd")),
 		      // button label
-		      `PushButton(`id(`editbut), _("&Edit")),
+		      `PushButton(`id(`editbut), `opt (`key_F4), _("&Edit")),
 		      // button label
-		      `PushButton(`id(`delbut), _("De&lete"))),
+		      `PushButton(`id(`delbut), `opt (`key_F5), _("De&lete"))),
 		// frame label
 		`VSpacing(0.2)
 		);
@@ -378,7 +365,7 @@ in a terminal.</P>
 	    Nfs::nfs_entries = nfs_entries;
 	}
 
-	RestoreScreenShotName ();
+	Wizard::RestoreScreenShotName ();
 	return ret;
     }
 
@@ -388,7 +375,7 @@ in a terminal.</P>
      * @return `back or `finish
      */
     global define symbol SaveDialog () ``{
-	SetScreenShotName ("nfs-client-2-save");
+	Wizard::SetScreenShotName ("nfs-client-2-save");
 
 	// yes-no popup
 	string message = _("The entered values will be written now.
@@ -400,7 +387,7 @@ Do you really want to use the new settings?");
 	    ret = `finish;
 	}
 
-	RestoreScreenShotName ();
+	Wizard::RestoreScreenShotName ();
 	return ret;
     }
 }
