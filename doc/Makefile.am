@@ -6,7 +6,6 @@
 
 SUBDIRS = autodocs
 
-docdir = @DOCDIR@
 htmldir = $(docdir)
 
 screenshots = \

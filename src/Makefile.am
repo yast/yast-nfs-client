@@ -4,7 +4,7 @@
 # $Id$
 #
 
-myincludedir = @yincludedir@/nfs
+myincludedir = @yncludedir@/nfs
 
 client_DATA =		\
 	nfs_write.ycp   \

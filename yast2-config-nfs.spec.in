@@ -36,13 +36,13 @@ Summary:	YaST2 - Configuration of NFS, developer documentation
 
 %files
 %defattr(-,root,root)
-%dir @YAST2DIR@/include/nfs
-@yincludedir@/nfs/*
+%dir @yncludedir@/nfs
+@yncludedir@/nfs/*
 @clientdir@/nfs.ycp
-@lientdir@/nfs_auto.ycp
-@lientdir@/nfs_write.ycp
-@moduledir@s/Nfs.ycp
-@configdir@nfs.y2cc
+@clientdir@/nfs_auto.ycp
+@clientdir@/nfs_write.ycp
+@moduledir@/Nfs.ycp
+@configdir@/nfs.y2cc
 
 %files devel
 %defattr(-,root,root)
