@@ -20,7 +20,7 @@
 
 {
 
-    textdomain "lan";
+    textdomain "nfs";
     
     include "nfs/routines.ycp";
     include "ui/file_popups.ycp";

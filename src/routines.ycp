@@ -19,7 +19,7 @@
  */
 
 {
-    textdomain "lan";
+    textdomain "nfs";
 
     /**
      * Cleates a list of items for fstab entries 

@@ -24,7 +24,7 @@
 
 {
 
-    textdomain "lan";
+    textdomain "nfs";
 
     include "ui/common_popups.ycp";
     include "ui/wizard_dialog.ycp";
