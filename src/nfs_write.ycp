@@ -35,7 +35,7 @@
     }
     if (! is (WFM::Args (0), list))
     {
-	y2error ("The argument must be a map.");
+	y2error ("The argument must be a list.");
 	return false;
     }
 
