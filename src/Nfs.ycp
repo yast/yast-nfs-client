@@ -276,7 +276,7 @@ the NFS client configuration.\n"));
 	    _("Stop services"),
 	    // progress stage label
 	    _("Start services"),
-           ], [
+	   ], [
 	    // progress step label
 	    _("Stopping services..."),
 	    // progress step label
