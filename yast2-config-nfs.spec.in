@@ -8,7 +8,8 @@
 @HEADER@
 
 Summary:	Configuration of nfs
-Requires:	yast2 yast2-trans-nfs yast2-lib-sequencer
+Requires:	yast2
+Requires:	yast2-lib-sequencer
 Requires:	yast2-lib-wizard >= 2.5.8
 Requires:	yast2-config-package-manager
 Requires:       yast2-config-runlevel
