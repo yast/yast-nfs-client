@@ -68,7 +68,8 @@
 			`PushButton(`id(`configure), _("&Configure NFS Client")),
 			`HStretch(),
 			`PushButton(`id(`reset), _("&Reset Configuration"))
-			)
+			),
+		  `VSpacing()
 		  );
 
 	Wizard::SetContents(_("NFS Client Configuration"),
