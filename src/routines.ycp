@@ -33,7 +33,9 @@
 	integer count = 0;
 	return maplist(`entry, fstab, ``{
 	    term sp = SpecToServPath(lookup(entry, "spec", ""));
-	    term it = `item(`id(count), select(sp, 0)+" ", select(sp, 1)+" ",
+	    term it = `item(`id(count),
+			    select(sp, 0, "")+" ",
+			    select(sp, 1, "")+" ",
 			    lookup(entry, "file", "")+" ",
 			    lookup(entry, "mntops", "")+" ");
 
@@ -154,12 +156,15 @@ with a / and it must not contain spaces.")));
 
 	while (i < size (option_list))
 	{
-	    list value = splitstring (select (option_list, i), "=");
+	    string opt = select (option_list, i, "");
+	    list(string) value = splitstring (opt, "=");
+	    string v0 = select (value, 0, "");
+	    string v1 = select (value, 1, "");
 	    // To translators: error popup
-	    if (!contains (with_value, select (value, 0))) return sformat (_("Wrong option: %1"), select (value, 0));
+	    if (!contains (with_value, v0)) return sformat (_("Wrong option: %1"), v0);
 	    // To translators: error popup
-	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), select (option_list, i));
-	    if (size (select (value, 1)) == 0) return sformat (_("Empty value for option: %1"), select (value, 0));
+	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), opt);
+	    if (v1 == "") return sformat (_("Empty value for option: %1"), v0);
 	    i = i + 1;
 	}
 
