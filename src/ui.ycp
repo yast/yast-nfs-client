@@ -38,10 +38,8 @@
         UI(`OpenDialog(
 	    // selection box label
             `VBox(`SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
-                  // button label
-                  `HBox(`PushButton(`id(`ok), _("&OK")),
-                        // button label
-                        `PushButton(`id(`cancel), _("&Cancel"))))));
+                  `HBox(`PushButton(`id(`ok), OKButtonLabel()),
+                        `PushButton(`id(`cancel), CancelButtonLabel())))));
         any ret = nil;
         do {
             ret = UI(`UserInput());
@@ -98,9 +96,9 @@
                                    `TextEntry(`id(`optionsent), _("&Options:"), options),
                                    `VSpacing(0.2),
                                    // ok pushbutton: confirm the dialog
-                                   `HBox(`PushButton(`id(`ok), _("&OK")),
-                                         `PushButton(`id(`cancel), _("&Cancel")),
-                                         `PushButton(`id(`help), _("&Help"))),
+                                   `HBox(`PushButton(`id(`ok), OKButtonLabel()),
+                                         `PushButton(`id(`cancel), CancelButtonLabel()),
+                                         `PushButton(`id(`help), HelpButtonLabel())),
                                    `VSpacing(0.2)),
                              `HSpacing(1)
                            )));
@@ -198,7 +196,7 @@ interactively)</p>"));
 
         // Help, part 1 of 3
         string help_text = UI(_("<P>The table contains all the NFS entries which will be written to /etc/fstab.
-For changing the configuration please use the <B>New</B>, <B>Edit</B> and
+For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
 <B>Delete</B> buttons.</P>
 "));
         
@@ -230,18 +228,18 @@ in a terminal.</P>
                                UI(_("Mountpoint"))+"  ", UI(_("Options"))+"  "),
                        FstabTableItems(nfs_fstab)),
                 // button label
-                `HBox(`PushButton(`id(`newbut), _("&New")),
+                `HBox(`PushButton(`id(`newbut), _("A&dd")),
                       // button label
                       `PushButton(`id(`editbut), _("&Edit")),
                       // button label
-                      `PushButton(`id(`delbut), _("&Delete"))),
+                      `PushButton(`id(`delbut), _("De&lete"))),
                 // frame label
                 `VSpacing(0.2)
                 );
 
         UI(`SetWizardContents(_("Configuration of the NFS client"),
                               contents, help_text, true, true));
-        UI(`ChangeWidget (`id(`next), `Label, _("&Finish")));
+        UI(`ChangeWidget (`id(`next), `Label, FinishButtonLabel()));
 
         UI(`ChangeWidget (`id(`editbut), `Enabled, false));
         UI(`ChangeWidget (`id(`delbut), `Enabled, false));
@@ -258,8 +256,6 @@ in a terminal.</P>
 
            ret = UI (`UserInput());
 	   entryno = UI(`QueryWidget(`id(`fstable), `CurrentItem));
-
-           if (ret == `abort && !UI (`ReallyAbortPopup (true))) continue;
 
            if (ret == `newbut) 
            {
@@ -302,9 +298,12 @@ in a terminal.</P>
 	  
 		   UI(`ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab)));
            }
-           
+           else if (ret == `abort && !UI (`ReallyAbortPopup (true)))
+	   {
+	       continue;
+	   }
         } 
-        while (ret != `back && ret != `next && ret != `cancel && ret != `abort);
+        while (ret != `back && ret != `next && ret != `abort);
      
         if (ret == `next) 
         {
@@ -312,7 +311,7 @@ in a terminal.</P>
             nfs_config = add (nfs_config, "start_client", size(nfs_fstab) > 0);
         }
    
-        UI(`ChangeWidget (`id(`next), `Label, _("&Next")));
+        UI(`ChangeWidget (`id(`next), `Label, NextButtonLabel()));
             
         return ret;
 
