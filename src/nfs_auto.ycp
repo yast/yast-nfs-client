@@ -37,24 +37,24 @@ include "nfs/ui.ycp";
 
 any ret = nil;
 string func = "";
-list param = [];
+list<map> param = [];
 
 /* Check arguments */
 if(size(WFM::Args()) > 0 && is(WFM::Args(0), string)) {
     func = (string) WFM::Args(0);
     if(size(WFM::Args()) > 1 && is(WFM::Args(1), list))
-	param = (list) WFM::Args(1);
+	param = (list<map>) WFM::Args(1);
 }
 y2debug("func=%1", func);
 y2debug("param=%1", param);
 
 /* Create a  summary*/
 if(func == "Import") {
-    ret = Nfs::Import(param);
+    ret = (boolean) Nfs::Import(param);
 }
 /* Create a  summary*/
 else if(func == "Summary") {
-    ret = Nfs::Summary();
+    ret = (string) Nfs::Summary();
 }
 /* Reset configuration */
 else if (func == "Reset") {
@@ -64,25 +64,25 @@ else if (func == "Reset") {
 /* Change configuration (run AutoSequence) */
 else if (func == "Change") {
     Wizard::CreateDialog ();
-    ret = FstabDialog ();
+    ret = (symbol) FstabDialog ();
     UI::CloseDialog ();
 }
 /* Return actual state */
 else if (func == "Packages") {
-    ret = Nfs::AutoPackages();
+    ret = (map) Nfs::AutoPackages();
 }
 /* Return actual state */
 else if (func == "Export") {
-    ret = Nfs::Export();
+    ret = (list) Nfs::Export();
 }
 else if (func == "Read") {
-    ret = Nfs::Read();
+    ret = (boolean)  Nfs::Read();
 }
 /* Write givven settings */
 else if (func == "Write") {
     import "Progress";
     Progress::off();
-    ret = Nfs::WriteOnly();
+    ret = (boolean) Nfs::WriteOnly();
     Progress::on();
 }
 /* Unknown function */
