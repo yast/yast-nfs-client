@@ -11,6 +11,7 @@ menudir = $(YAST2DIR)/menuentries
 
 clients_DATA =		\
 	nfs_write.ycp   \
+	nfs_auto.ycp	\
 	nfs.ycp
 
 include_DATA =		\
@@ -20,6 +21,6 @@ include_DATA =		\
 modules_DATA = \
 	Nfs.ycp
 
-menu_DATA = menuentry_nfs.y2cc
+menu_DATA = menuentry_nfs.y2cc menuentry_nfs.ycp
 
 EXTRA_DIST = $(clients_DATA) $(include_DATA) $(modules_DATA) $(menu_DATA)
