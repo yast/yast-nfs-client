@@ -14,8 +14,9 @@ X-SuSE-YaST-RootOnly=true
 X-SuSE-YaST-AutoInst=all
 X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
-X-SuSE-YaST-AutoinstResource=
-X-SuSE-YaST-AutoinstDataType=list
+X-SuSE-YaST-AutoInstResource=
+X-SuSE-YaST-AutoInstDataType=list
+X-SuSE-YaST-AutoInstClonable=true
 
 Icon=nfs
 Exec=/sbin/yast2 nfs 
