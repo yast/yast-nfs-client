@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Jan 18 17:12:41 CET 2002 - mvidner@suse.cz
+
+- SetFocus to the invalid input field. (bug #12323).
+- Delete and activation fixed (module conversion bugs).
+- Using Report::
+- 2.5.6
+
+-------------------------------------------------------------------
 Wed Jan  9 09:48:46 CET 2002 - mvidner@suse.cz
 
 - Removed old menu entry.
