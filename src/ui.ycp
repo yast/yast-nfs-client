@@ -1,0 +1,354 @@
+/**
+ * File:
+ *   ui.ycp
+ *
+ * Module:
+ *   Configuration of nfs
+ *
+ * Summary:
+ *   Network NFS client dialogs
+ *
+ * Authors:
+ *   Jan Holesovsky <kendy@suse.cz>
+ *   Dan Vesely <dan@suse.cz>
+ *
+ * $Id$
+ *
+ * Network NFS client dialogs
+ *
+ */
+
+{
+
+    textdomain "lan";
+    
+    include "nfs/routines.ycp";
+    include "ui/file_popups.ycp";
+    include "ui/common_popups.ycp";
+
+    /* Changes values on the TextEntries */
+    global define FillEntries(map entry) ``{
+        string val = lookup(entry, "spec");
+        if (val != nil) {
+            term sp = SpecToServPath(val);
+            UI(`ChangeWidget(`id(`serverent), `Value, select(sp, 0)));
+            UI(`ChangeWidget(`id(`pathent), `Value, select(sp, 1)));
+        }
+        val = lookup(entry, "file");
+        if (val != nil)
+            UI(`ChangeWidget(`id(`mountent), `Value, val));
+        val = lookup(entry, "mntops");
+        if (val != nil)
+            UI(`ChangeWidget(`id(`optionsent), `Value, val));
+    };
+        
+
+    /**
+     * Give me one name from the list of hosts 
+     * @param hosts list of hosts
+     * @return string hostname
+     */
+    global define ChooseHostName(list hosts) ``{
+        string hname = nil;
+        
+        UI(`OpenDialog(
+	    // selection box label
+            `VBox(`SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
+                  // button label
+                  `HBox(`PushButton(`id(`ok), _("&OK")),
+                        // button label
+                        `PushButton(`id(`cancel), _("&Cancel"))))));
+        any ret = nil;
+        do {
+            ret = UI(`UserInput());
+        } while (ret != `cancel && ret != `ok);
+        
+        if (ret == `ok)
+            hname = UI(`QueryWidget(`id(`hosts), `CurrentItem));
+        
+        UI(`CloseDialog());
+        
+        return hname;
+    };
+    
+
+    /**
+     * Ask user for an entry. 
+     * @param fstab_ent entries in the fstab
+     * @param fstab list of fstab entries
+     * @return  map with fstab entries or nil
+     */
+    global define GetFstabEntry(map fstab_ent, list fstab) ``{
+        string server = "";
+        string pth = "";
+        string mount = "";
+        string options = "defaults";
+        
+        if (fstab_ent != nil) {
+            term couple = SpecToServPath(lookup(fstab_ent, "spec"));
+            server = select(couple, 0);
+            pth = select(couple, 1);
+            mount = lookup(fstab_ent, "file");
+            options = lookup(fstab_ent, "mntops");
+        }
+        
+        UI(`OpenDialog(`opt(`decorated),
+                       `HBox(`HSpacing(1),
+                             `VBox(`VSpacing(0.2),
+                                   `VSquash(`HBox(
+                        	       // text entry label
+                                       `TextEntry(`id(`serverent),
+                                                  _("&Hostname of the NFS server:"), server),
+                                       `VBox(`VSpacing(),
+                                             // pushbutton label
+                                             `Bottom(`PushButton(`id(`choose), _("&Choose")))))),
+                                   // textentry label
+                                   `HBox(`TextEntry(`id(`pathent), _("&Remote filesystem:"), pth),
+                                         `HBox (
+                                         // textentry label
+                                         `TextEntry(`id(`mountent), _("&Mountpoint (local):"), mount),
+                                         `VBox (`VSpacing (),
+                                                `PushButton(`id(`browse), _("&Browse")))
+                                             )),
+                                   // textentry label
+                                   `TextEntry(`id(`optionsent), _("&Options:"), options),
+                                   `VSpacing(0.2),
+                                   // ok pushbutton: confirm the dialog
+                                   `HBox(`PushButton(`id(`ok), _("&OK")),
+                                         `PushButton(`id(`cancel), _("&Cancel")),
+                                         `PushButton(`id(`help), _("&Help"))),
+                                   `VSpacing(0.2)),
+                             `HSpacing(1)
+                           )));
+        
+        any ret = nil;
+        do {
+            ret = UI(`UserInput());
+
+            if (ret == `choose) {
+                if (hosts == nil) {
+                    // label message
+                    UI(`OpenDialog(`Label(_("Scanning for hosts on this LAN..."))));
+                    hosts = sort(SCR(`Read(.net.hostnames)));
+                    UI(`CloseDialog());
+                    if (hosts == nil) hosts = [];
+                }
+                string host = ChooseHostName(hosts);
+                if (host != nil)
+                    UI(`ChangeWidget(`id(`serverent), `Value, host));
+            }
+            if (ret == `browse) 
+                {
+                    string dir = UI(`QueryWidget(`id (`mountent), `Value));
+                    if (size (dir) == 0)
+                        {
+                            dir = "/";
+                        }
+                    
+                    dir = PopupDir (dir);
+                    
+                    if (size (dir) > 0)
+                        {
+                            UI (`ChangeWidget (`id (`mountent), `Value, dir));
+                        }
+                }
+            if (ret == `ok) {
+                server = UI(`QueryWidget(`id(`serverent), `Value));
+                pth = UI(`QueryWidget(`id(`pathent), `Value));
+                mount = UI(`QueryWidget(`id(`mountent), `Value));
+                options = UI(`QueryWidget(`id(`optionsent), `Value));
+
+                string options_error = check_options (options);
+                if (size (options_error) > 0)
+                {
+                    UI (`ErrorPopup(options_error));
+                    continue;
+                }
+                
+                if (CheckHostName(server) && CheckPath(pth) &&
+                    CheckPath(mount) && CheckOptions(options) &&
+                    !IsMpInFstab(fstab, mount)) {
+                    fstab_ent = $[
+                        "spec"    : server+":"+pth,
+                        "file"    : mount,
+                        "vfstype" : "nfs",
+                        "mntops"  : options,
+                        "freq"    : 0,
+                        "passno"  : 0
+                        ];
+                } else
+                    ret = nil;
+            }
+            if (ret == `help) {
+                //help text 1/3
+                string helptext = UI (_("<p>Please enter the <b>hostname</b> of the NFS server; the
+<i>Choose</i> button enables you to browse through a list of locally
+defined hosts.</p>"));
+                // help text 2/3
+                helptext = helptext + UI(_("<p>You must also supply the directory on the remote NFS server and a
+local <b>mountpoint</b>, on which the directory will be mounted. (With
+the <i>Browse</i> button you can select your mount point
+interactively)</p>"));
+                // help text 3/3
+                helptext = helptext + UI(_("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>"));
+
+                UI (`LongTextPopup (_("Help"), `RichText (helptext), 50, 15));
+                y2milestone ("HELP");
+            }
+            
+        } while (ret != `ok && ret != `cancel);
+        
+        UI(`CloseDialog());
+        
+        if (ret == `ok)
+            return fstab_ent;
+        return nil;
+    };
+
+
+
+    /**
+     * NFS client dialog itselfs
+     */
+    global define FstabDialog () ``{
+
+        // Help, part 1 of 3
+        string help_text = UI(_("<P>The table contains all the NFS entries which will be written to /etc/fstab.
+For changing the configuration please use the <B>New</B>, <B>Edit</B> and
+<B>Delete</B> buttons.</P>
+"));
+        
+        // Help, part 2 of 3
+        help_text = help_text + UI(_("<P>To confirm the changes, please use the <B>Next</B> button. To dismiss them,
+use <B>Back</B>.</P>
+"));
+        
+        // Help, part 3 of 3
+        help_text = help_text + UI(_("<P>For further information about fstab please type <B>man fstab</B>
+in a terminal.</P>
+"));
+
+
+        list fstab = lookup(nfs_config, "fstab");
+        list nfs_fstab = filter(`entry, fstab, ``{
+            return (lookup(entry, "vfstype") == "nfs");
+        });
+
+        fstab = filter(`entry, fstab, ``{
+            return (lookup(entry, "vfstype") != "nfs");
+        });
+
+        term contents = 
+            `VBox(
+                `Table(`id(`fstable), `opt(`notify, `immediate),
+                       // table headers: "Server", "Remote filesystem", "Mountpoint", "Options"
+                       `header(UI(_("Server"))+"  ", UI(_("Remote filesystem"))+"  ",
+                               UI(_("Mountpoint"))+"  ", UI(_("Options"))+"  "),
+                       FstabTableItems(nfs_fstab)),
+                // button label
+                `HBox(`PushButton(`id(`newbut), _("&New")),
+                      // button label
+                      `PushButton(`id(`editbut), _("&Edit")),
+                      // button label
+                      `PushButton(`id(`delbut), _("&Delete"))),
+                // frame label
+                `VSpacing(0.2)
+                );
+
+        UI(`SetWizardContents(_("Configuration of the NFS client"),
+                              contents, help_text, true, true));
+        UI(`ChangeWidget (`id(`next), `Label, _("&Finish")));
+
+        UI(`ChangeWidget (`id(`editbut), `Enabled, false));
+        UI(`ChangeWidget (`id(`delbut), `Enabled, false));
+        
+        any ret = nil;
+        list hosts = nil;
+
+        do 
+        {
+ 
+	   integer entryno = UI(`QueryWidget(`id(`fstable), `CurrentItem));
+	   UI(`ChangeWidget (`id(`editbut), `Enabled, entryno != nil));
+	   UI(`ChangeWidget (`id(`delbut), `Enabled, entryno != nil));
+
+           ret = UI (`UserInput());
+	   entryno = UI(`QueryWidget(`id(`fstable), `CurrentItem));
+
+           if (ret == `abort && !UI (`ReallyAbortPopup (true))) continue;
+
+           if (ret == `newbut) 
+           {
+               map entry = GetFstabEntry(nil, union(fstab, nfs_fstab));
+               
+               if (entry != nil)
+                   nfs_fstab = add(nfs_fstab, entry);
+
+               UI(`ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab)));
+           }
+           else if (ret == `editbut) 
+           {
+	           integer count = 0;
+                   map entry = GetFstabEntry(select(nfs_fstab, entryno), // Default values
+                                                  union(fstab, filter(`entry, nfs_fstab, ``{ // Remove the selected entry
+                                                      count = count+1;
+                                                      return (count-1 != entryno);
+                                                  })));
+
+                   if (entry != nil) 
+                   {
+                       integer count = 0;
+                       nfs_fstab = maplist(`ent, nfs_fstab, ``{
+                           count = count+1;
+                           if (count-1 != entryno)
+                           return ent;
+                           return entry;
+                       });
+          
+                       UI(`ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab)));
+                   }
+           }
+           else if (ret == `delbut && size(nfs_fstab) > 0) 
+           {
+                   integer count = 0;
+                   nfs_fstab = filter(`entry, nfs_fstab, ``{
+                       count = count+1;
+                       return (count-1 != entryno);
+                   });
+	  
+		   UI(`ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab)));
+           }
+           
+        } 
+        while (ret != `back && ret != `next && ret != `cancel && ret != `abort);
+     
+        if (ret == `next) 
+        {
+            nfs_config = add (nfs_config, "fstab", union (nfs_fstab, fstab));
+            nfs_config = add (nfs_config, "start_client", size(nfs_fstab) > 0);
+        }
+   
+        UI(`ChangeWidget (`id(`next), `Label, _("&Next")));
+            
+        return ret;
+
+    }
+
+
+    
+    /**
+     * Last confirmation dialog to use with sequencer
+     */
+    global define SaveDialog () ``{
+       
+        string message = UI (_("The entered values will be written now.
+Do you really want to use the new settings?"));
+
+        if (UI(`YesNoPopup (message)))
+        {
+            return `finish;
+        }
+        
+        return `back;
+    }
+}
