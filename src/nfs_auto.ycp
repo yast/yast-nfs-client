@@ -26,88 +26,70 @@
  */
 
 {
-    textdomain "nfs";
+textdomain "nfs";
 
-    import "Nfs";
-    import "Wizard";
-    include "nfs/ui.ycp";
+y2milestone("----------------------------------------");
+y2milestone("Nfs auto started");
 
-    list args = WFM::Args ();
-    if ( size (args) <= 0 )
-    {
-	y2error ("Did not get the settings, probably some mistake...");
-	return false;
-    }
-    if ( !is ( WFM::Args (0), list ) )
-    {
-	y2error ("Bad argument for nfs_auto: %1", WFM::Args (0));
-	return false;
-    }
-    list settings = [];
-    {
-	integer i = 0;
-	while (i < size (WFM::Args()))
-	{
-	    if (is (WFM::Args (i), list) && nil != WFM::Args (i))	settings = WFM::Args (i);
-	    i = i + 1;
-	}
-    }
+import "Nfs";
+import "Wizard";
+include "nfs/ui.ycp";
 
-    // The settings are in the first argument
+any ret = nil;
+string func = "";
+list param = [];
 
-    y2milestone("Imported: (%1)", settings);
-    Nfs::Import ( settings );
+/* Check arguments */
+if(size(Args()) > 0 && is(Args(0), string)) {
+    func = WFM::Args(0);
+    if(size(Args()) > 1 && is(Args(1), list))
+	param = WFM::Args(1);
+}
+y2debug("func=%1", func);
+y2debug("param=%1", param);
 
-    define set_contents() ``{
-	term contents =
-	    `VBox(
-		  `VSpacing(1),
-		  `RichText( `id(`summary), Nfs::Summary()),
-		  `VSpacing(),
-		  `HBox(
-		      // button label
-			`PushButton(`id(`configure), _("&Configure NFS Client")),
-			`HStretch(),
-		      // button label
-			`PushButton(`id(`reset), _("&Reset Configuration"))
-			),
-		  `VSpacing()
-		  );
+/* Create a  summary*/
+if(func == "Import") {
+    ret = Nfs::Import(param);
+}
+/* Create a  summary*/
+else if(func == "Summary") {
+    ret = Nfs::Summary();
+}
+/* Reset configuration */
+else if (func == "Reset") {
+    Nfs::Import([]);
+    ret = [];
+}
+/* Change configuration (run AutoSequence) */
+else if (func == "Change") {
+    Wizard::CreateDialog ();
+    ret = FstabDialog ();
+    UI::CloseDialog ();
+}
+/* Return actual state */
+else if (func == "Result") {
+    ret = Nfs::Export();
+}
+/* Write givven settings */
+else if (func == "Write") {
+    import "Progress";
+    Progress::off();
+    ret = Nfs::WriteOnly();
+    Progress::on();
+}
+/* Unknown function */
+else {
+    y2error("Unknown function: %1", func);
+    ret = false;
+}
 
-	// dialog heading
-	Wizard::SetContents(_("NFS Client Configuration"),
-			    contents, "", true, true);
-    }
+y2debug("ret=%1", ret);
+y2milestone("Nfs auto finished");
+y2milestone("----------------------------------------");
 
-    // Create Summary and buttons for launching
-    // in auto mode
+return ret;
 
-    set_contents();
-    any result = nil;
-    any ret = nil;
-    repeat {
-	ret = UI::UserInput();
-	if (ret == `configure)
-	{
-	    Wizard::CreateDialog ();
-	    result = FstabDialog ();
-	    UI::CloseDialog ();
-
-	    if (result == `next || result == `finish)
-	    {
-		settings = Nfs::Export ();
-	    }
-	    Nfs::Set(settings);
-	    set_contents();
-	}
-	else if ( ret == `reset)
-	{
-	    settings= $[];
-	    Nfs::Set(settings);
-	    set_contents();
-	}
-    } until (ret == `back || ret == `next || ret ==`key || ret ==`abort);
-
-    return [ret, settings];
+/* EOF */
 }
 
