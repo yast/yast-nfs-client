@@ -62,18 +62,22 @@ map cmdline_description = $[
     "actions"           : $[
 	"list"		: $[
 	    "handler"	: NfsListHandler,
+	    // command line action help
 	    "help"	: _("List configured NFS mounts"),
 	    ],
 	"add"		: $[
 	    "handler"	: NfsAddHandler,
+	    // command line action help
 	    "help"	: _("Add an NFS mount"),
 	    ],
 	"edit"		: $[
 	    "handler"	: NfsEditHandler,
+	    // command line action help
 	    "help"	: _("Edit an NFS mount"),
 	    ],
 	"delete"	: $[
 	    "handler"	: NfsDeleteHandler,
+	    // command line action help
 	    "help"	: _("Delete an NFS mount"),
 	    ],
     ],
@@ -81,17 +85,20 @@ map cmdline_description = $[
 	// TODO adjust names? create comaptibility aliases?
 	"spec"		: $[
 	    "type"	: "string", // host:path
+	    // command line option help
 	    // fstab(5): fs_spec
 	    "help"	: _("Remote filesystem"),
 	    ],
 	"file"		: $[
 	    "type"	: "string", // path
+	    // command line option help
 	    // fstab(5): fs_file
 	    "help"	: _("Local mount point"),
 	    ],
 	// use defaults when not specified? describe in help?
 	"mntopts"	: $[
 	    "type"	: "string", // a list?
+	    // command line option help
 	    // fstab(5): fs_mntopts
 	    "help"	: _("Mount options"),
 	    ],
