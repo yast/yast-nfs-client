@@ -226,9 +226,8 @@ For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
 ");
 
 	// Help, part 2 of 3; BackButtonLabel, FinishButtonLabel
-	help_text = help_text + _("<P>To confirm the changes, please use the <B>Finish</B> button. To dismiss them,
-use <B>Back</B>.</P>
-");
+	help_text = help_text + _("<P>To confirm the changes, press <B>Finish</B>. To dismiss them,
+use <B>Back</B>.</P>\n");
 
 	// Help, part 3 of 3
 	help_text = help_text + _("<P>For further information about fstab please type <B>man fstab</B>
