@@ -39,7 +39,7 @@
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
      */
-    global list<map> nfs_entries = [];
+    global list<map<string,any> > nfs_entries = [];
 
     /**
      * Read only, intended for checking mount-point uniqueness.
@@ -126,8 +126,8 @@
      * @param entries a list of maps, such as nfs_entries
      * @return escaped entries
      */
-    define list<map> EscapeSpaces (list<map> entries) ``{
-	return maplist (map entry, entries, ``(
+    define list<map<string,any> > EscapeSpaces (list<map<string,any> > entries) ``{
+	return maplist (map<string,any> entry, entries, ``(
 			    mapmap (string key, any value, entry, ``(
 					$[ key :
 					  (is (value, string)?
@@ -175,8 +175,8 @@
      * @param entries a list of maps, such as nfs_entries
      * @return escaped entries
      */
-    define list<map> UnescapeSpaces (list<map> entries) ``{
-	return maplist (map entry, entries, ``(
+    define list<map<string,any> > UnescapeSpaces (list<map<string,any> > entries) ``{
+	return maplist (map<string,any> entry, entries, ``(
 			    mapmap (string key, any value, entry, ``(
 					$[ key:
 					  (is (value, string)?
@@ -192,11 +192,11 @@
      * @return true on success
      */
     global define boolean Read () ``{
-	list<map> fstab = (list<map>) SCR::Read (.etc.fstab);
+	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
 	fstab = UnescapeSpaces (fstab);
 
 	// For simplicity, this leaves also the unused fileds in the maps.
-	nfs_entries = filter (map entry, fstab, ``{
+	nfs_entries = filter (map<string,any> entry, fstab, ``{
 	    return (entry["vfstype"]:"" == "nfs");
 	});
 	non_nfs_entries = filter (map entry, fstab, ``{
@@ -216,14 +216,14 @@
      */
     global define boolean WriteOnly () ``{
 	// Merge with non-nfs entries from fstab:
-	list<map> fstab = (list<map>) SCR::Read (.etc.fstab);
+	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
 	// unescape deferred for optimization
-	fstab = filter (map entry, fstab, ``{
+	fstab = filter (map<string,any> entry, fstab, ``{
 	    return (entry["vfstype"]:"" != "nfs");
 	});
 	fstab = UnescapeSpaces (fstab);
-	foreach (map entry, nfs_entries, ``{
-	    fstab = add (fstab, union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
+	foreach (map<string,any> entry, nfs_entries, ``{
+	    fstab = add (fstab, (map<string,any>)union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
 
 	    // create mount points
 	    string file = entry["file"]:"";
@@ -446,7 +446,7 @@ the NFS client configuration.\n"));
 	}
 
 	// unmount directory if it's NFS mountpoint
-	list<map> mounts = (list<map>) SCR::Read(.proc.mounts);
+	list<map<string,any> > mounts = (list<map<string,any> >) SCR::Read(.proc.mounts);
 	boolean found = false;
 
 	foreach(map<string, any> m, mounts,

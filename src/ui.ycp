@@ -120,7 +120,7 @@
      * @param existing	list of fstab entries for duplicate mount-point checking
      * @return		a nfs_entry or nil
      */
-    define map GetFstabEntry(map fstab_ent, list<map> existing) ``{
+    define map<string,any> GetFstabEntry(map<string,any> fstab_ent, list<map> existing) ``{
 	Wizard::SetScreenShotName ("nfs-client-1a-edit");
 
 	string server = "";
@@ -336,7 +336,7 @@ use <B>Back</B>.</P>\n");
 in a terminal.</P>
 ");
 
-	list<map> nfs_entries = Nfs::nfs_entries;
+	list<map<string,any> > nfs_entries = Nfs::nfs_entries;
 
 	term contents =
 	    `VBox(
@@ -394,7 +394,7 @@ in a terminal.</P>
 
 	   if (ret == `newbut)
 	   {
-	       map entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
+	       map<string,any> entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
 
 	       if (entry != nil)
 		   nfs_entries = add (nfs_entries, entry);
@@ -404,12 +404,12 @@ in a terminal.</P>
 	   else if (ret == `editbut)
 	   {
 		   integer count = 0;
-		   map entry = GetFstabEntry (nfs_entries[entryno]:$[], // Default values
+		   map<string,any> entry = GetFstabEntry (nfs_entries[entryno]:$[], // Default values
 					      (list<map>) union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
 		   if (entry != nil)
 		   {
 		       integer count = 0;
-		       nfs_entries = maplist(map ent, nfs_entries, ``{
+		       nfs_entries = maplist(map<string,any> ent, nfs_entries, ``{
 			   count = count+1;
 			   if (count-1 != entryno)
 			   return ent;
