@@ -14,7 +14,9 @@
     include "testsuite.ycp";
     import "Nfs";
     import "Report";
+    import "Progress";
 
+    Progress::off ();
     Report::DisplayErrors (false, 0);
 
     map service_on = $[
