@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jul 31 19:03:19 CEST 2002 - mvidner@suse.cz
+
+- Added comments for translators
+- yast2-runlevel is no longer required.
+- Updated screenshots
+- 2.6.9
+
+-------------------------------------------------------------------
 Wed Jul 17 13:46:09 CEST 2002 - mvidner@suse.cz
 
 - Allow directories with spaces (#15524).
