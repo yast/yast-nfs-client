@@ -22,7 +22,7 @@
  * @param first a map of mail settings
  * @return map edited settings or empty map if canceled
  * @example map mm = $[ "FAIL_DELAY" : "77" ];
- * @example map ret = CallModule ("mail_auto", [ mm ]);
+ * @example map ret = WFM::CallModule ("mail_auto", [ mm ]);
  */
 
 {
@@ -32,23 +32,23 @@
     import "Wizard";
     include "nfs/ui.ycp";
 
-    list args = Args ();
+    list args = WFM::Args ();
     if ( size (args) <= 0 )
     {
 	y2error ("Did not get the settings, probably some mistake...");
 	return false;
     }
-    if ( !is ( Args (0), list ) )
+    if ( !is ( WFM::Args (0), list ) )
     {
-	y2error ("Bad argument for nfs_auto: %1", Args (0));
+	y2error ("Bad argument for nfs_auto: %1", WFM::Args (0));
 	return false;
     }
     list settings = [];
     {
 	integer i = 0;
-	while (i < size (Args()))
+	while (i < size (WFM::Args()))
 	{
-	    if (is (Args (i), list) && nil != Args (i))	settings = Args (i);
+	    if (is (WFM::Args (i), list) && nil != WFM::Args (i))	settings = WFM::Args (i);
 	    i = i + 1;
 	}
     }
