@@ -17,6 +17,7 @@ X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=
 X-SuSE-YaST-AutoInstDataType=list
 X-SuSE-YaST-AutoInstClonable=true
+X-SuSE-YaST-AutoInstRequires=lan
 
 Icon=nfs
 Exec=/sbin/yast2 nfs 
