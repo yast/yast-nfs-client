@@ -11,6 +11,8 @@
  * $Id$
  */
 {
+    // testedfiles: Nfs.ycp Service.ycp Report.ycp Testsuite.ycp
+
     include "testsuite.ycp";
     import "Nfs";
     import "Report";

@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
-Mon Jun 21 10:41:30 CEST 2004 - mvidner@suse.cz
+Mon Jun 21 10:59:04 CEST 2004 - mvidner@suse.cz
 
-- Added a skeleton of the command line interface
+- Added "testedfiles" to test cases to make it work with the new testsuite.
+- Added a skeleton of the command line interface.
 - 2.10.0
 
 -------------------------------------------------------------------

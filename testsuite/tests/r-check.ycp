@@ -11,6 +11,8 @@
  * $Id$
  */
 {
+    // testedfiles: routines.ycp Testsuite.ycp
+
     include "testsuite.ycp";
     include "nfs/routines.ycp";
 
@@ -35,11 +37,5 @@
     TEST (``(CheckHostName (TooLongName)), [], nil);
     TEST (``(CheckHostName (IllegalName)), [], nil);
     // Too long & illegal char
-    TEST (``(CheckHostName (IllegalName + ":")), [], nil);
-
-    DUMP ("StripExtraSlash");
-    // "no strip needed"
-    TEST (``(StripExtraSlash ("/usr/bin")), [], nil);
-    // Slash is present
-    TEST (``(StripExtraSlash ("/usr/bin/")), [], nil);
+    TEST (``(CheckHostName (TooLongName + ":")), [], nil);
 }

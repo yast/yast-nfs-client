@@ -11,6 +11,8 @@
  * $Id$
  */
 {
+    // testedfiles: routines.ycp Testsuite.ycp
+
     include "testsuite.ycp";
     include "nfs/routines.ycp";
 
