@@ -25,27 +25,6 @@
     import "Require";
 
     /**
-     * Creates a list of ui table items for nfs fstab entries
-     * @param fstab	list of nfs fstab entries
-     * @return		itemized table entries
-     * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
-     */
-    global define list(term) FstabTableItems(list(map) fstab) ``{
-	integer count = 0;
-	return maplist(`entry, fstab, ``{
-	    term sp = SpecToServPath(lookup(entry, "spec", ""));
-	    term it = `item(`id(count),
-			    select(sp, 0, "")+" ",
-			    select(sp, 1, "")+" ",
-			    lookup(entry, "file", "")+" ",
-			    lookup(entry, "mntops", "")+" ");
-
-	    count = count+1;
-	    return it;
-	});
-    }
-
-    /**
      * @param spec	"server:/path/specification"
      * @return		`couple("server", "/path/specification")
      */
@@ -59,6 +38,27 @@
 	return `couple(serv, spec);
     }
 
+
+    /**
+     * Creates a list of ui table items for nfs fstab entries
+     * @param fstab	list of nfs fstab entries
+     * @return		itemized table entries
+     * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
+     */
+    global define list<term> FstabTableItems(list<map> fstab) ``{
+	integer count = 0;
+	return maplist(map entry, fstab, ``{
+	    term sp = SpecToServPath(entry["spec"]:"");
+	    term it = `item(`id(count),
+			    select(sp, 0, "") + " ",
+			    select(sp, 1, "") + " ",
+			    entry["file"]:"" + " ",
+			    entry["mntops"]:"" + " ");
+
+	    count = count+1;
+	    return it;
+	});
+    }
 
     /**
      * Check for the validity of a hostname: nonempty, shorter than 50 chars,
@@ -86,9 +86,9 @@ just 0..9, A..Z, a..z, dots, - and _.")));
      * @param mpoint	mount point
      * @return		is it there?
      */
-    global define boolean IsMpInFstab(list(map) fstab, string mpoint) ``{
-	list tmp = filter(`fse, fstab, ``{
-	    return (lookup(fse, "file", "") == mpoint);
+    global define boolean IsMpInFstab(list<map> fstab, string mpoint) ``{
+	list tmp = filter(map fse, fstab, ``{
+	    return (fse["file"]:"" == mpoint);
 	});
 
 	if (size(tmp) == 0)
@@ -158,10 +158,10 @@ and it must begin with a slash (/).")));
 
 	while (i < size (option_list))
 	{
-	    string opt = select (option_list, i, "");
-	    list(string) value = splitstring (opt, "=");
-	    string v0 = select (value, 0, "");
-	    string v1 = select (value, 1, "");
+	    string opt = option_list[i]:"";
+	    list<string> value = splitstring (opt, "=");
+	    string v0 = value[0]:"";
+	    string v1 = value[1]:"";
 	    // To translators: error popup
 	    if (!contains (with_value, v0)) return sformat (_("Wrong option: %1"), v0);
 	    // To translators: error popup

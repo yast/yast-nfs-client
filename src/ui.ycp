@@ -61,7 +61,7 @@
 
 	if (ret == `ok)
 	{
-	    item = UI::QueryWidget (`id (`items), `CurrentItem);
+	    item = (string) UI::QueryWidget (`id (`items), `CurrentItem);
 	}
 	UI::CloseDialog();
 
@@ -125,11 +125,11 @@
 
 	if (fstab_ent != nil)
 	{
-	    term couple = SpecToServPath(lookup(fstab_ent, "spec", ""));
+	    term couple = SpecToServPath(fstab_ent["spec"]:"");
 	    server = select(couple, 0, "");
 	    pth = select(couple, 1, "");
-	    mount = lookup(fstab_ent, "file", "");
-	    options = lookup(fstab_ent, "mntops", "");
+	    mount = fstab_ent["file"]:"";
+	    options = fstab_ent["mntops"]:"";
 	}
 
 	UI::OpenDialog(
@@ -331,7 +331,7 @@ use <B>Back</B>.</P>\n");
 in a terminal.</P>
 ");
 
-	list(map) nfs_entries = Nfs::nfs_entries;
+	list<map> nfs_entries = Nfs::nfs_entries;
 
 	term contents =
 	    `VBox(
@@ -400,12 +400,12 @@ in a terminal.</P>
 	   else if (ret == `editbut)
 	   {
 		   integer count = 0;
-		   map entry = GetFstabEntry (select (nfs_entries, entryno, $[]), // Default values
+		   map entry = GetFstabEntry (nfs_entries[entryno]:$[], // Default values
 					      union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
 		   if (entry != nil)
 		   {
 		       integer count = 0;
-		       nfs_entries = maplist(`ent, nfs_entries, ``{
+		       nfs_entries = maplist(map ent, nfs_entries, ``{
 			   count = count+1;
 			   if (count-1 != entryno)
 			   return ent;

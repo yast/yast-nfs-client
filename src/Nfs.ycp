@@ -39,15 +39,31 @@
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
      */
-    global list(map) nfs_entries = [];
+    global list<map> nfs_entries = [];
 
     /**
      * Read only, intended for checking mount-point uniqueness.
      */
-    global list(map) non_nfs_entries = [];
+    global list<map> non_nfs_entries = [];
 
     // list of created directories
-    list(string) created_dirs = [];
+    list<string> created_dirs = [];
+
+    /**
+     * Set module data
+     * @param settings module settings
+     * @return void
+     */
+    global define void Set(list<map> settings) ``{
+	nfs_entries = maplist(map entry, settings, ``{
+	    return($[
+		     "spec":entry["server_path"]:"",
+		     "file":entry["mount_point"]:"",
+		     "mntops":entry["nfs_options"]:""
+		   ]);
+	});
+	return;
+    }
 
     /**
      * Get all NFS configuration from a map.
@@ -56,11 +72,11 @@
      * @param settings	a map with a single key: nfs_entries
      * @return	success
      */
-    global define boolean Import (list settings) ``{
+    global define boolean Import (list<map> settings) ``{
 
 	boolean missing = false;
-	foreach(`s,settings,``{
-	    foreach (`k, ["server_path", "mount_point", "nfs_options"], ``{
+	foreach(map s,settings,``{
+	    foreach (string k, ["server_path", "mount_point", "nfs_options"], ``{
 		if (! haskey (s, k))
 		{
 		    y2error ("Missing at Import: '%1'.", k);
@@ -75,22 +91,6 @@
 
 	Set(settings);
 	return true;
-    }
-
-    /**
-     * Set module data
-     * @param settings module settings
-     * @return void
-     */
-    global define void Set(list settings) ``{
-	nfs_entries = maplist(map entry, settings, ``{
-	    return($[
-		     "spec":entry["server_path"]:"",
-		     "file":entry["mount_point"]:"",
-		     "mntops":entry["nfs_options"]:""
-		   ]);
-	});
-	return;
     }
 
     /**
@@ -113,21 +113,6 @@
     // This should be done by the agent, but any-agent sucks.
 
     /**
-     * Escape spaces " " -> "\\040" in all values of all entries
-     * @param entries a list of maps, such as nfs_entries
-     * @return escaped entries
-     */
-    define list(map) EscapeSpaces (list(map) entries) ``{
-	return maplist (map entry, entries, ``(
-			    mapmap (string key, string value, entry, ``(
-					[ key,
-					  is (value, string)?
-					  EscapeSpaces1 (value): value ]
-					))
-			    ));
-    }
-
-    /**
      * Escape spaces " " -> "\\040".
      * @param s a string or nil
      * @return escaped string or nil
@@ -137,29 +122,18 @@
     }
 
     /**
-     * Un-escape spaces "\\040" -> " " in all values of all entries
+     * Escape spaces " " -> "\\040" in all values of all entries
      * @param entries a list of maps, such as nfs_entries
      * @return escaped entries
      */
-    define list(map) UnescapeSpaces (list(map) entries) ``{
+    define list<map> EscapeSpaces (list<map> entries) ``{
 	return maplist (map entry, entries, ``(
-			    mapmap (string key, string value, entry, ``(
-					[ key,
-					  is (value, string)?
-					  UnescapeSpaces1 (value): value ]
+			    mapmap (string key, any value, entry, ``(
+					$[ key :
+					  (is (value, string)?
+					  EscapeSpaces1 ((string) value): value)]
 					))
 			    ));
-    }
-
-    /**
-     * Un-escape spaces "\\040" -> " "
-     * @param s string or nil
-     * @return escaped string or nil
-     */
-    define string UnescapeSpaces1 (string s) ``{
-	// escaped space, \040, is /\\040/
-	// which is "\\\\040"
-	return s == nil ? nil : gsub ("\\\\040", " ", s);
     }
 
     /**
@@ -185,6 +159,32 @@
 	return s;
     }
 
+    /**
+     * Un-escape spaces "\\040" -> " "
+     * @param s string or nil
+     * @return escaped string or nil
+     */
+    define string UnescapeSpaces1 (string s) ``{
+	// escaped space, \040, is /\\040/
+	// which is "\\\\040"
+	return s == nil ? nil : gsub ("\\\\040", " ", s);
+    }
+
+    /**
+     * Un-escape spaces "\\040" -> " " in all values of all entries
+     * @param entries a list of maps, such as nfs_entries
+     * @return escaped entries
+     */
+    define list<map> UnescapeSpaces (list<map> entries) ``{
+	return maplist (map entry, entries, ``(
+			    mapmap (string key, any value, entry, ``(
+					$[ key:
+					  (is (value, string)?
+					  UnescapeSpaces1 ((string) value): value)]
+					))
+			    ));
+    }
+
     /* ------------------------------------------------------------ */
 
     /**
@@ -192,7 +192,7 @@
      * @return true on success
      */
     global define boolean Read () ``{
-	list(map) fstab = SCR::Read (.etc.fstab);
+	list<map> fstab = (list<map>) SCR::Read (.etc.fstab);
 	fstab = UnescapeSpaces (fstab);
 
 	// For simplicity, this leaves also the unused fileds in the maps.
@@ -202,6 +202,60 @@
 	non_nfs_entries = filter (map entry, fstab, ``{
 	    return (entry["vfstype"]:"" != "nfs");
 	});
+
+	return true;
+    }
+
+    /**
+     * Writes the NFS client configuration without
+     * starting/stopping the service.
+     * Autoinstallation uses this and then calls SuSEconfig only once
+     * and starts the services together.
+     * (No parameters because it is too short to abort)
+     * @return true on success
+     */
+    global define boolean WriteOnly () ``{
+	// Merge with non-nfs entries from fstab:
+	list<map> fstab = (list<map>) SCR::Read (.etc.fstab);
+	// unescape deferred for optimization
+	fstab = filter (map entry, fstab, ``{
+	    return (entry["vfstype"]:"" != "nfs");
+	});
+	fstab = UnescapeSpaces (fstab);
+	foreach (map entry, nfs_entries, ``{
+	    fstab = add (fstab, union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
+
+	    // create mount points
+	    string file = entry["file"]:"";
+	    if (!(boolean) SCR::Execute (.target.mkdir, file))
+	    {
+		// error popup message
+		Report::Warning (sformat (_("Unable to create directory '%1'."), file));
+	    }
+	});
+
+
+	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
+
+	fstab = EscapeSpaces (fstab);
+	if (!SCR::Write(.etc.fstab, fstab))
+	{
+	    // error popup message
+	    Report::Error (_("Unable to write to /etc/fstab.
+No  changes will be made to the
+the NFS client configuration.\n"));
+	    return false;
+	}
+
+	if (size (nfs_entries) == 0)
+	{
+	    //Runlevel::ServiceAdjust ("nfs", "disable"); // what if autofs needs it?
+	}
+	else
+	{
+	    Runlevel::ServiceAdjust ("portmap", "enable");
+	    Runlevel::ServiceAdjust ("nfs", "enable");
+	}
 
 	return true;
     }
@@ -261,59 +315,6 @@
 	    return false;
 	}
     }
-    /**
-     * Writes the NFS client configuration without
-     * starting/stopping the service.
-     * Autoinstallation uses this and then calls SuSEconfig only once
-     * and starts the services together.
-     * (No parameters because it is too short to abort)
-     * @return true on success
-     */
-    global define boolean WriteOnly () ``{
-	// Merge with non-nfs entries from fstab:
-	list(map) fstab = SCR::Read (.etc.fstab);
-	// unescape deferred for optimization
-	fstab = filter (map entry, fstab, ``{
-	    return (entry["vfstype"]:"" != "nfs");
-	});
-	fstab = UnescapeSpaces (fstab);
-	foreach (map entry, nfs_entries, ``{
-	    fstab = add (fstab, union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
-
-	    // create mount points
-	    string file = entry["file"]:"";
-	    if (! SCR::Execute (.target.mkdir, file))
-	    {
-		// error popup message
-		Report::Warning (sformat (_("Unable to create directory '%1'."), file));
-	    }
-	});
-
-
-	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
-
-	fstab = EscapeSpaces (fstab);
-	if (!SCR::Write(.etc.fstab, fstab))
-	{
-	    // error popup message
-	    Report::Error (_("Unable to write to /etc/fstab.
-No  changes will be made to the
-the NFS client configuration.\n"));
-	    return false;
-	}
-
-	if (size (nfs_entries) == 0)
-	{
-	    //Runlevel::ServiceAdjust ("nfs", "disable"); // what if autofs needs it?
-	}
-	else
-	{
-	    Runlevel::ServiceAdjust ("portmap", "enable");
-	    Runlevel::ServiceAdjust ("nfs", "enable");
-	}
-
-	return true;
-    }
 
     /**
      * Summary()
@@ -361,7 +362,7 @@ the NFS client configuration.\n"));
 	// mount to temporary directory if mpoint is nil
 	if (mpoint == nil)
 	{
-	    string tmpdir = SCR::Read(.target.tmpdir);
+	    string tmpdir = (string) SCR::Read(.target.tmpdir);
 
 	    if (tmpdir == nil || tmpdir == "")
 	    {
@@ -400,7 +401,7 @@ the NFS client configuration.\n"));
 	// create mount point if it doesn't exist
 	if (SCR::Read(.target.dir, mpoint) == nil)
 	{
-	    if (!SCR::Execute(.target.mkdir, mpoint))
+	    if (!(boolean) SCR::Execute(.target.mkdir, mpoint))
 	    {
 		y2warning("cannot create mount point %1", mpoint);
 		return nil;
@@ -429,7 +430,7 @@ the NFS client configuration.\n"));
 	}
 
 	// unmount directory if it's NFS mountpoint
-	list(map) mounts = SCR::Read(.proc.mounts);
+	list<map> mounts = (list<map>) SCR::Read(.proc.mounts);
 	boolean found = false;
 
 	foreach(map m, mounts,
