@@ -29,6 +29,13 @@
 
     include "nfs/routines.ycp";
 
+
+
+    /**
+     * Required packages
+     */
+    global list required_packages = ["portmap"];
+
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
      */
@@ -468,5 +475,17 @@ the NFS client configuration.\n"));
 
 	return true;
     }
+
+	/**
+	* Return required packages for auto-installation
+    * @return map of packages to be installed and to be removed
+    */
+    global define map AutoPackages() ``{
+	     return ($["install": required_packages, "remove": []]);
+
+    }
+
+
+
 
 }

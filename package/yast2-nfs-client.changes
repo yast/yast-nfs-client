@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Sep 11 06:33:05 CEST 2003 - nashif@suse.de
+
+- #30291: return list of required packages for autoinstallation
+
+-------------------------------------------------------------------
 Fri Sep  5 09:36:56 CEST 2003 - lslezak@suse.de
 
 - merged texts from proofread
