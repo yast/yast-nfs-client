@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Jan 28 11:14:10 CET 2002 - mvidner@suse.cz
+
+- Autoinst: fixed map keys.
+- Autoinst: uses WriteOnly.
+- 2.5.7
+
+-------------------------------------------------------------------
 Fri Jan 18 17:12:41 CET 2002 - mvidner@suse.cz
 
 - SetFocus to the invalid input field. (bug #12323).
