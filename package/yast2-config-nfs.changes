@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Dec  4 09:08:44 CET 2001 - mvidner@suse.cz
+
+- Added default values for selects.
+- 2.5.3
+
+-------------------------------------------------------------------
 Wed Nov 28 10:18:38 CET 2001 - mvidner@suse.cz
 
 - Converted to a Module.
