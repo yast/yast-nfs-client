@@ -40,5 +40,5 @@
     }
 
     // The write is a simple one so we don't use Progress
-    return Nfs::Import (Args (0)) && Nfs::Write ();
+    return Nfs::Import (Args (0)) && Nfs::WriteOnly ();
 }

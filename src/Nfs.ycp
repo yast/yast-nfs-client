@@ -107,13 +107,46 @@
     }
 
     /**
-     * Saves NFS client.
+     * Writes the NFS client configuration and starts/stops the service.
      * (No parameters because it is too short to abort)
      * @return true on success
      */
     global define boolean Write () ``{
-	Runlevel::RunInitScript ("nfs", "stop");
+	if (WriteOnly ())
+	{
+	    Runlevel::RunInitScript ("nfs", "stop");
+	    if (size (nfs_entries) > 0)
+	    {
+		if (Runlevel::ServiceStatus ("portmap") != 0)
+		{
+		    // portmap must not be started if it is running already (see bug # 9999)
+		    Runlevel::RunInitScript ("portmap", "start");
+		}
+		Runlevel::RunInitScript ("nfs", "start");
 
+		if (Runlevel::ServiceStatus ("nfs") != 0)
+		{
+		    // error popup message
+		    Report::Error (_("Unable to mount the NFS entries from /etc/fstab."));
+		    return false;
+		}
+	    }
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
+    }
+    /**
+     * Writes the NFS client configuration without
+     * starting/stopping the service.
+     * Autoinstallation uses this and then calls SuSEconfig only once
+     * and starts the services together.
+     * (No parameters because it is too short to abort)
+     * @return true on success
+     */
+    global define boolean WriteOnly () ``{
 	// Merge with non-nfs entries from fstab:
 	list(map) fstab = SCR::Read (.etc.fstab);
 	fstab = filter (`entry, fstab, ``{
@@ -153,20 +186,6 @@ configuration of the NFS client.
 	{
 	    Runlevel::ServiceAdjust ("portmap", "enable");
 	    Runlevel::ServiceAdjust ("nfs", "enable");
-
-	    if (Runlevel::ServiceStatus ("portmap") != 0)
-	    {
-		// portmap must not be started if it is running already (see bug # 9999)
-		Runlevel::RunInitScript ("portmap", "start");
-	    }
-	    Runlevel::RunInitScript ("nfs", "start");
-
-	    if (Runlevel::ServiceStatus ("nfs") != 0)
-	    {
-		// error popup message
-		Report::Error (_("Unable to mount the NFS entries from /etc/fstab."));
-		return false;
-	    }
 	}
 
 	return true;
