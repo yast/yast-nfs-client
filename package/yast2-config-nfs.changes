@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Sep  6 10:31:24 CEST 2001 - mvidner@suse.cz
+
+- Dialog size and spacing fixes (for ncurses). (2.4.10)
+
+-------------------------------------------------------------------
 Mon Sep  3 13:24:21 CEST 2001 - mvidner@suse.cz
 
 - Use yast2-config-runlevel.
