@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Sep  3 13:24:21 CEST 2001 - mvidner@suse.cz
+
+- Use yast2-config-runlevel.
+- Start portmap only if not running already (Bug #9999).
+- Strip a trailing slash off pathnames (it confused "rcnfs status").
+- 2.4.9
+
+-------------------------------------------------------------------
 Fri Aug 31 00:49:12 CEST 2001 - ro@suse.de
 
 - added <libycp-devel> to neededforbuild (for testsuite)
