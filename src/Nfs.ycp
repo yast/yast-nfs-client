@@ -177,7 +177,7 @@
 
 	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
 
-	if (SCR::Write(.etc.fstab, fstab) == nil)
+	if (!SCR::Write(.etc.fstab, fstab))
 	{
 	    // error popup message
 	    Report::Error (_("Unable to write to /etc/fstab.
