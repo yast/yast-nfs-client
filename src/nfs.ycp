@@ -75,5 +75,5 @@
 	}
     }
 
-    return UI::CloseDialog();
+    UI::CloseDialog();
 }
