@@ -249,7 +249,7 @@ the NFS client configuration.\n"));
 
 /*	if (size (nfs_entries) == 0)
 	{
-	    //Runlevel::ServiceAdjust ("nfs", "disable"); // what if autofs needs it?
+	    // Service::Adjust ("nfs", "disable"); // what if autofs needs it?
 	}*/
 
 	if (size (nfs_entries) != 0)
