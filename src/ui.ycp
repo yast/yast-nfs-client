@@ -25,7 +25,8 @@
     import "Wizard";
     include "nfs/routines.ycp";
     include "ui/file_popups.ycp";
-    include "ui/common_popups.ycp";
+    import "Label";
+    import "Popup";
 
     /**
      * Let the user choose one of a list of items
@@ -45,9 +46,9 @@
 		    ),
 		`HBox (
 		    `PushButton (`id (`ok), `opt (`default, `key_F10),
-				 OKButtonLabel ()),
+				 Label::OKButton ()),
 		    `PushButton (`id (`cancel), `opt (`key_F9),
-				 CancelButtonLabel())
+				 Label::CancelButton())
 		    )
 		));
 	UI::SetFocus (`id (`items));
@@ -173,9 +174,9 @@
 		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
 		    `VSpacing(0.2),
 		    `HBox(
-			`PushButton(`id(`ok), `opt(`default, `key_F10), OKButtonLabel()),
-			`PushButton(`id(`cancel), `opt (`key_F9), CancelButtonLabel()),
-			`PushButton(`id(`help), `opt (`key_F1), HelpButtonLabel())),
+			`PushButton(`id(`ok), `opt(`default, `key_F10), Label::OKButton()),
+			`PushButton(`id(`cancel), `opt (`key_F9), Label::CancelButton()),
+			`PushButton(`id(`help), `opt (`key_F1), Label::HelpButton())),
 		    `VSpacing(0.2)),
 		`HSpacing(1)
 		));
@@ -261,7 +262,7 @@
 		}
 		else if (size (options_error) > 0)
 		{
-		    UI::ErrorPopup(options_error);
+		    Popup::Error(options_error);
 		    UI::SetFocus (`id (`optionsent));
 		}
 		else
@@ -292,7 +293,7 @@ interactively)</p>");
 		// help text 3/3
 		helptext = helptext + _("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>");
 		// popup heading
-		UI::LongTextPopup (_("Help"), `RichText (helptext), 50, 18);
+		Popup::LongText (_("Help"), `RichText (helptext), 50, 18);
 	    }
 	}
 	while (ret != `ok && ret != `cancel);
@@ -320,7 +321,7 @@ For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
 <B>Delete</B> buttons.</P>
 ");
 
-	// Help, part 2 of 3; BackButtonLabel, FinishButtonLabel
+	// Help, part 2 of 3; Label::BackButton, Label::FinishButton
 	help_text = help_text + _("<P>To confirm the changes, press <B>Finish</B>. To dismiss them,
 use <B>Back</B>.</P>\n");
 
@@ -357,8 +358,8 @@ in a terminal.</P>
 	// dialog heading
 	Wizard::SetContentsButtons(_("Configuration of the NFS client"),
 				   contents, help_text,
-				   BackButtonLabel (),
-				   FinishButtonLabel ());
+				   Label::BackButton (),
+				   Label::FinishButton ());
 
 	UI::ChangeWidget (`id(`editbut), `Enabled, false);
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
@@ -420,7 +421,7 @@ in a terminal.</P>
 
 		   UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	   }
-	   else if (ret == `abort && !UI::ReallyAbortPopup (true))
+	   else if (ret == `abort && !Popup::ReallyAbort (true))
 	   {
 	       continue;
 	   }
@@ -449,7 +450,7 @@ in a terminal.</P>
 Do you really want to use the new settings?");
 	symbol ret = `back;
 
-	if (UI::YesNoPopup (message))
+	if (Popup::YesNo (message))
 	{
 	    ret = `finish;
 	}

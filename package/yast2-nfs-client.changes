@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jun 16 12:56:04 CEST 2003 - mvidner@suse.de
+
+- using Label and Popup
+
+-------------------------------------------------------------------
 Fri Mar 28 14:28:44 CET 2003 - mvidner@suse.de
 
 - Made the host browsing list display only NFS servers

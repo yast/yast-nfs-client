@@ -30,7 +30,7 @@
     import "Nfs";
     import "Wizard";
     include "require.ycp";
-    include "ui/common_popups.ycp";
+    import "Popup";
     include "wizard/sequencer.ycp";
     include "nfs/ui.ycp";
 
@@ -70,7 +70,7 @@
 	if (Nfs::Write ())
 	{
 	    // message popup
-	    UI::MessagePopup (_("All the settings were written and are ready to use."));
+	    Popup::Message (_("All the settings were written and are ready to use."));
 	}
     }
 

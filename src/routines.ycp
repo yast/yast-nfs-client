@@ -21,7 +21,7 @@
 {
     textdomain "nfs";
 
-    include "ui/common_popups.ycp";
+    import "Popup";
 
     /**
      * Creates a list of ui table items for nfs fstab entries
@@ -73,7 +73,7 @@
 	    return true;
 	} else
 	    // error popup message
-	    UI::MessagePopup(sformat(_("You entered a wrong host name. It must be
+	    Popup::Message(sformat(_("You entered a wrong host name. It must be
 shorter than 50 characters and you can use
 just 0..9, A..Z, a..z, dots, - and _.")));
 	return false;
@@ -94,7 +94,7 @@ just 0..9, A..Z, a..z, dots, - and _.")));
 	    return false;
 	else
 	    // error popup message
-	    UI::MessagePopup(sformat(_("The fstab already contains an entry
+	    Popup::Message(sformat(_("The fstab already contains an entry
 with mount-point '%1'."), mpoint));
 	return true;
     };
@@ -115,7 +115,7 @@ with mount-point '%1'."), mpoint));
 	}
 
 	// error popup message (spaces are now allowed)
-	UI::MessagePopup(sformat(_("You entered a wrong path.
+	Popup::Message(sformat(_("You entered a wrong path.
 It must be shorter than 70 characters
 and it must begin with a slash (/).")));
 	return false;
