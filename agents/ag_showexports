@@ -58,9 +58,14 @@ function kill_after() {
 # so that it can be killed after a timeout
 function showexports_long() {
     local HOST="$1"
-    # sed: strip authorized hosts, make a ycp item
-    /usr/sbin/showmount --no-headers --exports "$HOST" | \
+    local SM=/usr/sbin/showmount
+    if test -x "$SM"; then
+	# sed: strip authorized hosts, make a ycp item
+	"$SM" --no-headers --exports "$HOST" | \
 	sed -e 's/[[:space:]]*[^[:space:]]*$//' -e 's/\(.*\)/"\1",/'
+    else
+	echo '"Install nfs-utils.rpm"'
+    fi
 }
 
 # showexports host
