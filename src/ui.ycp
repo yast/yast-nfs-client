@@ -361,13 +361,14 @@ in a terminal.</P>
 
 	string message = _("The entered values will be written now.
 Do you really want to use the new settings?");
+	symbol ret = `back;
 
 	if (UI::YesNoPopup (message))
 	{
-	    return `finish;
+	    ret = `finish;
 	}
 
 	RestoreScreenShotName ();
-	return `back;
+	return ret;
     }
 }

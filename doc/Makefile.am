@@ -9,9 +9,7 @@ SUBDIRS = autodocs
 htmldir = $(docdir)
 
 screenshots = \
-	nfs1.png \
-	nfs2.png \
-	save.png \
+	nfs-client-*.png \
 	abort.png
 workflow.png: workflow.dia $(screenshots)
 	dia --export=$@ $<
