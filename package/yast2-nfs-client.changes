@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Feb 10 10:07:04 CET 2004 - lslezak@suse.cz
+
+- removed *.y2cc file
+- version 2.9.2
+
+-------------------------------------------------------------------
 Tue Feb  3 13:52:19 CET 2004 - lslezak@suse.cz
 
 - testsuite: NI fixes, update

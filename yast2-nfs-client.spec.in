@@ -39,8 +39,6 @@ Summary:	Configuration of nfs
 %dir @moduledir@
 @moduledir@/Nfs.ycp
 @moduledir@/Nfs.ybc
-%dir @configdir@
-@configdir@/nfs.y2cc
 %dir @desktopdir@
 @desktopdir@/nfs.desktop
 %dir @scrconfdir@

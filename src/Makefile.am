@@ -14,8 +14,6 @@ myinclude_DATA =	\
 module_DATA =		\
 	Nfs.ycp
 
-config_DATA = nfs.y2cc
-
 desktop_DATA = nfs.desktop
 
 nfs:
@@ -25,6 +23,6 @@ ycpchook = nfs
 
 YCPCFLAGS = -I.
 
-EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(config_DATA) $(desktop_DATA)
+EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(desktop_DATA)
 
 include $(top_srcdir)/Makefile.am.common
