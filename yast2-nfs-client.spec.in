@@ -1,9 +1,9 @@
 @HEADER-COMMENT@
 
-# neededforbuild  yast2-devel-packages yast2-runlevel
+# neededforbuild  yast2-devel-packages
 
 @HEADER@
-Requires:	yast2 yast2-runlevel yast2-packager
+Requires:	yast2 yast2-packager
 
 Provides:	yast2-config-nfs yast2-config-nfs-devel
 Obsoletes:	yast2-config-nfs yast2-config-nfs-devel
@@ -30,9 +30,12 @@ Summary:	Configuration of nfs
 %defattr(-,root,root)
 %dir @yncludedir@/nfs
 @yncludedir@/nfs/*
+%dir @clientdir@
 @clientdir@/nfs.ycp
 @clientdir@/nfs_auto.ycp
 @clientdir@/nfs_write.ycp
+%dir @moduledir@
 @moduledir@/Nfs.ycp
+%dir @configdir@
 @configdir@/nfs.y2cc
 %doc @docdir@
