@@ -1,0 +1,56 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Routines testuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    include "nfs/routines.ycp";
+
+    list nfs_fstab = [
+	$[
+	    "file":"/home", 
+	    "freq":0, 
+	    "mntops":"defaults", 
+	    "passno":0, 
+	    "spec":"foo.bar.com:/home", 
+	    "vfstype":"nfs"
+	 ], 
+	$[
+	    "file":"/var/spool/mail", 
+	    "freq":0, 
+	    "mntops":"defaults", 
+	    "passno":0, 
+	    "spec":"foo.bar.com:/var/spool/mail", 
+	    "vfstype":"nfs"
+	 ]
+	];
+
+    TEST (``(FstabTableItems (nfs_fstab)), [], nil);
+
+    TEST (``(SpecToServPath ("big.foo.com:/share/data")), [], nil);
+    TEST (``(SpecToServPath ("only.server.com:")), [], nil);
+    TEST (``(SpecToServPath ("nocolon.only.server.com")), [], nil);
+    TEST (``(SpecToServPath (":/only/path")), [], nil);
+    TEST (``(SpecToServPath ("/nocolon/only/path")), [], nil);
+    TEST (``(SpecToServPath ("two:colons:used")), [], nil);
+    TEST (``(SpecToServPath ("")), [], nil);
+
+    TEST (``(check_options ("")), [], nil);
+    TEST (``(check_options ("defaults")), [], nil);
+    TEST (``(check_options ("nolock,bg")), [], nil);
+    TEST (``(check_options ("nolock,nobg")), [], nil);
+    TEST (``(check_options ("nolock,rsize=8192")), [], nil);
+    TEST (``(check_options ("nolock, bg")), [], nil);
+    TEST (``(check_options ("nolock,unknownoption")), [], nil);
+    TEST (``(check_options ("nolock,unknownassignment=true")), [], nil);
+    TEST (``(check_options ("nolock,rsize=")), [], nil);
+    TEST (``(check_options ("nolock,two=equal=signs")), [], nil);
+}
