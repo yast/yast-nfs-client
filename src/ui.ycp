@@ -28,27 +28,29 @@
     include "ui/common_popups.ycp";
 
     /**
-     * Give me one name from the list of hosts
-     * @param hosts	a list of hostnames
-     * @return		a hostname
+     * Let the user choose one of a list of items
+     * @param title	selectionbox title
+     * @param items	a list of items
+     * @return		one item or nil
      */
-    global define string ChooseHostName(list(string) hosts) ``{
-	Wizard::SetScreenShotName ("nfs-client-1aa-hosts");
-	string hname = nil;
+    global define string ChooseItem (string title, list(string) items) ``{
+	string item = nil;
 
-	UI::OpenDialog(
-	    `VBox(`HSpacing(40),
-		  `HBox(
-		      // selection box label
-		      `SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
-		      `VSpacing(10)
-		      ),
-		  `HBox(`PushButton(`id(`ok),
-				    `opt(`default, `key_F10),
-				    OKButtonLabel()),
-			`PushButton(`id(`cancel),
-				    `opt (`key_F9),
-				    CancelButtonLabel()))));
+	UI::OpenDialog (
+	    `VBox (
+		`HSpacing (40),
+		`HBox (
+		    `SelectionBox (`id (`items), title, items),
+		    `VSpacing(10)
+		    ),
+		`HBox (
+		    `PushButton (`id (`ok), `opt (`default, `key_F10),
+				 OKButtonLabel ()),
+		    `PushButton (`id (`cancel), `opt (`key_F9),
+				 CancelButtonLabel())
+		    )
+		));
+	UI::SetFocus (`id (`items));
 	any ret = nil;
 	do
 	{
@@ -58,15 +60,54 @@
 
 	if (ret == `ok)
 	{
-	    hname = UI::QueryWidget(`id(`hosts), `CurrentItem);
+	    item = UI::QueryWidget (`id (`items), `CurrentItem);
 	}
 	UI::CloseDialog();
+
+	return item;
+    }
+
+    /**
+     * Give me one name from the list of hosts
+     * @param hosts	a list of hostnames
+     * @return		a hostname
+     */
+    global define string ChooseHostName(list(string) hosts) ``{
+	Wizard::SetScreenShotName ("nfs-client-1aa-hosts");
+	// selection box label
+	// changed from "Remote hosts" because now it shows
+	// NFS servers only
+	string ret = ChooseItem (_("&NFS servers"), hosts);
 	Wizard::RestoreScreenShotName ();
+	return ret;
+    }
 
-	return hname;
-    };
+    /**
+     * Give me one name from the list of exports
+     * @param hosts	a list of export
+     * @return		an export
+     */
+    global define string ChooseExport (list(string) exports) ``{
+	Wizard::SetScreenShotName ("nfs-client-1ab-exports");
+	// selection box label
+	string ret = ChooseItem (_("&Exported directories"), exports);
+	Wizard::RestoreScreenShotName ();
+	return ret;
+    }
 
-
+    /**
+     * Nicely put a `TextEntry and its helper `PushButton together
+     * @param text   textentry widget
+     * @param button pushbutton widget
+     * @return a HBox
+     */
+    global define term TextAndButton (term text, term button) ``{
+	return `HBox (
+	    `Bottom (text),
+	    `HSpacing(0.5),
+	    `Bottom (button)
+	    );
+    }
     /**
      * Ask user for an entry.
      * @param fstab_ent	$["spec": "file": "mntopts":] or nil
@@ -96,37 +137,38 @@
 		`HSpacing(1),
 		`VBox(
 		    `VSpacing(0.2),
-		    `VSquash(
-			`HBox(
-			    `TextEntry(
-				`id(`serverent),
-				// text entry label
-				_("Host name of the &NFS server:"), server),
-			    `HSpacing(0.5),
-			    `VBox(
-				`Bottom (
-				    // pushbutton label
-				    `PushButton (`id (`choose), _("Choo&se"))
-				    )
-				)
-			    )),
+		    TextAndButton (
+			`TextEntry(
+			    `id(`serverent),
+			    // text entry label
+			    _("Host name of the &NFS server:"), server),
+			// pushbutton label
+			// choose a host from a list
+			// appears in help text too
+			`PushButton (`id (`choose), _("Choo&se"))
+			),
 		    `HBox(
-			`TextEntry(`id(`pathent),
-				   // textentry label
-				   _("&Remote filesystem:"), pth),
+			TextAndButton (
+			    `TextEntry(`id(`pathent),
+				       // textentry label
+				       _("&Remote filesystem:"), pth),
+			    // pushbutton label,
+			    // select from a list of remote filesystems
+			    // make it short
+			    // appears in help text too
+			    `PushButton (`id (`pathent_list), _("&Select"))
+			    ),
 			`HSpacing(0.5),
-			`HBox (
+			TextAndButton (
 			    `TextEntry(`id(`mountent),
 				       // textentry label
 				       _("&Mountpoint (local):"), mount),
-			    `HSpacing(0.5),
-			    `VBox (
-				`Bottom (
-				    // button label
-				    `PushButton(`id(`browse), _("&Browse"))
-				    )
-				)
-			    )),
+			    // button label
+			    // browse directories to select a mount point
+			    // appears in help text too
+			    `PushButton(`id(`browse), _("&Browse"))
+			    )
+			),
 		    // textentry label
 		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
 		    `VSpacing(0.2),
@@ -150,7 +192,7 @@
 		{
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
-		    hosts = sort(SCR::Read(.net.hostnames));
+		    hosts = sort(SCR::Read(.net.hostnames.rpc, "nfs"));
 		    UI::CloseDialog();
 		    if (hosts == nil) hosts = [];
 		}
@@ -158,6 +200,27 @@
 		if (host != nil)
 		{
 		    UI::ChangeWidget(`id(`serverent), `Value, host);
+		}
+	    }
+	    else if (ret == `pathent_list)
+	    {
+		string server = UI::QueryWidget(`id(`serverent), `Value);
+		UI::OpenDialog (
+		    `Label (
+			// Popup dialog, %1 is a host name
+			sformat (_("Getting directory list for \"%1\"..."),
+				 server)
+			));
+		list (string) dirs = SCR::Read (.net.showexports, server);
+		if (dirs == nil)
+		{
+		    dirs = ["internal error"];
+		}
+		UI::CloseDialog ();
+		string dir = ChooseExport (dirs);
+		if (dir != nil)
+		{
+		    UI::ChangeWidget (`id (`pathent), `Value, dir);
 		}
 	    }
 	    else if (ret == `browse)
@@ -214,18 +277,22 @@
 	    else if (ret == `help)
 	    {
 		//help text 1/3
+		// change: locally defined -> servers on LAN
 		string helptext = _("<p>Please enter the <b>hostname</b> of the NFS server; the
-<i>Choose</i> button enables you to browse through a list of locally
-defined hosts.</p>");
+<i>Choose</i> button enables you to browse through a list of
+NFS servers on the local network.</p>");
 		// help text 2/3
+		// added "Select" button
 		helptext = helptext + _("<p>You must also supply the directory on the remote NFS server and a
 local <b>mountpoint</b>, on which the directory will be mounted. (With
+the <i>Select</i> button you can select from the exported directories
+of the chosen server and with
 the <i>Browse</i> button you can select your mount point
 interactively)</p>");
 		// help text 3/3
 		helptext = helptext + _("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>");
 		// popup heading
-		UI::LongTextPopup (_("Help"), `RichText (helptext), 50, 15);
+		UI::LongTextPopup (_("Help"), `RichText (helptext), 50, 18);
 	    }
 	}
 	while (ret != `ok && ret != `cancel);
