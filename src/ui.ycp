@@ -111,6 +111,7 @@
 				   `VSpacing(0.2)),
 			     `HSpacing(1)
 			   ));
+	UI::SetFocus (`id (`serverent));
 
 	any ret = nil;
 	do
