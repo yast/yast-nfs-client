@@ -4,6 +4,8 @@
 
 @HEADER@
 Requires:	yast2 yast2-packager
+# .net.hostnames.rpc
+Requires:	yast2-core >= 2.8.0
 
 Provides:	yast2-config-nfs yast2-config-nfs-devel
 Obsoletes:	yast2-config-nfs yast2-config-nfs-devel
@@ -38,4 +40,8 @@ Summary:	Configuration of nfs
 @moduledir@/Nfs.ycp
 %dir @configdir@
 @configdir@/nfs.y2cc
+%dir @scrconfdir@
+@scrconfdir@/net_showexports.scr
+%dir @agentdir@
+@agentdir@/ag_showexports
 %doc @docdir@
