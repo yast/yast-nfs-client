@@ -46,7 +46,7 @@
             foreach(`entry, fstab, ``{
                 if (lookup(entry, "vfstype") == "nfs") {
                     import_nfs = true;
-                    if (! Mkdir(lookup(entry, "file"))) 
+                    if (! SCR (`Execute (.target.mkdir, lookup(entry, "file"))))
                     {
                         // error popup message
                         UI(`MessagePopup(sformat(UI(_("I was unable to create directory '%1'.")), lookup(entry, "file"))));

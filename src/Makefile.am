@@ -9,12 +9,12 @@ includedir = $(YAST2DIR)/include/nfs
 menudir = $(YAST2DIR)/menuentries
 
 clients_DATA =		\
-	nfs.ycp		\
-	nfs_write.ycp
+	nfs.ycp
 
 include_DATA =		\
 	routines.ycp	\
-	ui.ycp
+	ui.ycp		\
+	nfs_write.ycp
 
 menu_DATA = menuentry_nfs.ycp
 
