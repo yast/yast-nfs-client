@@ -88,10 +88,10 @@
 				   `VSquash(`HBox(
 				       `TextEntry(`id(`serverent),
 						  // text entry label
-						  _("&Hostname of the NFS server:"), server),
+						  _("Hostname of the &NFS server:"), server),
 				       `VBox(`VSpacing(),
 					     // pushbutton label
-					     `Bottom(`PushButton(`id(`choose), _("&Choose")))))),
+					     `Bottom(`PushButton(`id(`choose), _("Choo&se")))))),
 				   // textentry label
 				   `HBox(`TextEntry(`id(`pathent), _("&Remote filesystem:"), pth),
 					 `HSpacing(0.5),
@@ -102,7 +102,7 @@
 						`PushButton(`id(`browse), _("&Browse")))
 					     )),
 				   // textentry label
-				   `TextEntry(`id(`optionsent), _("&Options:"), options),
+				   `TextEntry(`id(`optionsent), _("O&ptions:"), options),
 				   `VSpacing(0.2),
 				   // ok pushbutton: confirm the dialog
 				   `HBox(`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
