@@ -1,0 +1,158 @@
+/**
+ * File:
+ *   nfs_write.ycp
+ *
+ * Module:
+ *   Configuration of nfs
+ *
+ * Summary:
+ *   Writing only client
+ *
+ * Authors:
+ *   Jan Holesovsky <kendy@suse.cz>
+ *   Dan Vesely <dan@suse.cz>
+ *
+ * $Id$
+ *
+ * This is a write-only client. It takes its arguments and just
+ * write the settings.
+ */
+
+{
+    module "Nfs";
+
+    textdomain "nfs";
+    
+    import "Runlevel";
+
+    /**
+     * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
+     */
+    global list(map) nfs_entries = [];
+
+    /**
+     * Read only, intended for checking mount-point uniqueness.
+     */
+    global list(map) non_nfs_entries = [];
+
+    /**
+     * Get all NFS configuration from a map.
+     * When called by nfs_auto (preparing autoinstallation data)
+     * the map may be empty.
+     * @param settings	a map with a single key: nfs_entries
+     * @return	success
+     */
+    global define boolean Import (map settings) ``{
+	if (size (settings) == 0)
+	{
+	    //Provide defaults for autoinstallation editing:
+	    //Leave empty.
+	    return true;
+	}
+	
+	boolean missing = false;
+	foreach (`k, ["nfs_entries"], ``{
+	    if (! haskey (settings, k))
+	    {
+		y2error ("Missing at Import: '%1'.", k);
+		missing = true;
+	    }
+	});
+	if (missing)
+	{
+	    return false;
+	}
+
+	nfs_entries = lookup (settings, "nfs_entries", []);
+	return true;
+    }
+
+    /**
+     * Log a message. TODO: let the user know?
+     * Before the conversion to a Module, these messages used to be
+     * UI::MessagePopup.
+     * @param message	a message to log
+     */
+    define void errorNoPopup (string message) ``{
+	y2error (message);
+    }
+
+    /**
+     * Reads NFS settings from the SCR (.etc.fstab)
+     */
+    global define boolean Read () ``{
+	list(map) fstab = SCR::Read (.etc.fstab);
+	// For simplicity, this leaves also the unused fileds in the maps.
+	nfs_entries = filter (`entry, fstab, ``{
+	    return (lookup (entry, "vfstype", "") == "nfs");
+	});
+	non_nfs_entries = filter (`entry, fstab, ``{
+	    return (lookup (entry, "vfstype", "") != "nfs");
+	});
+
+	return true;
+    }
+
+    /**
+     * Saves NFS client.
+     * (No parameters because it is too short to abort)
+     * @return true on success
+     */
+    global define boolean Write () ``{
+	Runlevel::RunInitScript ("nfs", "stop");
+
+	// Merge with non-nfs entries from fstab:
+	list(map) fstab = SCR::Read (.etc.fstab);
+	fstab = filter (`entry, fstab, ``{
+	    return (lookup (entry, "vfstype", "") != "nfs");
+	});
+	foreach (`entry, nfs_entries, ``{
+	    fstab = add (fstab, union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
+
+	    // create mount points
+	    string file = lookup(entry, "file", "");
+	    if (! SCR::Execute (.target.mkdir, file))
+	    {
+		// error popup message
+		errorNoPopup (sformat (_("Unable to create directory '%1'."), file));
+		return false;
+	    }
+	});
+
+
+	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
+
+	if (SCR::Write(.etc.fstab, fstab) == nil)
+	{
+	    // error popup message
+	    errorNoPopup(_("Unable to write to /etc/fstab.
+There will be no changes in the
+configuration of the NFS client.
+"));
+	    return false;
+	}
+
+	if (start_client)
+	{
+	    Runlevel::ServiceAdjust ("portmap", "enable");
+	    Runlevel::ServiceAdjust ("nfs", "enable");
+
+	    if (Runlevel::ServiceStatus ("portmap") != 0)
+	    {
+		// portmap must not be started if it is running already (see bug # 9999)
+		Runlevel::RunInitScript ("portmap", "start");
+	    }
+	    Runlevel::RunInitScript ("nfs", "start");
+
+	    if (Runlevel::ServiceStatus ("nfs") != 0)
+	    {
+		// error popup message
+		errorNoPopup(_("Unable to mount the NFS entries from /etc/fstab."));
+		return false;
+	    }
+	}
+
+	return true;
+    }
+
+}

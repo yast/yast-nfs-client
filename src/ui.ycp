@@ -19,9 +19,9 @@
  */
 
 {
-
     textdomain "nfs";
 
+    import "Nfs";
     include "nfs/routines.ycp";
     include "ui/file_popups.ycp";
     include "ui/common_popups.ycp";
@@ -29,10 +29,10 @@
 
     /**
      * Give me one name from the list of hosts
-     * @param hosts list of hosts
-     * @return string hostname
+     * @param hosts	a list of hostnames
+     * @return		a hostname
      */
-    global define ChooseHostName(list hosts) ``{
+    global define string ChooseHostName(list(string) hosts) ``{
 	string hname = nil;
 
 	UI::OpenDialog(
@@ -60,11 +60,11 @@
 
     /**
      * Ask user for an entry.
-     * @param fstab_ent entries in the fstab
-     * @param fstab list of fstab entries
-     * @return  map with fstab entries or nil
+     * @param fstab_ent	$["spec": "file": "mntopts":] or nil
+     * @param existing	list of fstab entries for duplicate mount-point checking
+     * @return		a nfs_entry or nil
      */
-    global define GetFstabEntry(map fstab_ent, list fstab) ``{
+    global define map GetFstabEntry(map fstab_ent, list(map) existing) ``{
 	string server = "";
 	string pth = "";
 	string mount = "";
@@ -154,14 +154,11 @@
 
 		if (CheckHostName(server) && CheckPath(pth) &&
 		    CheckPath(mount) &&
-		    !IsMpInFstab(fstab, mount)) {
+		    !IsMpInFstab(existing, mount)) {
 		    fstab_ent = $[
 			"spec"    : server+":"+pth,
 			"file"    : mount,
-			"vfstype" : "nfs",
 			"mntops"  : options,
-			"freq"    : 0,
-			"passno"  : 0
 			];
 		} else
 		    ret = nil;
@@ -196,8 +193,9 @@ interactively)</p>");
 
     /**
      * NFS client dialog itselfs
+     * @return `back, `abort or `next
      */
-    global define FstabDialog () ``{
+    global define symbol FstabDialog () ``{
 
 	// Help, part 1 of 3
 	string help_text = _("<P>The table contains all the NFS entries which will be written to /etc/fstab.
@@ -215,15 +213,7 @@ use <B>Back</B>.</P>
 in a terminal.</P>
 ");
 
-
-	list fstab = lookup(nfs_config, "fstab", []);
-	list nfs_fstab = filter(`entry, fstab, ``{
-	    return (lookup(entry, "vfstype", "") == "nfs");
-	});
-
-	fstab = filter(`entry, fstab, ``{
-	    return (lookup(entry, "vfstype", "") != "nfs");
-	});
+	list(map) nfs_entries = Nfs::nfs_entries;
 
 	term contents =
 	    `VBox(
@@ -231,7 +221,7 @@ in a terminal.</P>
 		       // table headers: "Server", "Remote filesystem", "Mountpoint", "Options"
 		       `header(_("Server")+"  ", _("Remote filesystem")+"  ",
 			       _("Mountpoint")+"  ", _("Options")+"  "),
-		       FstabTableItems(nfs_fstab)),
+		       FstabTableItems(nfs_entries)),
 		// button label
 		`HBox(`PushButton(`id(`newbut), _("A&dd")),
 		      // button label
@@ -264,44 +254,37 @@ in a terminal.</P>
 
 	   if (ret == `newbut)
 	   {
-	       map entry = GetFstabEntry(nil, union(fstab, nfs_fstab));
+	       map entry = GetFstabEntry (nil, union (Nfs::non_nfs_entries, nfs_entries));
 
 	       if (entry != nil)
-		   nfs_fstab = add(nfs_fstab, entry);
+		   nfs_entries = add (nfs_entries, entry);
 
-	       UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab));
+	       UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	   }
 	   else if (ret == `editbut)
 	   {
 		   integer count = 0;
-		   map entry = GetFstabEntry(select(nfs_fstab, entryno), // Default values
-						  union(fstab, filter(`entry, nfs_fstab, ``{ // Remove the selected entry
-						      count = count+1;
-						      return (count-1 != entryno);
-						  })));
-
+		   map entry = GetFstabEntry (select (nfs_entries, entryno), // Default values
+					      union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
 		   if (entry != nil)
 		   {
 		       integer count = 0;
-		       nfs_fstab = maplist(`ent, nfs_fstab, ``{
+		       nfs_entries = maplist(`ent, nfs_entries, ``{
 			   count = count+1;
 			   if (count-1 != entryno)
 			   return ent;
 			   return entry;
 		       });
 
-		       UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab));
+		       UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 		   }
 	   }
 	   else if (ret == `delbut && size(nfs_fstab) > 0)
 	   {
 		   integer count = 0;
-		   nfs_fstab = filter(`entry, nfs_fstab, ``{
-		       count = count+1;
-		       return (count-1 != entryno);
-		   });
+		   nfs_entries = remove (nfs_entries, entryno);
 
-		   UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_fstab));
+		   UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	   }
 	   else if (ret == `abort && !UI::ReallyAbortPopup (true))
 	   {
@@ -312,8 +295,7 @@ in a terminal.</P>
 
 	if (ret == `next)
 	{
-	    nfs_config = add (nfs_config, "fstab", union (nfs_fstab, fstab));
-	    nfs_config = add (nfs_config, "start_client", size(nfs_fstab) > 0);
+	    Nfs::nfs_entries = nfs_entries;
 	}
 
 	UI::ChangeWidget (`id(`next), `Label, NextButtonLabel());
@@ -323,11 +305,11 @@ in a terminal.</P>
     }
 
 
-
     /**
      * Last confirmation dialog to use with sequencer
+     * @return `back or `finish
      */
-    global define SaveDialog () ``{
+    global define symbol SaveDialog () ``{
 
 	string message = _("The entered values will be written now.
 Do you really want to use the new settings?");

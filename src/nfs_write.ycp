@@ -3,14 +3,13 @@
  *   nfs_write.ycp
  *
  * Module:
- *   Configuration of nfs
+ *   Configuration of NFS
  *
  * Summary:
  *   Writing only client
  *
  * Authors:
- *   Jan Holesovsky <kendy@suse.cz>
- *   Dan Vesely <dan@suse.cz>
+ *   Martin Vidner <mvidner@suse.cz>
  *
  * $Id$
  *
@@ -18,81 +17,28 @@
  * write the settings.
  */
 
+/**
+ * @param first a map of NFS settings
+ * @see Nfs#Import
+ * @return boolean success of operation
+ */
 {
 
     textdomain "nfs";
 
-    include "ui/common_popups.ycp";
+    import "Nfs";
 
-
-    /**
-     * Saves NFS client part
-     * @param import_nfs start NFS client
-     * @param fstab list of fstab entries
-     * @return boolean success
-     */
-    global define nfs_client_save (boolean import_nfs, list fstab) ``{
-
-	SCR::Execute(.target.bash, "/etc/init.d/nfs stop", $[]);
-
-	if (!import_nfs)
-	{
-	    // filter out any nfs entries
-	    fstab = filter(`entry, fstab, ``{
-		return (lookup(entry, "vfstype", "") != "nfs");
-	    });
-	}
-	else
-	{
-	    // create mount points
-	    foreach(`entry, fstab, ``{
-		if (lookup(entry, "vfstype", "") == "nfs") {
-		    import_nfs = true;
-		    if (! SCR::Execute (.target.mkdir, lookup(entry, "file", "")))
-		    {
-			// error popup message
-			UI::MessagePopup(sformat(_("Unable to create directory '%1'."), lookup(entry, "file", "")));
-			return false;
-		    }
-		}
-
-	    });
-	}
-
-	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
-
-	if (fstab != nil && SCR::Write(.etc.fstab, fstab) == nil)
-	{
-	    // error popup message
-	    UI::MessagePopup(_("Unable to write to /etc/fstab.
-There will be no changes in the
-configuration of the NFS client.
-"));
-	    return false;
-	}
-
-	if (import_nfs)
-	{
-	    CallFunction (`runlevel_adjust ("portmap", "enable"));
-	    CallFunction (`runlevel_adjust ("nfs", "enable"));
-
-	    if (SCR::Execute(.target.bash, "/etc/init.d/portmap status") != 0)
-	    {
-		// portmap must not be started if it is running already (see bug # 9999)
-		SCR::Execute(.target.bash, "/etc/init.d/portmap start");
-	    }
-	    SCR::Execute(.target.bash, "/etc/init.d/nfs start");
-
-	    if (SCR::Execute(.target.bash, "/etc/init.d/nfs status") != 0)
-	    {
-		// error popup message
-		UI::MessagePopup(_("Unable to mount the NFS entries from /etc/fstab."));
-		return false;
-	    }
-	}
-
-	return true;
+    if (size (Args ()) != 1)
+    {
+	y2error ("Exactly one argument required.");
+	return false;
+    }
+    if (! is (Args (0), map))
+    {
+	y2error ("The argument must be a map.");
+	return false;
     }
 
-
+    // The write is a simple one so we don't use Progress
+    return Nfs::Import (Args (0)) && Nfs::Write ();
 }

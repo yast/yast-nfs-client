@@ -27,12 +27,12 @@
 
     textdomain "nfs";
 
+    import "Nfs";
     include "require.ycp";
     include "ui/common_popups.ycp";
     include "ui/wizard_dialog.ycp";
     include "wizard/sequencer.ycp";
     include "nfs/ui.ycp";
-    include "nfs/nfs_write.ycp";
 
     map Aliases = $[
 	"fstab"   : ``(FstabDialog ()),
@@ -50,11 +50,6 @@
 	    ]
 	];
 
-    map nfs_config = $[
-	"start_client" : true,
-	"fstab"        : SCR::Read(.etc.fstab)
-	];
-
     if (!RequireAndConflict (["portmap"], [],
 			     // notification 1/2
 			     _("<p>To access the Network File System, the <b>%1</b> package must be installed.</p>") +
@@ -64,6 +59,8 @@
 	return;
     }
 
+    Nfs::Read();
+
     UI::CreateWizardDialog ();
     //UI (`ReplaceWizardAbortButton(`Empty (`id (`abort))));
 
@@ -71,10 +68,7 @@
 
     if (result == `ws_finish)
     {
-	boolean start_nfs_client = lookup (nfs_config, "start_client", true);
-	list fstab = lookup (nfs_config, "fstab", []);
-
-	if (nfs_client_save (start_nfs_client, fstab))
+	if (Nfs::Write ())
 	{
 	    UI::MessagePopup (_("All the settings were written and are ready to use."));
 	}
