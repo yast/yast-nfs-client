@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jun 26 14:19:21 CEST 2002 - mvidner@suse.cz
+
+- Pot file included.
+- Removed dependency on translation package.
+- Adapted to changed any-agent interface.
+- 2.6.2
+
+-------------------------------------------------------------------
 Mon May 27 11:56:22 CEST 2002 - mvidner@suse.cz
 
 - Current autoyast interface (nashif) 
