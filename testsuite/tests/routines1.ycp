@@ -33,8 +33,10 @@
 	 ]
 	];
 
+    DUMP ("FstabTableItems");
     TEST (``(FstabTableItems (nfs_fstab)), [], nil);
 
+    DUMP ("SpecToServPath");
     TEST (``(SpecToServPath ("big.foo.com:/share/data")), [], nil);
     TEST (``(SpecToServPath ("only.server.com:")), [], nil);
     TEST (``(SpecToServPath ("nocolon.only.server.com")), [], nil);
@@ -43,6 +45,7 @@
     TEST (``(SpecToServPath ("two:colons:used")), [], nil);
     TEST (``(SpecToServPath ("")), [], nil);
 
+    DUMP ("check_options");
     TEST (``(check_options ("")), [], nil);
     TEST (``(check_options ("defaults")), [], nil);
     TEST (``(check_options ("nolock,bg")), [], nil);
@@ -53,4 +56,10 @@
     TEST (``(check_options ("nolock,unknownassignment=true")), [], nil);
     TEST (``(check_options ("nolock,rsize=")), [], nil);
     TEST (``(check_options ("nolock,two=equal=signs")), [], nil);
+
+    DUMP ("StripExtraSlash");
+    TEST (``(StripExtraSlash ("")), [], nil);
+    TEST (``(StripExtraSlash ("/")), [], nil);
+    TEST (``(StripExtraSlash ("/normal/path")), [], nil);
+    TEST (``(StripExtraSlash ("/trailing/slash/")), [], nil);
 }

@@ -1,4 +1,6 @@
+Dump	FstabTableItems
 Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "defaults ")]
+Dump	SpecToServPath
 Return	`couple ("big.foo.com", "/share/data")
 Return	`couple ("only.server.com", "")
 Return	`couple ("", "nocolon.only.server.com")
@@ -6,6 +8,7 @@ Return	`couple ("", "/only/path")
 Return	`couple ("", "/nocolon/only/path")
 Return	`couple ("two", "colons:used")
 Return	`couple ("", "")
+Dump	check_options
 Return	Empty options string not allowed!
 Return	
 Return	
@@ -16,3 +19,8 @@ Return	Wrong option format: unknownoption
 Return	Wrong option: unknownassignment
 Return	Empty value for option: rsize
 Return	Wrong option format: two=equal=signs
+Dump	StripExtraSlash
+Return	
+Return	/
+Return	/normal/path
+Return	/trailing/slash

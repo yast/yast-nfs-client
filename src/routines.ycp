@@ -191,4 +191,20 @@ with a / and it must not contain spaces.")));
 
 	return "";
     }
+
+    /**
+     * Strips a superfluous slash off the end of a pathname.
+     * @param	p	pathname
+     * @return	string	stripped pathname
+     */
+    global define StripExtraSlash (string p) ``{
+	if (regexpmatch (p, "^.+/$"))
+	{
+	    return regexpsub (p, "^(.+)/$", "\\1");
+	}
+	else
+	{
+	    return p;
+	}
+    }
 }

@@ -136,8 +136,8 @@
 		}
 	    if (ret == `ok) {
 		server = UI::QueryWidget(`id(`serverent), `Value);
-		pth = UI::QueryWidget(`id(`pathent), `Value);
-		mount = UI::QueryWidget(`id(`mountent), `Value);
+		pth = StripExtraSlash (UI::QueryWidget(`id(`pathent), `Value));
+		mount = StripExtraSlash (UI::QueryWidget(`id(`mountent), `Value));
 		options = UI::QueryWidget(`id(`optionsent), `Value);
 
 		string options_error = check_options (options);
