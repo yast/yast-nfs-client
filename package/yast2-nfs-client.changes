@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 31 17:43:15 CEST 2004 - mvidner@suse.cz
+
+- use nfsboot (sm_notify) instead of nfslock (rpc.statd) (#36737)
+- 2.9.10
+
+-------------------------------------------------------------------
 Mon Mar 15 09:39:59 CET 2004 - mvidner@suse.cz
 
 - fixed canceling Abort (#35991)

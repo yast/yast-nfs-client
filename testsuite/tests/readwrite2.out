@@ -22,26 +22,20 @@ Read	.init.scripts.exists "nfs" true
 Read	.init.scripts.exists "nfs" true
 Read	.init.scripts.runlevel "nfs" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.runlevel "nfslock" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
-Read	.init.scripts.comment "nfslock" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfslock" $["exit":0, "stderr":"", "stdout":""]
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
+Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfsserver" true
-Execute	.target.bash "/etc/init.d/nfsserver status" $["TERM":"raw"] 0
 Read	.init.scripts.exists "portmap" true
 Execute	.target.bash "/etc/init.d/portmap status" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs start" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs status" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfslock" true
-Execute	.target.bash "/etc/init.d/nfslock start" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfslock" true
-Execute	.target.bash "/etc/init.d/nfslock status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs is in use & stopped
@@ -69,26 +63,20 @@ Read	.init.scripts.exists "nfs" true
 Read	.init.scripts.runlevel "nfs" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
 Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfs" $["exit":0, "stderr":"", "stdout":""]
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.exists "nfslock" true
-Read	.init.scripts.runlevel "nfslock" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
-Read	.init.scripts.comment "nfslock" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfslock" $["exit":0, "stderr":"", "stdout":""]
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.exists "nfsboot" true
+Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
+Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
+Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfsserver" true
-Execute	.target.bash "/etc/init.d/nfsserver status" $["TERM":"raw"] 0
 Read	.init.scripts.exists "portmap" true
 Execute	.target.bash "/etc/init.d/portmap status" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs start" $["TERM":"raw"] 0
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs status" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfslock" true
-Execute	.target.bash "/etc/init.d/nfslock start" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfslock" true
-Execute	.target.bash "/etc/init.d/nfslock status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & running
@@ -103,8 +91,6 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfsserver" true
-Execute	.target.bash "/etc/init.d/nfsserver status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & services are stopped
@@ -119,6 +105,4 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash "/etc/init.d/nfs stop" $["TERM":"raw"] 0
-Read	.init.scripts.exists "nfsserver" true
-Execute	.target.bash "/etc/init.d/nfsserver status" $["TERM":"raw"] 0
 Return	true

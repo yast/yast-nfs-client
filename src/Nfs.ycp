@@ -256,7 +256,9 @@ the NFS client configuration.\n"));
 	{
 	    Service::Enable("portmap");
 	    Service::Enable("nfs");
-	    Service::Enable("nfslock");
+	    // #36737: it just runs sm_notify at boot time
+	    // replaces rpc.statd
+	    Service::Enable("nfsboot");
 	}
 
 	return true;
@@ -292,12 +294,6 @@ the NFS client configuration.\n"));
 
 	    Service::Stop("nfs");
 
-	    // stop locking daemon if NFS server is not running
-	    if (Service::Status("nfsserver") != 0)
-	    {
-		Service::Stop("nfslock");
-	    }
-
 	    Progress::NextStage ();
 	    if (size (nfs_entries) > 0)
 	    {
@@ -312,14 +308,6 @@ the NFS client configuration.\n"));
 		{
 		    // error popup message
 		    Report::Error (_("Unable to mount the NFS entries from /etc/fstab."));
-		    return false;
-		}
-
-		Service::Start("nfslock");
-		if (Service::Status("nfslock") != 0)
-		{
-		    // error popup message
-		    Report::Error (_("Unable to start the NFS locking daemon."));
 		    return false;
 		}
 	    }
