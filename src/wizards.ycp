@@ -2,7 +2,7 @@
  * File:	include/nfs/wizards.ycp
  * Package:	Configuration of nfs
  * Summary:	Wizards definitions
- * Authors:	XXmaintainerXX <XXemailXX>
+ * Authors:	Martin Vidner <mvidner@suse.cz>
  *
  * $Id$
  */
