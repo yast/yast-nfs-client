@@ -42,7 +42,7 @@
 		      `SelectionBox(`id(`hosts), _("&Remote hosts"), hosts),
 		      `VSpacing(10)
 		      ),
-		  `HBox(`PushButton(`id(`ok), OKButtonLabel()),
+		  `HBox(`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
 			`PushButton(`id(`cancel), CancelButtonLabel()))));
 	any ret = nil;
 	do {
@@ -101,7 +101,7 @@
 				   `TextEntry(`id(`optionsent), _("&Options:"), options),
 				   `VSpacing(0.2),
 				   // ok pushbutton: confirm the dialog
-				   `HBox(`PushButton(`id(`ok), OKButtonLabel()),
+				   `HBox(`PushButton(`id(`ok), `opt(`default), OKButtonLabel()),
 					 `PushButton(`id(`cancel), CancelButtonLabel()),
 					 `PushButton(`id(`help), HelpButtonLabel())),
 				   `VSpacing(0.2)),
