@@ -68,6 +68,12 @@ else if (func == "Change") {
     ret = (symbol) FstabDialog ();
     UI::CloseDialog ();
 }
+else if (func == "GetModified") {
+    ret =  Nfs::GetModified();
+}
+else if (func == "SetModified") {
+    Nfs::SetModified();
+}
 /* Return actual state */
 else if (func == "Packages") {
     ret = (map) Nfs::AutoPackages();
