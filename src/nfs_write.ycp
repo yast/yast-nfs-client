@@ -16,10 +16,10 @@
  *
  * This is a write-only client. It takes its arguments and just
  * write the settings.
- */ 
+ */
 
 {
-  
+
     textdomain "nfs";
 
     include "ui/common_popups.ycp";
@@ -33,56 +33,56 @@
      */
     global define nfs_client_save (boolean import_nfs, list fstab) ``{
 
-        SCR (`Execute(.target.bash, "/etc/init.d/nfs stop", $[]));
+	SCR::Execute(.target.bash, "/etc/init.d/nfs stop", $[]);
 
-        if (!import_nfs)
-        {
-            fstab = filter(`entry, fstab, ``{
-                return (lookup(entry, "vfstype") != "nfs");
-            });
-        }
-        else
-        {
-            foreach(`entry, fstab, ``{
-                if (lookup(entry, "vfstype") == "nfs") {
-                    import_nfs = true;
-                    if (! SCR (`Execute (.target.mkdir, lookup(entry, "file"))))
-                    {
-                        // error popup message
-                        UI(`MessagePopup(sformat(UI(_("I was unable to create directory '%1'.")), lookup(entry, "file"))));
-                        return false;
-                    }
-                }
-                
-            });
-        }
-       
-        SCR (`Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]));
+	if (!import_nfs)
+	{
+	    fstab = filter(`entry, fstab, ``{
+		return (lookup(entry, "vfstype") != "nfs");
+	    });
+	}
+	else
+	{
+	    foreach(`entry, fstab, ``{
+		if (lookup(entry, "vfstype") == "nfs") {
+		    import_nfs = true;
+		    if (! SCR::Execute (.target.mkdir, lookup(entry, "file")))
+		    {
+			// error popup message
+			UI::MessagePopup(sformat(_("I was unable to create directory '%1'."), lookup(entry, "file")));
+			return false;
+		    }
+		}
 
-        if (fstab != nil && SCR(`Write(.etc.fstab, fstab)) == nil) 
-        {
-            // error popup message
-            UI(`MessagePopup(_("I was unable to write to /etc/fstab.
+	    });
+	}
+
+	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
+
+	if (fstab != nil && SCR::Write(.etc.fstab, fstab) == nil)
+	{
+	    // error popup message
+	    UI::MessagePopup(_("I was unable to write to /etc/fstab.
 There will be no changes in the
-configuration of the NFS client.")));
-            return false;
-        }
-        
-        if (import_nfs) 
-        {
-            SCR(`Write(.rc.system.START_PORTMAP, "yes"));
-            SCR (`Execute(.target.bash, "/etc/init.d/portmap start"));
-            SCR (`Execute(.target.bash, "/etc/init.d/nfs start"));
-            
-            if (SCR (`Execute(.target.bash, "TRY=`/etc/init.d/nfs status` && [ -z \"$TRY\" ]", $[])) == 0) 
-            {
-                // error popup message
-                UI(`MessagePopup(_("I was unable to mount the NFS entries from /etc/fstab.")));
-                return false;
-            }
-        }
-        
-        return true;
+configuration of the NFS client."));
+	    return false;
+	}
+
+	if (import_nfs)
+	{
+	    SCR::Write(.rc.system.START_PORTMAP, "yes");
+	    SCR::Execute(.target.bash, "/etc/init.d/portmap start");
+	    SCR::Execute(.target.bash, "/etc/init.d/nfs start");
+
+	    if (SCR::Execute(.target.bash, "TRY=`/etc/init.d/nfs status` && [ -z \"$TRY\" ]", $[]) == 0)
+	    {
+		// error popup message
+		UI::MessagePopup(_("I was unable to mount the NFS entries from /etc/fstab."));
+		return false;
+	    }
+	}
+
+	return true;
     }
 
 

@@ -21,22 +21,22 @@
 
 
     return( [ "nfs", $[
-	`menuentry    : UI(_("NFS client")),
+	`menuentry    : _("NFS client"),
 
 	`arguments    : [ ],
 
-	`group        : "Net_advanced", 
+	`group        : "Net_advanced",
 
 	`icon         : "nfs.png",
 
 	`widget       :  `RichText(
 
-	   UI(_("Launch this module to configure NFS client.")) +
-	   UI(_("<p>You need to be logged in as <i>root</i> in order to do this.</p>"))),
+	   _("Launch this module to configure NFS client.") +
+	   _("<p>You need to be logged in as <i>root</i> in order to do this.</p>")),
 
-	`helptext     : UI(_("Configure NFS client.")),
+	`helptext     : _("Configure NFS client."),
 
-	`codefragment : nil 
+	`codefragment : nil
 
 	]
     ]);

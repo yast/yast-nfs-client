@@ -16,7 +16,7 @@
  * $Id$
  *
  * Module for the configuration of the nfs client
- * 
+ *
  */
 
 /***
@@ -35,49 +35,48 @@
     include "nfs/nfs_write.ycp";
 
     map Aliases = $[
-        "fstab"   : ``(FstabDialog ()),
-        "end"     : ``(SaveDialog ())
-        ];
+	"fstab"   : ``(FstabDialog ()),
+	"end"     : ``(SaveDialog ())
+	];
 
     map Sequence = $[
-        "ws_start"  : "fstab",
-        "fstab"       : $[
-            `next   : "end",
-            `abort  : `abort
-            ],
-        "end"       : $[
-            `finish    : `ws_finish
-            ]
-        ];
+	"ws_start"  : "fstab",
+	"fstab"       : $[
+	    `next   : "end",
+	    `abort  : `abort
+	    ],
+	"end"       : $[
+	    `finish    : `ws_finish
+	    ]
+	];
 
     map nfs_config = $[
-        "start_client" : true,
-        "fstab"        : SCR(`Read(.etc.fstab))
-        ];
+	"start_client" : true,
+	"fstab"        : SCR::Read(.etc.fstab)
+	];
 
-    if (!RequireAndConflict (["portmap"], [], 
+    if (!RequireAndConflict (["portmap"], [],
 _("<p>To access the Network Filesystem, the <b>%1</b> package must be installed.</p>
 <p>Do you wish to install it now?</p>")))
     {
 	return;
     }
 
-    UI (`CreateWizardDialog ());
+    UI::CreateWizardDialog ();
     //UI (`ReplaceWizardAbortButton(`Empty (`id (`abort))));
-    
+
     any result = WizardSequencer (Aliases, Sequence);
 
     if (result == `ws_finish)
     {
-        boolean start_nfs_client = lookup (nfs_config, "start_client", true);
-        list fstab = lookup (nfs_config, "fstab", []);
+	boolean start_nfs_client = lookup (nfs_config, "start_client", true);
+	list fstab = lookup (nfs_config, "fstab", []);
 
-        if (nfs_client_save (start_nfs_client, fstab))
-        {
-            UI (`MessagePopup (_("All the settings were written and are ready to use.")));
-        }
+	if (nfs_client_save (start_nfs_client, fstab))
+	{
+	    UI::MessagePopup (_("All the settings were written and are ready to use."));
+	}
     }
-    
-    return UI(`CloseDialog());
-}
 
+    return UI::CloseDialog();
+}
