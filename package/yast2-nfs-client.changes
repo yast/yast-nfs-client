@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug  4 17:18:07 CEST 2003 - mvidner@suse.cz
+
+- Kicked the "Really save?" and "Successfully saved" popups (#28322).
+- Added desktop file (supersedes y2cc file).
+- 2.8.2
+
+-------------------------------------------------------------------
 Fri Jun 20 16:57:34 CEST 2003 - mvidner@suse.cz
 
 - Using Require, Label and Popup.
