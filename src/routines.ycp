@@ -50,8 +50,8 @@
 	return maplist(map entry, fstab, ``{
 	    term sp = SpecToServPath(entry["spec"]:"");
 	    term it = `item(`id(count),
-			    select(sp, 0, "") + " ",
-			    select(sp, 1, "") + " ",
+			    sp[0]:"" + " ",
+			    sp[1]:"" + " ",
 			    entry["file"]:"" + " ",
 			    entry["mntops"]:"" + " ");
 

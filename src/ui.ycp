@@ -154,8 +154,8 @@
 	if (fstab_ent != nil)
 	{
 	    term couple = SpecToServPath(fstab_ent["spec"]:"");
-	    server = select(couple, 0, "");
-	    pth = select(couple, 1, "");
+	    server = couple[0]:"";
+	    pth = couple[1]:"";
 	    mount = fstab_ent["file"]:"";
 	    options = fstab_ent["mntops"]:"";
 	}

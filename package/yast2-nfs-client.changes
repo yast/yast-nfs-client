@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Nov  4 11:26:51 CET 2004 - mvidner@suse.cz
+
+- Replaced selects by brackets, fixing build.
+- 2.11.1
+
+-------------------------------------------------------------------
 Wed Sep 15 15:40:43 CEST 2004 - mvidner@suse.cz
 
 - Use Package instead of Require.
