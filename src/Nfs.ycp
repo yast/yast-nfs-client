@@ -43,10 +43,6 @@
      * @return	success
      */
     global define boolean Import (list settings) ``{
-	if (size(settings) == 0)
-	{
-	    return true;
-	}
 
 	boolean missing = false;
 	foreach(`s,settings,``{
