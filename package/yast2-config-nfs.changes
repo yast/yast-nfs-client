@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Nov 28 10:18:38 CET 2001 - mvidner@suse.cz
+
+- Converted to a Module.
+- Migrated to y2autoconf and create-spec.
+- 2.5.2
+
+-------------------------------------------------------------------
 Tue Nov 13 09:31:34 CET 2001 - mvidner@suse.cz
 
 - Added default values for lookups.
