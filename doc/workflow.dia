@@ -61,16 +61,19 @@
         <dia:point val="0.1,0.55"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="0.05,0.5;15.15,11.85"/>
+        <dia:rectangle val="0.05,0.5;17.6167,13.7"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="0.1,0.55"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="15"/>
+        <dia:real val="17.4667"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="11.25"/>
+        <dia:real val="13.1"/>
+      </dia:attribute>
+      <dia:attribute name="border_width">
+        <dia:real val="0.1"/>
       </dia:attribute>
       <dia:attribute name="draw_border">
         <dia:boolean val="false"/>
@@ -79,24 +82,27 @@
         <dia:boolean val="true"/>
       </dia:attribute>
       <dia:attribute name="file">
-        <dia:string>#nfs1.png#</dia:string>
+        <dia:string>#/local/home2/yast2-new/source/nfs-client/doc/nfs-client-1-fstab-000.png#</dia:string>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Image" version="0" id="O1">
       <dia:attribute name="obj_pos">
-        <dia:point val="17.95,6.05"/>
+        <dia:point val="19.55,9.3"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="17.9,6;28.5477,10.65"/>
+        <dia:rectangle val="19.5,9.25;30.1477,13.7998"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
-        <dia:point val="17.95,6.05"/>
+        <dia:point val="19.55,9.3"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
         <dia:real val="10.5477"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="4.54999"/>
+        <dia:real val="4.44981"/>
+      </dia:attribute>
+      <dia:attribute name="border_width">
+        <dia:real val="0.1"/>
       </dia:attribute>
       <dia:attribute name="draw_border">
         <dia:boolean val="false"/>
@@ -105,20 +111,20 @@
         <dia:boolean val="true"/>
       </dia:attribute>
       <dia:attribute name="file">
-        <dia:string>#nfs2.png#</dia:string>
+        <dia:string>#/local/home2/yast2-new/source/nfs-client/doc/nfs-client-1a-edit-000.png#</dia:string>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - PolyLine" version="0" id="O2">
       <dia:attribute name="obj_pos">
-        <dia:point val="10.4223,9.9"/>
+        <dia:point val="12.0723,11.95"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="10.3813,8.4;17.8723,10"/>
+        <dia:rectangle val="12.0313,10.45;19.5223,12.05"/>
       </dia:attribute>
       <dia:attribute name="poly_points">
-        <dia:point val="10.4223,9.9"/>
-        <dia:point val="11.4223,9.2"/>
-        <dia:point val="17.8223,9.2"/>
+        <dia:point val="12.0723,11.95"/>
+        <dia:point val="13.0723,11.25"/>
+        <dia:point val="19.4723,11.25"/>
       </dia:attribute>
       <dia:attribute name="end_arrow">
         <dia:enum val="1"/>
@@ -132,15 +138,121 @@
     </dia:object>
     <dia:object type="Standard - PolyLine" version="0" id="O3">
       <dia:attribute name="obj_pos">
-        <dia:point val="8.42231,9.9"/>
+        <dia:point val="9.97231,11.95"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="8.3786,9.1;11.5223,9.94371"/>
+        <dia:rectangle val="9.9286,11.1497;13.6,11.9937"/>
       </dia:attribute>
       <dia:attribute name="poly_points">
-        <dia:point val="8.42231,9.9"/>
-        <dia:point val="9.77231,9.15"/>
-        <dia:point val="11.4723,9.15"/>
+        <dia:point val="9.97231,11.95"/>
+        <dia:point val="11.3223,11.2"/>
+        <dia:point val="13.55,11.25"/>
+      </dia:attribute>
+    </dia:object>
+    <dia:object type="Standard - Image" version="0" id="O4">
+      <dia:attribute name="obj_pos">
+        <dia:point val="32.8,9"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="32.75,8.95;37.05,12.0688"/>
+      </dia:attribute>
+      <dia:attribute name="elem_corner">
+        <dia:point val="32.8,9"/>
+      </dia:attribute>
+      <dia:attribute name="elem_width">
+        <dia:real val="4.2"/>
+      </dia:attribute>
+      <dia:attribute name="elem_height">
+        <dia:real val="3.01875"/>
+      </dia:attribute>
+      <dia:attribute name="border_width">
+        <dia:real val="0.1"/>
+      </dia:attribute>
+      <dia:attribute name="draw_border">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="keep_aspect">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="file">
+        <dia:string>#/local/home2/yast2-new/source/nfs-client/doc/nfs-client-1aa-hosts-000.png#</dia:string>
+      </dia:attribute>
+    </dia:object>
+    <dia:object type="Standard - Line" version="0" id="O5">
+      <dia:attribute name="obj_pos">
+        <dia:point val="29.5,10.1"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="29.45,9.2501;32.7,10.8499"/>
+      </dia:attribute>
+      <dia:attribute name="conn_endpoints">
+        <dia:point val="29.5,10.1"/>
+        <dia:point val="32.65,10.05"/>
+      </dia:attribute>
+      <dia:attribute name="numcp">
+        <dia:int val="1"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow">
+        <dia:enum val="1"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_length">
+        <dia:real val="0.8"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_width">
+        <dia:real val="0.8"/>
+      </dia:attribute>
+    </dia:object>
+    <dia:object type="Standard - Image" version="0" id="O6">
+      <dia:attribute name="obj_pos">
+        <dia:point val="12.9,17.15"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="12.85,17.1;20.1807,19.3"/>
+      </dia:attribute>
+      <dia:attribute name="elem_corner">
+        <dia:point val="12.9,17.15"/>
+      </dia:attribute>
+      <dia:attribute name="elem_width">
+        <dia:real val="7.23068"/>
+      </dia:attribute>
+      <dia:attribute name="elem_height">
+        <dia:real val="2.1"/>
+      </dia:attribute>
+      <dia:attribute name="border_width">
+        <dia:real val="0.1"/>
+      </dia:attribute>
+      <dia:attribute name="draw_border">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="keep_aspect">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="file">
+        <dia:string>#/local/home2/yast2-new/source/nfs-client/doc/nfs-client-2-save-000.png#</dia:string>
+      </dia:attribute>
+    </dia:object>
+    <dia:object type="Standard - Line" version="0" id="O7">
+      <dia:attribute name="obj_pos">
+        <dia:point val="16.9,13.2"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="16.0501,13.15;17.6499,17.25"/>
+      </dia:attribute>
+      <dia:attribute name="conn_endpoints">
+        <dia:point val="16.9,13.2"/>
+        <dia:point val="16.85,17.2"/>
+      </dia:attribute>
+      <dia:attribute name="numcp">
+        <dia:int val="1"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow">
+        <dia:enum val="1"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_length">
+        <dia:real val="0.8"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_width">
+        <dia:real val="0.8"/>
       </dia:attribute>
     </dia:object>
   </dia:layer>
