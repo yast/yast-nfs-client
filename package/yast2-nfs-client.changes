@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Nov 20 12:30:39 CET 2003 - lslezak@suse.cz
+
+- use UI:: file popup dialog
+- version 2.9.0
+
+-------------------------------------------------------------------
 Thu Sep 11 06:33:05 CEST 2003 - nashif@suse.de
 
 - #30291: return list of required packages for autoinstallation

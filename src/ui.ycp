@@ -24,7 +24,6 @@
     import "Nfs";
     import "Wizard";
     include "nfs/routines.ycp";
-    include "ui/file_popups.ycp";
     import "Label";
     import "Popup";
 
@@ -232,7 +231,7 @@
 		    dir = "/";
 		}
 
-		dir = PopupDir (dir);
+		dir = UI::AskForExistingDirectory(dir, _("Select mount point"));
 
 		if (size (dir) > 0)
 		{
