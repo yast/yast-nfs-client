@@ -18,6 +18,7 @@ BuildArchitectures:	noarch
 -
 
 %package devel
+Group:          System Environment/YaST
 Summary:	YaST2 - Configuration of NFS, developer documentation
 
 %description devel
