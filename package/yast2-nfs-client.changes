@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Sep 14 09:15:47 CEST 2004 - jsrain@suse.cz
+
+- adapted testsuite to more changes in yast2-firewall
+
+-------------------------------------------------------------------
 Mon Sep  6 17:47:49 CEST 2004 - mvidner@suse.cz
 
 - Adjusted testsuite to changes in yast2-firewall (#44650).
