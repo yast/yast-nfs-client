@@ -1,11 +1,15 @@
 @HEADER-COMMENT@
-
-# neededforbuild  yast2-devel-packages
+# What needs what:
+# yast2-firewall: yast2-network
+# yast2-network: yast2-country
+# yast2-country: yast2-installation
+# Alphabetically:
+# neededforbuild  yast2-country yast2-devel-packages yast2-firewall yast2-installation yast2-network
 
 @HEADER@
 Requires:	yast2
-# .net.hostnames.rpc
-Requires:	yast2-core >= 2.8.0
+Requires:	yast2-core >= 2.9.0
+Requires:       yast2-firewall > 2.10.4
 
 Provides:	yast2-config-nfs yast2-config-nfs-devel
 Obsoletes:	yast2-config-nfs yast2-config-nfs-devel
