@@ -1,0 +1,110 @@
+/**
+ * Module:
+ *   NFS client configuration
+ *
+ * Summary:
+ *   Testsuite
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+{
+    include "testsuite.ycp";
+    import "Nfs";
+    import "Report";
+
+    Report::DisplayErrors (false, 0);
+
+    map service_on = $[
+	"start": [ "3", "5"],
+	"stop":	 [ "3", "5"],
+	];
+    map service_off = $[
+	"start": [],
+	"stop":	 [],
+	];
+    map READ = $[
+	// Runlevel:
+	"init": $[
+	    "scripts": $[
+		"exists": true,
+		"runlevel": $[
+		    "portmap": service_on,
+		    "nfs": service_on,
+		    ],
+		// their contents is not important for ServiceAdjust
+		"comment": $[
+		    "portmap": $[],
+		    "nfs": $[],
+		    ],
+		],
+	    ],
+    /*
+	// targetpkg:
+	"targetpkg": $[
+	    // autofs
+	    "installed": true,
+	    ],
+    */
+	// Nis itself:
+	"etc": $[
+	    "fstab": [
+		$[
+		    "file":"/",
+		    "freq":1,
+		    "mntops":"defaults",
+		    "passno":2,
+		    "spec":"/dev/hda6",
+		    "vfstype":"reiserfs"
+		],
+		$[
+		    "file":"/home",
+		    "freq":0,
+		    "mntops":"defaults",
+		    "passno":0,
+		    "spec":"foo.bar.com:/home",
+		    "vfstype":"nfs",
+		],
+		$[
+		    "file":"/var/spool/mail",
+		    "freq":0,
+		    "mntops":"defaults",
+		    "passno":0,
+		    "spec":"foo.bar.com:/var/spool/mail",
+		    "vfstype":"nfs",
+		],
+		],
+	    "sysconfig": $[
+		],
+	    ],
+	];
+
+    map WRITE = $[
+	];
+
+    map WRITE_KO = $[
+	"etc": $[
+	    "fstab": false,
+	    ],
+	];
+
+    map EXECUTE = $[
+	"target": $[
+	    "bash_output": $[
+		"exit": 0,
+		"stdout": "",
+		"stderr": "",
+		],
+	    "mkdir": true,
+	    ],
+	];
+
+    DUMP ("Read");
+    TEST (``(Nfs::Read ()), [READ, WRITE, EXECUTE], nil);
+    DUMP ("Write OK");
+    TEST (``(Nfs::Write ()), [READ, WRITE, EXECUTE], nil);
+    DUMP ("Write KO");
+    TEST (``(Nfs::Write ()), [READ, WRITE_KO, EXECUTE], nil);
+}
