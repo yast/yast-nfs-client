@@ -221,9 +221,12 @@
 		{
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
-		    hosts = (list<string>) sort((list<string>) SCR::Read(.net.hostnames.rpc, "nfs"));
+		    // #71064
+		    // this works also if ICMP broadcasts are ignored
+		    string cmd = "/usr/sbin/rpcinfo -b mountd 1 | cut -d ' ' -f 2 | sort -u";
+		    map out = (map) SCR::Execute (.target.bash_output, cmd);
+		    hosts = filter (string s, splitstring (out["stdout"]:"", "\n"), ``( s != ""));
 		    UI::CloseDialog();
-		    if (hosts == nil) hosts = [];
 		}
 		string host = ChooseHostName(hosts);
 		if (host != nil)
