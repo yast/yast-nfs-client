@@ -62,7 +62,13 @@
 	    return false;
 	}
 
-	nfs_entries = lookup (settings, "nfs_entries", []);
+	nfs_entries = maplist(map entry, lookup (settings, "nfs_entries", []), ``{
+		return($[
+			"spec":entry["server_path"]:"",
+			"file":entry["mount_point"]:"",
+			"mntops":entry["nfs_options"]:""
+			]);
+	});
 	return true;
     }
 
@@ -71,8 +77,15 @@
      * @return a map containing a single map.
      */
     global define map Export () ``{
+	list entries = maplist(map entry, nfs_entries, ``{
+		return($[
+			"server_path":entry["spec"]:"",
+			"mount_point":entry["file"]:"",
+			"nfs_options":entry["mntops"]:""
+			]);
+	});
 	return $[
-	    "nfs_entries": nfs_entries,
+	    "nfs_entries": entries,
 	    ];
     }
 
