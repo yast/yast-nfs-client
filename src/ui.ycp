@@ -300,7 +300,7 @@ in a terminal.</P>
 		       UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 		   }
 	   }
-	   else if (ret == `delbut && size(nfs_fstab) > 0)
+	   else if (ret == `delbut && size (nfs_entries) > 0)
 	   {
 		   integer count = 0;
 		   nfs_entries = remove (nfs_entries, entryno);
