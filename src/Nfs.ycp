@@ -22,7 +22,7 @@
     textdomain "nfs";
 
     import "Report";
-    import "Runlevel";
+    import "Service";
     import "Summary";
     import "Progress";
     import "Wizard";
@@ -247,14 +247,16 @@ the NFS client configuration.\n"));
 	    return false;
 	}
 
-	if (size (nfs_entries) == 0)
+/*	if (size (nfs_entries) == 0)
 	{
 	    //Runlevel::ServiceAdjust ("nfs", "disable"); // what if autofs needs it?
-	}
-	else
+	}*/
+
+	if (size (nfs_entries) != 0)
 	{
-	    Runlevel::ServiceAdjust ("portmap", "enable");
-	    Runlevel::ServiceAdjust ("nfs", "enable");
+	    Service::Enable("portmap");
+	    Service::Enable("nfs");
+	    Service::Enable("nfslock");
 	}
 
 	return true;
@@ -288,22 +290,36 @@ the NFS client configuration.\n"));
 
 	    Progress::NextStage ();
 
-	    Runlevel::RunInitScript ("nfs", "stop");
+	    Service::Stop("nfs");
+
+	    // stop locking daemon if NFS server is not running
+	    if (Service::Status("nfsserver") != 0)
+	    {
+		Service::Stop("nfslock");
+	    }
 
 	    Progress::NextStage ();
 	    if (size (nfs_entries) > 0)
 	    {
-		if (Runlevel::ServiceStatus ("portmap") != 0)
+		if (Service::Status ("portmap") != 0)
 		{
 		    // portmap must not be started if it is running already (see bug # 9999)
-		    Runlevel::RunInitScript ("portmap", "start");
+		    Service::Start("portmap");
 		}
-		Runlevel::RunInitScript ("nfs", "start");
 
-		if (Runlevel::ServiceStatus ("nfs") != 0)
+		Service::Start("nfs");
+		if (Service::Status("nfs") != 0)
 		{
 		    // error popup message
 		    Report::Error (_("Unable to mount the NFS entries from /etc/fstab."));
+		    return false;
+		}
+
+		Service::Start("nfslock");
+		if (Service::Status("nfslock") != 0)
+		{
+		    // error popup message
+		    Report::Error (_("Unable to start the NFS locking daemon."));
 		    return false;
 		}
 	    }
@@ -389,9 +405,9 @@ the NFS client configuration.\n"));
 	}
 
 	// start portmapper if it isn't running
-	if (Runlevel::ServiceStatus("portmap") != 0)
+	if (Service::Status("portmap") != 0)
 	{
-	    if (Runlevel::RunInitScript("portmap", "start") != 0)
+	    if (Service::Start("portmap") == false)
 	    {
 		y2warning("portmap cannot be started");
 		return nil;

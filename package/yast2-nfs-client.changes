@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Feb 20 13:12:07 CET 2004 - lslezak@suse.cz
+
+- start/stop nfslock service (#34151)
+- use module Service::
+- NI fixes (data types)
+- testsuite update
+- version 2.9.5
+
+-------------------------------------------------------------------
 Thu Feb 19 13:11:54 CET 2004 - lslezak@suse.cz
 
 - removed yast2-packager from neededforbuild
