@@ -172,9 +172,8 @@
 	{
 	    // error popup message
 	    Report::Error (_("Unable to write to /etc/fstab.
-There will be no changes in the
-configuration of the NFS client.
-"));
+No  changes will be made to the
+the NFS client configuration.\n"));
 	    return false;
 	}
 
