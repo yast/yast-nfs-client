@@ -224,8 +224,8 @@ For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
 <B>Delete</B> buttons.</P>
 ");
 
-	// Help, part 2 of 3
-	help_text = help_text + _("<P>To confirm the changes, please use the <B>Next</B> button. To dismiss them,
+	// Help, part 2 of 3; BackButtonLabel, FinishButtonLabel
+	help_text = help_text + _("<P>To confirm the changes, please use the <B>Finish</B> button. To dismiss them,
 use <B>Back</B>.</P>
 ");
 
@@ -319,10 +319,7 @@ in a terminal.</P>
 	    Nfs::nfs_entries = nfs_entries;
 	}
 
-	UI::ChangeWidget (`id(`next), `Label, NextButtonLabel());
-
 	return ret;
-
     }
 
 
