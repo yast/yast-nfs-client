@@ -32,6 +32,7 @@ Summary:	Configuration of nfs
 @yncludedir@/nfs/*
 %dir @clientdir@
 @clientdir@/nfs.ycp
+@clientdir@/nfs-client.ycp
 @clientdir@/nfs_auto.ycp
 @clientdir@/nfs_write.ycp
 %dir @moduledir@
