@@ -136,13 +136,19 @@ and it must begin with a slash (/).")));
 
 
 	list<string> option_list = splitstring (options, ",");
+
+//the options must be easy to sync with mount.c and nfsmount.c
+
 	// these can be negated by "no"
 	list<string> non_value   = ["bg", "fg", "soft", "hard", "intr", "posix", "cto", "ac",
 			    "lock", "tcp", "udp",
 			    // these are common for all fs types
-			    "atime", "auto", "dev", "exec", "suid", "user"];
+			    "atime", "auto", "dev", "exec", "group", "owner",
+				    "suid", "user", "users"];
 	// these cannot be negated
-	list non_value1 = ["defaults", "async", "sync", "ro", "rw"];
+	// they are not nfs specific BTW
+	list non_value1 = ["defaults", "async", "sync", "dirsync", "ro", "rw",
+			   "remount", "bind", "rbind", "_netdev", ];
 	list with_value  = ["rsize", "wsize", "timeo", "retrans", "acregmin", "acregmax",
 			    "acdirmin", "acdirmin", "acdirmax", "actimeo", "retry", "namlen",
 			    "port", "mountport", "mountport", "mounthost", "mountprog",

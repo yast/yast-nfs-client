@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr 22 14:02:27 CEST 2005 - mvidner@suse.cz
+
+- Updated the list of valid mount options to include "users" (#74718).
+- 2.12.1
+
+-------------------------------------------------------------------
 Wed Mar 16 15:49:07 CET 2005 - mvidner@suse.cz
 
 - Recent releases of SUSE Linux ignore ICMP broadcasts,
