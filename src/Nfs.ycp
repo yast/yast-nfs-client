@@ -264,7 +264,7 @@
 	{
 	    // error popup message
 	    Report::Error (_("Unable to write to /etc/fstab.
-No  changes will be made to the
+No changes will be made to the
 the NFS client configuration.\n"));
 	    return false;
 	}
@@ -297,7 +297,7 @@ the NFS client configuration.\n"));
 	if (WriteOnly ())
 	{
 	    // dialog label
-	    Progress::New (_("Writing NFS Configuration..."), " ", 2, [
+	    Progress::New (_("Writing NFS Configuration"), " ", 2, [
 	    // progress stage label
 	    _("Stop services"),
 	    // progress stage label
@@ -312,7 +312,7 @@ the NFS client configuration.\n"));
 	    "" );
 
 	    // help text
-	    Wizard::RestoreHelp(_("Writing NFS client settings"));
+	    Wizard::RestoreHelp(_("Writing NFS client settings. Please wait..."));
 
 	    Progress::NextStage ();
 
@@ -355,10 +355,10 @@ the NFS client configuration.\n"));
 	string summary = "";
 	string nc = Summary::NotConfigured ();
 	// summary header
-	summary = Summary::AddHeader(summary, _("NFS entries"));
+	summary = Summary::AddHeader(summary, _("NFS Entries"));
 	integer entries = size(nfs_entries);
 	y2milestone("Entries: %1", nfs_entries);
-	string configured = sformat("%1 entries configured.", entries);
+	string configured = sformat(_("%1 entries configured"), entries);
 	summary = Summary::AddLine(summary, (entries>0) ? configured :  nc);
 	return summary;
     }

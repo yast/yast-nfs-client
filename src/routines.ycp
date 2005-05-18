@@ -74,9 +74,9 @@
 	    return true;
 	} else
 	    // error popup message
-	    Report::Error (sformat(_("You entered a wrong host name. It must be
-shorter than 50 characters and you can use
-just 0..9, A..Z, a..z, dots, - and _.")));
+	    Report::Error (sformat(_("The hostname entered is invalid. It must be
+shorter than 50 characters and only use
+0-9, A-Z, a-z, dots, -, and _.")));
 	return false;
     };
 
@@ -95,8 +95,8 @@ just 0..9, A..Z, a..z, dots, - and _.")));
 	    return false;
 	else
 	    // error popup message
-	    Report::Error (sformat(_("The fstab already contains an entry
-with mount-point '%1'."), mpoint));
+	    Report::Error (sformat(_("fstab already contains an entry
+with mount point '%1'."), mpoint));
 	return true;
     };
 
@@ -116,7 +116,7 @@ with mount-point '%1'."), mpoint));
 	}
 
 	// error popup message (spaces are now allowed)
-	Report::Error (sformat(_("You entered a wrong path.
+	Report::Error (sformat(_("The path entered is invalid.
 It must be shorter than 70 characters
 and it must begin with a slash (/).")));
 	return false;
@@ -131,7 +131,7 @@ and it must begin with a slash (/).")));
     define string check_options (string options) ``{
 
 	// To translators: error popup
-	if (size (options) == 0)   return _("Empty options string not allowed!");
+	if (size (options) == 0)   return _("Empty option strings are not allowed.");
 	if (options == "defaults") return "";
 
 
@@ -168,10 +168,11 @@ and it must begin with a slash (/).")));
 	    list<string> value = splitstring (opt, "=");
 	    string v0 = value[0]:"";
 	    string v1 = value[1]:"";
+	    // FIXME: this also triggers for "intr=bogus"
 	    // To translators: error popup
-	    if (!contains (with_value, v0)) return sformat (_("Wrong option: %1"), v0);
+	    if (!contains (with_value, v0)) return sformat (_("Unknown option: %1"), v0);
 	    // To translators: error popup
-	    if (size (value) != 2) return sformat (_("Wrong option format: %1"), opt);
+	    if (size (value) != 2) return sformat (_("Invalid option: %1"), opt);
 	    // To translators: error popup
 	    if (v1 == "") return sformat (_("Empty value for option: %1"), v0);
 	    i = i + 1;

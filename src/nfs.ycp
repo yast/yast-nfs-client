@@ -51,8 +51,8 @@ boolean NfsListHandler (map options) {
 
     CommandLine::Print (String::TextTable ([
 	   _("Server")+"  ",
-	   _("Remote filesystem")+"  ",
-	   _("Mountpoint")+"  ",
+	   _("Remote File System")+"  ",
+	   _("Mount Point")+"  ",
 	   _("Options")+"  "
 	], items, $[])
     );

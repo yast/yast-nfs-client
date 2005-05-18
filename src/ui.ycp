@@ -170,7 +170,7 @@
 			`TextEntry(
 			    `id(`serverent),
 			    // text entry label
-			    _("Host name of the &NFS server:"), server),
+			    _("&NFS Server Hostname"), server),
 			// pushbutton label
 			// choose a host from a list
 			// appears in help text too
@@ -180,7 +180,7 @@
 			TextAndButton (
 			    `TextEntry(`id(`pathent),
 				       // textentry label
-				       _("&Remote filesystem:"), pth),
+				       _("&Remote File System"), pth),
 			    // pushbutton label,
 			    // select from a list of remote filesystems
 			    // make it short
@@ -191,7 +191,7 @@
 			TextAndButton (
 			    `TextEntry(`id(`mountent),
 				       // textentry label
-				       _("&Mountpoint (local):"), mount),
+				       _("&Mount Point (local)"), mount),
 			    // button label
 			    // browse directories to select a mount point
 			    // appears in help text too
@@ -199,7 +199,7 @@
 			    )
 			),
 		    // textentry label
-		    `TextEntry(`id(`optionsent), _("O&ptions:"), options),
+		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `HBox(
 			`PushButton(`id(`ok), `opt(`default, `key_F10), Label::OKButton()),
@@ -263,7 +263,7 @@
 		    dir = "/";
 		}
 
-		dir = UI::AskForExistingDirectory(dir, _("Select mount point"));
+		dir = UI::AskForExistingDirectory(dir, _("Select the Mount Point"));
 
 		if (dir != nil && size(dir) > 0)
 		{
@@ -310,20 +310,22 @@
 	    {
 		//help text 1/3
 		// change: locally defined -> servers on LAN
-		string helptext = _("<p>Enter the <b>host name</b> of the NFS server.  With
-<i>Choose</i>, browse through a list of
+		string helptext = _("<p>Enter the <b>NFS Server Hostname</b>.  With
+<b>Choose</b>, browse through a list of
 NFS servers on the local network.</p>
 ");
 		// help text 2/3
 		// added "Select" button
-		helptext = helptext + _("<p>Also supply the directory on the remote NFS server and a
-local <b>mount point</b> at which the directory should be mounted. With
-<i>Select</i>, select from the exported directories
-of the chosen server.  With
-<i>Browse</i>, select your mount point
+		helptext = helptext + _("<p>In <b>Remote File System</b>,
+enter the path to the directory on the NFS server.  Use
+<b>Select</b> to select one from those exported by the server.
+</p><p>		
+For <b>Mount Point</b>, enter the path in the local file system where the directory should be mounted. With
+<b>Browse</b>, select your mount point
 interactively.</p>");
 		// help text 3/3
-		helptext = helptext + _("<p>For a list of <b>Options</b> please read the manpage mount(8).</p>");
+		helptext = helptext + _("<p>For a list of <b>Options</b>,
+read the man page mount(8).</p>");
 		// popup heading
 		Popup::LongText (_("Help"), `RichText (helptext), 50, 18);
 	    }
@@ -357,18 +359,19 @@ interactively.</p>");
 	map<string,any> fw_cwm_widget = CWMFirewallInterfaces::CreateOpenFirewallWidget (fw_settings);
 
 	// Help, part 1 of 3
-	string help_text = _("<P>The table contains all the NFS entries which will be written to /etc/fstab.
-For changing the configuration please use the <B>Add</B>, <B>Edit</B> and
-<B>Delete</B> buttons.</P>
+	string help_text = _("<P>The table contains all the NFS entries 
+for /etc/fstab.
+To change the configuration, use <B>Add</B>, <B>Edit</B>, and
+<B>Delete</B>.</P>
 ");
 
 	// Help, part 2 of 3; Label::BackButton, Label::FinishButton
-	help_text = help_text + _("<P>To confirm the changes, press <B>Finish</B>. To dismiss them,
+	help_text = help_text + _("<P>To confirm the changes, press <B>Finish</B>. To cancel them,
 use <B>Back</B>.</P>\n");
 
 	// Help, part 3 of 3
-	help_text = help_text + _("<P>For further information about fstab please type <B>man fstab</B>
-in a terminal.</P>
+	help_text = help_text + _("<P>For further information about fstab,
+refer to <tt>man fstab</tt>.</P>
 ");
 
 	help_text = help_text + fw_cwm_widget["help"]:"";
@@ -383,9 +386,9 @@ in a terminal.</P>
 			   // table header
 			   _("Server")+"  ",
 			   // table header
-			   _("Remote filesystem")+"  ",
+			   _("Remote File System")+"  ",
 			   // table header
-			   _("Mountpoint")+"  ",
+			   _("Mount Point")+"  ",
 			   // table header
 			   _("Options")+"  "),
 		       FstabTableItems(nfs_entries)),
@@ -402,7 +405,7 @@ in a terminal.</P>
 		);
 
 	// dialog heading
-	Wizard::SetContentsButtons(_("Configuration of the NFS client"),
+	Wizard::SetContentsButtons(_("NFS Client Configuration"),
 				   contents, help_text,
 				   Label::BackButton (),
 				   Label::FinishButton ());

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed May 18 16:51:24 CEST 2005 - mvidner@suse.cz
+
+- Texts proofread by rwalter.
+- 2.12.2
+
+-------------------------------------------------------------------
 Fri Apr 22 14:02:27 CEST 2005 - mvidner@suse.cz
 
 - Updated the list of valid mount options to include "users" (#74718).
