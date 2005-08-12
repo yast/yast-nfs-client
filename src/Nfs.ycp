@@ -147,8 +147,8 @@
      * @return escaped entries
      */
     define list<map<string,any> > EscapeSpaces (list<map<string,any> > entries) ``{
-	return maplist (map<string,any> entry, entries, ``(
-			    mapmap (string key, any value, entry, ``(
+	return maplist (map<string,any> entry, entries,
+			``(mapmap (string key, any value, entry, ``(
 					$[ key :
 					  (is (value, string)?
 					  EscapeSpaces1 ((string) value): value)]
@@ -159,6 +159,10 @@
     /**
      * (like awk gsub, but return the result, not number of replacements)
      * replaces from back!
+     * @param regex regular expression to replace
+     * @param replacement the replacement string
+     * @param s where to replace
+     * @return the changed string
      */
     define string gsub (string regex, string replacement, string s) ``{
 	string temp = nil;
@@ -196,8 +200,8 @@
      * @return escaped entries
      */
     define list<map<string,any> > UnescapeSpaces (list<map<string,any> > entries) ``{
-	return maplist (map<string,any> entry, entries, ``(
-			    mapmap (string key, any value, entry, ``(
+	return maplist (map<string,any> entry, entries,
+			``( mapmap (string key, any value, entry, ``(
 					$[ key:
 					  (is (value, string)?
 					  UnescapeSpaces1 ((string) value): value)]

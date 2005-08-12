@@ -34,7 +34,12 @@ import "CommandLine";
 
 include "nfs/wizards.ycp";
 
-// handler for nfs summary
+/**
+ * CLI action handler.
+ * Print summary in command line
+ * @param options command options
+ * @return false so that Write is not called in non-interactive mode
+ */
 boolean NfsListHandler (map options) {
 
 
@@ -59,6 +64,11 @@ boolean NfsListHandler (map options) {
     return false;
 }
 
+/**
+ * CLI action handler.
+ * @param options command options
+ * @return whether successful
+ */
 boolean NfsAddHandler (map options) {
 
     list<map<string,any> > nfs_entries = Nfs::nfs_entries;
@@ -88,6 +98,11 @@ boolean NfsAddHandler (map options) {
     return true;
 }
 
+/**
+ * CLI action handler.
+ * @param options command options
+ * @return whether successful
+ */
 boolean NfsEditHandler (map options) {
 
     list<map<string,any> > nfs_entries = Nfs::nfs_entries;
@@ -161,6 +176,11 @@ boolean NfsEditHandler (map options) {
     return true;
 }
 
+/**
+ * CLI action handler.
+ * @param options command options
+ * @return whether successful
+ */
 boolean NfsDeleteHandler (map options) {
 
     list<map<string,any> > nfs_entries = Nfs::nfs_entries;

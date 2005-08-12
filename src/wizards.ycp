@@ -16,6 +16,11 @@ import "Wizard";
 
 include "nfs/ui.ycp";
 
+/**
+ * Configuration of NFS client
+ * without Read and Write
+ * @return sequence result
+ */
 any MainSequence ()
 {
     return FstabDialog ();
