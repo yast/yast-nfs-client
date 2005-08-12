@@ -1,14 +1,14 @@
 Dump	check_options
-Return	Empty options string not allowed!
+Return	Empty option strings are not allowed.
 Return	
 Return	
 Return	
 Return	
-Return	Wrong option:  bg
-Return	Wrong option: unknownoption
-Return	Wrong option: unknownassignment
+Return	Unknown option:  bg
+Return	Unknown option: unknownoption
+Return	Unknown option: unknownassignment
 Return	Empty value for option: rsize
-Return	Wrong option: two
+Return	Unknown option: two
 Dump	CheckHostName
 Return	true
 Return	false
