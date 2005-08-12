@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Aug 12 14:07:13 CEST 2005 - mvidner@suse.cz
+
+- Do not report error if no shares were mounted because of "noauto"
+  (#74597).
+- More robust parsing of showexports -e (#91184).
+- Fixed check_ycp errors. Added ycpdoc comments.
+
+-------------------------------------------------------------------
 Wed May 18 16:51:24 CEST 2005 - mvidner@suse.cz
 
 - Texts proofread by rwalter.

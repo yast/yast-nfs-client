@@ -332,7 +332,9 @@ the NFS client configuration.\n"));
 		}
 
 		Service::Start("nfs");
-		if (Service::Status("nfs") != 0)
+		// #74597: if all mounts are noauto, $? is 6 (unconfigured)
+		integer status = Service::Status("nfs");
+		if (status != 0 && status != 6)
 		{
 		    // error popup message
 		    Report::Error (_("Unable to mount the NFS entries from /etc/fstab."));
