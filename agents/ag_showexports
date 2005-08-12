@@ -59,10 +59,22 @@ function kill_after() {
 function showexports_long() {
     local HOST="$1"
     local SM=/usr/sbin/showmount
+    # showmounts passes whatever the server says,
+    # but it can say different things :( #91184
+    # unfsd:
+    # /space\040dir  <anon clnt>
+    # /back\134slash <anon clnt>
+    # knfsd:
+    # /space dir  *
+    # /back\slash *
     if test -x "$SM"; then
-	# sed: strip authorized hosts, make a ycp item
+	#sed: strip authorized hosts, double \ before nondigit, make a ycp item
 	"$SM" --no-headers --exports "$HOST" | \
-	sed -e 's/[[:space:]]*[^[:space:]]*$//' -e 's/\(.*\)/"\1",/'
+	    sed \
+	    -e 's/<anon clnt>$/<anon_clnt>/' \
+	    -e 's/[[:space:]]*[^[:space:]]*$//' \
+	    -e 's/\\\([^[:digit:]]\)/\\\\\1/' \
+	    -e 's/\(.*\)/"\1",/'
     else
 	echo '"Install nfs-utils.rpm"'
     fi
