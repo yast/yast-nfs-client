@@ -263,6 +263,7 @@
 		    dir = "/";
 		}
 
+		// heading for a directory selection dialog
 		dir = UI::AskForExistingDirectory(dir, _("Select the Mount Point"));
 
 		if (dir != nil && size(dir) > 0)

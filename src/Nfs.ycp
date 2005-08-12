@@ -364,6 +364,7 @@ the NFS client configuration.\n"));
 	summary = Summary::AddHeader(summary, _("NFS Entries"));
 	integer entries = size(nfs_entries);
 	y2milestone("Entries: %1", nfs_entries);
+	// summary item, %1 is a number
 	string configured = sformat(_("%1 entries configured"), entries);
 	summary = Summary::AddLine(summary, (entries>0) ? configured :  nc);
 	return summary;
