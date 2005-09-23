@@ -44,3 +44,4 @@ Summary:	Configuration of nfs
 %dir @agentdir@
 @agentdir@/ag_showexports
 %doc @docdir@
+@schemadir@/autoyast/rnc/nfs.rnc

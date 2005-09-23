@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Sep 23 16:07:44 CEST 2005 - mvidner@suse.cz
+
+- Moved RNC schema from autoyast2.rpm.
+- 2.13.0
+
+-------------------------------------------------------------------
 Fri Aug 12 14:07:13 CEST 2005 - mvidner@suse.cz
 
 - Do not report error if no shares were mounted because of "noauto"

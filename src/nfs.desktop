@@ -18,6 +18,7 @@ X-SuSE-YaST-AutoInstResource=
 X-SuSE-YaST-AutoInstDataType=list
 X-SuSE-YaST-AutoInstClonable=true
 X-SuSE-YaST-AutoInstRequires=lan
+X-SuSE-YaST-AutoInstSchema=nfs.rnc
 
 Icon=yast-nfs
 Exec=/sbin/yast2 nfs 
