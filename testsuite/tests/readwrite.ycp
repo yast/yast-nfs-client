@@ -51,6 +51,9 @@
 		"runlevel": $[
 		    "portmap": service_on,
 		    "nfs": service_on,
+		    "nfsboot": service_off,
+		    "network": service_off,
+		    "networkmanager": service_on,
 		    ],
 		// their contents is not important for ServiceAdjust
 		"comment": $[

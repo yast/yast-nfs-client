@@ -1,9 +1,13 @@
 Dump	Read
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
-Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.runlevel "SuSEfirewall2_init" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Execute	.target.bash "/etc/init.d/SuSEfirewall2_init status" $["TERM":"raw"] 0
+Read	.init.scripts.exists "network" true
+Read	.init.scripts.runlevel "network" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.exists "networkmanager" true
+Read	.init.scripts.runlevel "networkmanager" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Return	true
 Dump	Write OK
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
@@ -15,17 +19,17 @@ Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec
 Read	.init.scripts.exists "portmap" true
 Read	.init.scripts.exists "portmap" true
 Read	.init.scripts.exists "portmap" true
-Read	.init.scripts.runlevel "portmap" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.runlevel "portmap" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Read	.init.scripts.comment "portmap" $["nfs":$[], "portmap":$[]]
 Read	.init.scripts.exists "nfs" true
 Read	.init.scripts.exists "nfs" true
 Read	.init.scripts.exists "nfs" true
-Read	.init.scripts.runlevel "nfs" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.runlevel "nfs" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
 Read	.init.scripts.exists "nfsboot" true
 Read	.init.scripts.exists "nfsboot" true
 Read	.init.scripts.exists "nfsboot" true
-Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
+Read	.init.scripts.runlevel "nfsboot" $["network":$["start":[], "stop":[]], "networkmanager":$["start":["3", "5"], "stop":["3", "5"]], "nfs":$["start":["3", "5"], "stop":["3", "5"]], "nfsboot":$["start":[], "stop":[]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
 Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "nfs" true
