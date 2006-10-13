@@ -3,6 +3,8 @@
 @HEADER@
 BuildRequires: perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
 Requires:	yast2 >= 2.11.11
+# showmount, #150382
+Recommends:	nfs-utils
 
 Provides:	yast2-config-nfs yast2-config-nfs-devel
 Obsoletes:	yast2-config-nfs yast2-config-nfs-devel

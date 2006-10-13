@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Fri Oct 13 14:11:22 CEST 2006 - mvidner@suse.cz
+Fri Oct 13 14:17:00 CEST 2006 - mvidner@suse.cz
 
+- Recommend nfs-utils for showmount (#150382).
 - Align table editing buttons to the left (#211570).
 
 -------------------------------------------------------------------
