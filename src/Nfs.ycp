@@ -218,6 +218,7 @@
     global define boolean Read () ``{
 	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
 	fstab = UnescapeSpaces (fstab);
+	y2milestone ("fstab: %1", fstab);
 
 	// For simplicity, this leaves also the unused fileds in the maps.
 	nfs_entries = filter (map<string,any> entry, fstab, ``{
@@ -260,6 +261,7 @@
 	    }
 	});
 
+	y2milestone ("fstab: %1", fstab);
 
 	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
 
@@ -287,7 +289,9 @@ the NFS client configuration.\n"));
 	    Service::Enable("nfsboot");
 	}
 
+	boolean progress_orig = Progress::set (false);
 	SuSEFirewall::WriteOnly ();
+	Progress::set (progress_orig);
 
 	return true;
     }
@@ -342,7 +346,9 @@ the NFS client configuration.\n"));
 		}
 	    }
 
+	    boolean progress_orig = Progress::set (false);
 	    SuSEFirewall::ActivateConfiguration ();
+	    Progress::set (progress_orig);
 
 	    Progress::NextStage ();
 	    return true;
