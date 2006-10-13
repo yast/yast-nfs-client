@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct 13 14:11:22 CEST 2006 - mvidner@suse.cz
+
+- Align table editing buttons to the left (#211570).
+
+-------------------------------------------------------------------
 Mon Sep 11 17:36:24 CEST 2006 - mvidner@suse.cz
 
 - Fixed Progress nesting (#202351).
