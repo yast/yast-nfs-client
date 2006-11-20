@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 20 14:46:48 CET 2006 - mvidner@suse.cz
+
+- Have all yast packages with 2.14.x in OS-10.2.
+- 2.14.0
+
+-------------------------------------------------------------------
 Fri Oct 13 14:17:00 CEST 2006 - mvidner@suse.cz
 
 - Recommend nfs-utils for showmount (#150382).
