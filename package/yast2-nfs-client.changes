@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri May 25 13:30:04 CEST 2007 - jsrain@suse.cz
+
+- removed outdated translations from .desktop-files (#271209)
+
+-------------------------------------------------------------------
 Mon Nov 20 14:46:48 CET 2006 - mvidner@suse.cz
 
 - Have all yast packages with 2.14.x in OS-10.2.
