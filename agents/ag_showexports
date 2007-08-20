@@ -10,7 +10,7 @@
 # Read (., "homes.example.com")
 #  [ "/data/home" ]
 
-# showmount is in nfs-utils.rpm
+# showmount is in nfs-client.rpm
 
 if [ x$1 = x-d ]; then
     set -x
@@ -76,7 +76,7 @@ function showexports_long() {
 	    -e 's/\\\([^[:digit:]]\)/\\\\\1/' \
 	    -e 's/\(.*\)/"\1",/'
     else
-	echo '"Install nfs-utils.rpm"'
+	echo '"Install nfs-client.rpm"'
     fi
 }
 
