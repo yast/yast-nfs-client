@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Mar 17 12:43:32 CET 2008 - jsrain@suse.cz
+
+- added 'StartupNotify=true' to the desktop file (bnc #304964)
+
+-------------------------------------------------------------------
 Mon Aug 20 13:20:28 CEST 2007 - mvidner@suse.cz
 
 - Recommend nfs-client.rpm because nfs-utils.rpm got split (#286300).
