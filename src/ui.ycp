@@ -23,6 +23,8 @@
     textdomain "nfs";
 
     import "CWMFirewallInterfaces";
+    import "Hostname";
+    import "FileUtils";
     import "Label";
     import "Nfs";
     import "Popup";
@@ -97,6 +99,42 @@
     }
 
     /**
+     * Find out whether this nfs host really exists
+     * @param hname	hostname
+     * @return true if it exists, false otherwise
+     */
+    define boolean HostnameExists( string hname ){
+	string prog_name = "/usr/bin/host";
+	boolean ret = false;
+
+	if (FileUtils::Exists( prog_name ))
+	{
+	    map out = (map) SCR::Execute(.target.bash_output,
+			   sformat("%1 %2",prog_name, hname ));
+
+	    ret = (out["exit"]: -1 == 0);
+	    y2internal("DNS lookup of %1 returned %2", hname, ret );
+	}
+	else
+	{
+	   y2warning("Cannot DNS lookup %1, will not propose default hostname", hname);
+	}
+
+	return ret;
+    }
+
+    define string ProposeHostname() {
+	string ret = "";
+	string cur_domain = Hostname::CurrentDomain();
+
+	if (cur_domain != nil || cur_domain != "")
+        {
+	    ret = "nfs." + cur_domain;
+	}
+	return ret;
+    }
+
+    /**
      * Give me one name from the list of hosts
      * @param hosts	a list of hostnames
      * @return		a hostname
@@ -150,6 +188,7 @@
 	string pth = "";
 	string mount = "";
 	string options = "defaults";
+	list <string> servers = [ ];
 
 	if (fstab_ent != nil)
 	{
@@ -158,6 +197,13 @@
 	    pth = couple[1]:"";
 	    mount = fstab_ent["file"]:"";
 	    options = fstab_ent["mntops"]:"";
+	    servers = [ server ];
+	}
+        else
+	{
+	    string proposed_server = ProposeHostname();
+	    if ( HostnameExists( proposed_server ) )
+	        servers = [ proposed_server ];
 	}
 
 	UI::OpenDialog(
@@ -167,10 +213,10 @@
 		`VBox(
 		    `VSpacing(0.2),
 		    TextAndButton (
-			`TextEntry(
-			    `id(`serverent),
+			`ComboBox(
+			    `id(`serverent),`opt(`editable),
 			    // text entry label
-			    _("&NFS Server Hostname"), server),
+			    _("&NFS Server Hostname"), servers ),
 			// pushbutton label
 			// choose a host from a list
 			// appears in help text too
@@ -208,6 +254,7 @@
 		    `VSpacing(0.2)),
 		`HSpacing(1)
 		));
+	UI::ChangeWidget(`id(`serverent), `Value, server);
 	UI::SetFocus (`id (`serverent));
 
 	any ret = nil;
