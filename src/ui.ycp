@@ -113,7 +113,7 @@
 			   sformat("%1 %2",prog_name, hname ));
 
 	    ret = (out["exit"]: -1 == 0);
-	    y2internal("DNS lookup of %1 returned %2", hname, ret );
+	    y2debug("DNS lookup of %1 returned %2", hname, ret );
 	}
 	else
 	{
@@ -123,6 +123,10 @@
 	return ret;
     }
 
+    /* Return convenient hostname (FaTE #302863) to be proposed
+     * i.e. nfs + current domain (nfs. + suse.cz)
+     * @return string 	proposed hostname
+     */
     define string ProposeHostname() {
 	string ret = "";
 	string cur_domain = Hostname::CurrentDomain();
