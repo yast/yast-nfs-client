@@ -2,7 +2,8 @@
 
 @HEADER@
 BuildRequires: perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
-Requires:	yast2 >= 2.11.11
+#Hostname::CurrentDomain
+Requires:	yast2 >= 2.16.48
 # showmount, #150382, #286300
 Recommends:	nfs-client
 
