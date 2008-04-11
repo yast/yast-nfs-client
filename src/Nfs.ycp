@@ -222,7 +222,7 @@
 
 	// For simplicity, this leaves also the unused fileds in the maps.
 	nfs_entries = filter (map<string,any> entry, fstab, ``{
-	    return (entry["vfstype"]:"" == "nfs");
+	    return (entry["vfstype"]:"" == "nfs" || entry["vfstype"]:"" == "nfs4");
 	});
 	non_nfs_entries = filter (map entry, fstab, ``{
 	    return (entry["vfstype"]:"" != "nfs");
@@ -246,7 +246,7 @@
 	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
 	// unescape deferred for optimization
 	fstab = filter (map<string,any> entry, fstab, ``{
-	    return (entry["vfstype"]:"" != "nfs");
+	    return (entry["vfstype"]:"" != "nfs" || entry["vfstype"]:"" != "nfs4");
 	});
 	fstab = UnescapeSpaces (fstab);
 	foreach (map<string,any> entry, nfs_entries, ``{

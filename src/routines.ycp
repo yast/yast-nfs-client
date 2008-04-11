@@ -53,6 +53,7 @@
 			    sp[0]:"" + " ",
 			    sp[1]:"" + " ",
 			    entry["file"]:"" + " ",
+			    entry["vfstype"]:" ",
 			    entry["mntops"]:"" + " ");
 
 	    count = count+1;

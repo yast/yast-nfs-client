@@ -191,6 +191,7 @@
 	string server = "";
 	string pth = "";
 	string mount = "";
+	boolean nfs4 = false;
 	string options = "defaults";
 	list <string> servers = [ ];
 
@@ -200,6 +201,7 @@
 	    server = couple[0]:"";
 	    pth = couple[1]:"";
 	    mount = fstab_ent["file"]:"";
+	    nfs4 = fstab_ent["vfstype"]:"" == "nfs4";
 	    options = fstab_ent["mntops"]:"";
 	    servers = [ server ];
 	}
@@ -230,7 +232,7 @@
 			TextAndButton (
 			    `TextEntry(`id(`pathent),
 				       // textentry label
-				       _("&Remote File System"), pth),
+				       _("&Remote Directory"), pth),
 			    // pushbutton label,
 			    // select from a list of remote filesystems
 			    // make it short
@@ -249,6 +251,8 @@
 			    )
 			),
 		    // textentry label
+		    `VSpacing(0.2),
+		    `CheckBox(`id(`nfs4),"NFS&v4 Share", nfs4),
 		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `HBox(
@@ -327,6 +331,7 @@
 		server = (string) UI::QueryWidget(`id(`serverent), `Value);
 		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
 		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
+		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
 		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
 
 		ret = nil;
@@ -353,6 +358,7 @@
 		    fstab_ent = $[
 			"spec"    : server+":"+pth,
 			"file"    : mount,
+			"vfstype" : nfs4 ? "nfs4" : "nfs",
 			"mntops"  : options,
 			];
 		    ret = `ok;
@@ -439,10 +445,11 @@ refer to <tt>man fstab</tt>.</P>
 		       `header(
 			   // table header
 			   _("Server")+"  ",
-			   // table header
-			   _("Remote File System")+"  ",
+			   _("Remote Directory")+"  ",
 			   // table header
 			   _("Mount Point")+"  ",
+			   // table header
+			   _("NFS Type"),
 			   // table header
 			   _("Options")+"  "),
 		       FstabTableItems(nfs_entries)),
