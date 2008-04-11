@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Apr 11 12:04:12 CEST 2008 - kmachalkova@suse.cz
+
+- Propose default hostname for newly added server (nfs.current.domain)
+  (FaTE #302863) 
+- 2.16.0
+
+-------------------------------------------------------------------
 Mon Mar 17 12:43:32 CET 2008 - jsrain@suse.cz
 
 - added 'StartupNotify=true' to the desktop file (bnc #304964)
