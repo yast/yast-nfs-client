@@ -252,7 +252,7 @@
 			),
 		    // textentry label
 		    `VSpacing(0.2),
-		    `CheckBox(`id(`nfs4),"NFS&v4 Share", nfs4),
+		    `CheckBox(`id(`nfs4),  "NFS&v4 Share", nfs4),
 		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `HBox(
@@ -462,6 +462,12 @@ refer to <tt>man fstab</tt>.</P>
 		      // #211570
 		      `HStretch ()),
 		`VSpacing (1),
+		`HBox(
+	 	    `Left(`CheckBox(`id(`enable_nfs4), `opt(`notify), _("Enable NFSv4"))),
+		    `Left(`InputField(`id(`nfs4_domain), _("NFSv4 Domain Name"))),
+		    `HStretch()
+		),
+		`VSpacing (1),
 		fw_cwm_widget["custom_widget"]:`Empty (),
 		// frame label
 		`VSpacing(0.2)
@@ -478,6 +484,8 @@ refer to <tt>man fstab</tt>.</P>
 
 	UI::ChangeWidget (`id(`editbut), `Enabled, false);
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
+	UI::ChangeWidget (`id(`enable_nfs4), `Value, Nfs::nfs4_enabled);
+	UI::ChangeWidget (`id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled);
 
 	map event = nil;
 	any ret = nil;
@@ -542,6 +550,12 @@ refer to <tt>man fstab</tt>.</P>
 
 		   UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	   }
+	   else if (ret == `enable_nfs4)
+	   {
+	       y2internal("!!!yebat");
+	       boolean enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4), `Value);
+	       UI::ChangeWidget( `id(`nfs4_domain), `Enabled, enabled);
+	   }
 	   else if (ret == `abort && changed && !Popup::ReallyAbort (true))
 	   {
 	       ret = `again;
@@ -555,6 +569,7 @@ refer to <tt>man fstab</tt>.</P>
 	    CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
 
 	    Nfs::nfs_entries = nfs_entries;
+	    Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
 	}
 
 	Wizard::RestoreScreenShotName ();

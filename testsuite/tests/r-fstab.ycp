@@ -25,7 +25,7 @@
 	    "mntops":"defaults",
 	    "passno":0,
 	    "spec":"foo.bar.com:/home",
-	    "vfstype":"nfs"
+	    "vfstype":"nfs4"
 	 ],
 	$[
 	    "file":"/var/spool/mail",

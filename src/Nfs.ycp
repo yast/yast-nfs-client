@@ -26,6 +26,7 @@
     import "Summary";
     import "SuSEFirewall";
     import "Progress";
+    import "PackageSystem";
     import "Wizard";
 
     include "nfs/routines.ycp";
@@ -54,7 +55,7 @@
     /**
      * Required packages
      */
-    global list required_packages = ["portmap"];
+    global list <string> required_packages = ["portmap", "nfs-client"];
 
     /**
      * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
@@ -65,6 +66,8 @@
      * Read only, intended for checking mount-point uniqueness.
      */
     global list<map> non_nfs_entries = [];
+
+    global boolean nfs4_enabled = false;
 
     // list of created directories
     list<string> created_dirs = [];
@@ -228,7 +231,15 @@
 	    return (entry["vfstype"]:"" != "nfs");
 	});
 
+	nfs4_enabled = (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
+
 	SuSEFirewall::Read ();
+
+	if (nfs4_enabled)
+	    required_packages = add( required_packages, "nfsidmap");
+
+	if ( !PackageSystem::CheckAndInstallPackagesInteractive( required_packages ) )
+	    return false;
 
 	return true;
     }
@@ -246,7 +257,7 @@
 	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
 	// unescape deferred for optimization
 	fstab = filter (map<string,any> entry, fstab, ``{
-	    return (entry["vfstype"]:"" != "nfs" || entry["vfstype"]:"" != "nfs4");
+	    return ( entry["vfstype"]:"" != "nfs" && entry["vfstype"]:"" != "nfs4");
 	});
 	fstab = UnescapeSpaces (fstab);
 	foreach (map<string,any> entry, nfs_entries, ``{
@@ -288,6 +299,15 @@ the NFS client configuration.\n"));
 	    // replaces rpc.statd
 	    Service::Enable("nfsboot");
 	}
+
+        if(nfs4_enabled)
+        {
+                SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"yes");
+        }
+        else
+        {
+                SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"no");
+        }
 
 	boolean progress_orig = Progress::set (false);
 	SuSEFirewall::WriteOnly ();
