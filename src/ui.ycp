@@ -552,7 +552,6 @@ refer to <tt>man fstab</tt>.</P>
 	   }
 	   else if (ret == `enable_nfs4)
 	   {
-	       y2internal("!!!yebat");
 	       boolean enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4), `Value);
 	       UI::ChangeWidget( `id(`nfs4_domain), `Enabled, enabled);
 	   }

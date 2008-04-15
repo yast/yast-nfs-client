@@ -113,12 +113,12 @@
 		    "vfstype":"nfs",
 		],
 		],
-	    "sysconfig": $[
-		 "nfs" : $[
-		    "NFS4_SUPPORT": "yes",
-	         ],
-	      ]
-	    ]
+	    ],
+	"sysconfig": $[
+	     "nfs" : $[
+	         "NFS4_SUPPORT": "yes",
+	     ],
+	 ],
 	];
 
     map WRITE = $[

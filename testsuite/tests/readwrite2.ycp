@@ -111,6 +111,11 @@
 		],
 		],
 	    ],
+	"sysconfig": $[
+	     "nfs" : $[
+	         "NFS4_SUPPORT": "no",
+	     ],
+	 ],
 	];
 
     // services portmap & nfs are stopped.

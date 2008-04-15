@@ -260,8 +260,9 @@
 	    return ( entry["vfstype"]:"" != "nfs" && entry["vfstype"]:"" != "nfs4");
 	});
 	fstab = UnescapeSpaces (fstab);
+
 	foreach (map<string,any> entry, nfs_entries, ``{
-	    fstab = add (fstab, (map<string,any>)union (entry, $["vfstype": "nfs", "freq": 0, "passno": 0]));
+	    fstab = add (fstab, (map<string,any>)union (entry, $[/*"vfstype": "nfs",*/ "freq": 0, "passno": 0]));
 
 	    // create mount points
 	    string file = entry["file"]:"";
