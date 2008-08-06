@@ -82,6 +82,7 @@
 	    return($[
 		     "spec":entry["server_path"]:"",
 		     "file":entry["mount_point"]:"",
+		     "vfstype":entry["vfstype"]:"",
 		     "mntops":entry["nfs_options"]:""
 		   ]);
 	});
@@ -106,12 +107,23 @@
 		    missing = true;
 		}
 	    });
+
+	    //Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
+	    //thus we need to keep info on nfs version (v3 vs. v4)
+	    //But older AY profiles might not contain this element
+	    //so let's assume nfsv3 in that case (#395850)
+	    if ( !haskey(s, "vfstype") )
+	    {
+	        s["vfstype"] = "nfs";
+	    }
+
 	});
 	if (missing)
 	{
 	    return false;
 	}
 
+	
 	Set(settings);
 	return true;
     }
@@ -125,6 +137,7 @@
 		return($[
 			"server_path":entry["spec"]:"",
 			"mount_point":entry["file"]:"",
+			"vfstype"    :entry["vfstype"]:"",
 			"nfs_options":entry["mntops"]:""
 			]);
 	});
