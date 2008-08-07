@@ -441,7 +441,29 @@ refer to <tt>man fstab</tt>.</P>
 
 	list<map<string,any> > nfs_entries = Nfs::nfs_entries;
 
-	term contents =
+	void InitFstabEntries( )
+	{
+	    UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
+	}
+
+	void InitSettings( )
+	{
+	    CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
+	    UI::ChangeWidget(`id(`enable_nfs4), `Value, Nfs::nfs4_enabled);
+	}
+
+	void SaveFstabEntries( map event )
+	{
+	    Nfs::nfs_entries = nfs_entries;
+	}
+
+	void SaveSettings( map event )
+	{
+	    CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
+	    Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
+	}
+
+	term fstab_contents =
 	    `VBox(
 		`Table(`id(`fstable), `opt(`notify, `immediate),
 		       `header(
@@ -462,18 +484,29 @@ refer to <tt>man fstab</tt>.</P>
 		      `PushButton(`id(`delbut), `opt (`key_F5),
 				  Label::DeleteButton ()),
 		      // #211570
-		      `HStretch ()),
-		`VSpacing (1),
-		`HBox(
-	 	    `Left(`CheckBox(`id(`enable_nfs4), `opt(`notify), _("Enable NFSv4"))),
-		    `Left(`InputField(`id(`nfs4_domain), _("NFSv4 Domain Name"))),
-		    `HStretch()
-		),
-		`VSpacing (1),
-		fw_cwm_widget["custom_widget"]:`Empty (),
-		// frame label
-		`VSpacing(0.2)
-		);
+		      `HStretch ())
+	    );
+	term settings_content =
+	    `VBox(
+	        //`VSpacing (1),
+	        `HBox(
+ 	            `Left(`CheckBox(`id(`enable_nfs4), `opt(`notify), _("Enable NFSv4"))),
+	            `Left(`InputField(`id(`nfs4_domain), _("NFSv4 Domain Name"))),
+	            `HStretch()
+	        ),
+	        `VSpacing (1),
+	        fw_cwm_widget["custom_widget"]:`Empty (),
+		`VStretch()
+	    );
+
+	term contents = 
+	    `VBox(
+		`DumbTab( 
+		    [ `item(`id(`overview),_("&NFS Shares")),
+		      `item(`id(`settings), _("NFS &Settings")) ],
+	            `ReplacePoint(`id(`rp), fstab_contents)
+		)
+	    );
 
 	// dialog heading
 	Wizard::SetContentsButtons(_("NFS Client Configuration"),
@@ -482,7 +515,7 @@ refer to <tt>man fstab</tt>.</P>
 				   Label::FinishButton ());
 
 	// initialize the widget (set the current value)
-	CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
+	//CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
 
 	UI::ChangeWidget (`id(`editbut), `Enabled, false);
 	UI::ChangeWidget (`id(`delbut), `Enabled, false);
@@ -491,18 +524,23 @@ refer to <tt>man fstab</tt>.</P>
 
 	map event = nil;
 	any ret = nil;
+	integer entryno = -1;
 
 	do
 	{
 
-	   integer entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
-	   UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
-	   UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
+	   if ( UI::WidgetExists(`id(`fstable)) )
+	   {
+	       entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
+	       UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
+	       UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
 
-	   // Kludge, because a `Table still does not have a shortcut.
-	   // Simple to solve here: there's only the table and buttons,
-	   // so it is OK to always set focus to the table
-	   UI::SetFocus (`id (`fstable));
+	       // Kludge, because a `Table still does not have a shortcut.
+	       // Simple to solve here: there's only the table and buttons,
+	       // so it is OK to always set focus to the table
+	       UI::SetFocus (`id (`fstable));
+
+	   }
 
 	   event = UI::WaitForEvent ();	   
 	   ret = event["ID"]:nil;
@@ -512,11 +550,13 @@ refer to <tt>man fstab</tt>.</P>
 	   }
 
 	   // handle the events, enable/disable the button, show the popup if button clicked
-	   CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", event);
-	   changed =
+	   if ( UI::WidgetExists(`id("_cwm_firewall_details")) && UI::WidgetExists(`id("_cwm_open_firewall")) )
+	       CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", event);
+	   /*changed =
 	       true ||		// TODO: fw changed, #44106
-	       true;		// TODO: nfs changed
-	   entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
+	       true;		// TODO: nfs changed*/
+	   if ( UI::WidgetExists(`id(`fstable)) )
+	       entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 
 	   if (ret == `newbut)
 	   {
@@ -557,6 +597,18 @@ refer to <tt>man fstab</tt>.</P>
 	       boolean enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4), `Value);
 	       UI::ChangeWidget( `id(`nfs4_domain), `Enabled, enabled);
 	   }
+	   else if ( ret == `settings )
+	   {
+		SaveFstabEntries( event );
+		UI::ReplaceWidget(`id(`rp), settings_content);
+		InitSettings();
+	   }
+	   else if ( ret == `overview )
+	   {
+		SaveSettings( event );
+		UI::ReplaceWidget(`id(`rp), fstab_contents);
+		InitFstabEntries();
+	   }
 	   else if (ret == `abort && changed && !Popup::ReallyAbort (true))
 	   {
 	       ret = `again;
@@ -567,10 +619,11 @@ refer to <tt>man fstab</tt>.</P>
 	if (ret == `next)
 	{
 	    // grab current settings, store them to SuSEFirewall::
-	    CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
+	    if( UI::WidgetExists(`id(`fstable)) )
+		SaveFstabEntries( event );
+	    if( UI::WidgetExists(`id(`enable_nfs4)) )
+		SaveSettings( event );
 
-	    Nfs::nfs_entries = nfs_entries;
-	    Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
 	}
 
 	Wizard::RestoreScreenShotName ();
