@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug  8 10:29:55 CEST 2008 - kmachalkova@suse.cz
+
+- Configuration dialog split into two tabs: fstab entries and settings
+- Extended list of supported nfs(4) mount options
+- 2.17.1 
+
+-------------------------------------------------------------------
 Wed Aug  6 15:25:16 CEST 2008 - kmachalkova@suse.cz
 
 - Create correct fstab entries when importing data from AY profile
