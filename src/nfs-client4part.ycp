@@ -1,0 +1,58 @@
+/**
+ * File:	clients/
+ * Summary:	nfs-client stuff made accesible from
+ * Author:	Bubli <kmachalkova@suse.cz>
+ *
+ */
+
+{
+    textdomain "nfs";
+
+    import "Nfs";
+    include "nfs/ui.ycp";
+
+    /*y2milestone("----------------------------------------");
+    y2milestone("Nfs client proposal started");
+    y2milestone("Arguments: %1", WFM::Args());*/
+
+    any ret = nil;
+    string func = "";
+    map param = $[];
+
+    if(size(WFM::Args()) > 0 && is(WFM::Args(0), string)) {
+        func = (string)WFM::Args(0);
+        if(size(WFM::Args()) > 1 && is(WFM::Args(1), map))
+	param = (map)WFM::Args(1);
+    }
+    if (func == "CreateUI")
+    {
+	return MainDialogLayout();
+    }
+
+    else if ( func == "FromStorage" )
+    {
+	list <map <string, any> > shares = ( list < map <string, any> >) param["shares"]:[];
+
+	Nfs::nfs_entries = maplist( map <string, any> entry, shares, {
+
+	    return ( $[
+		"spec" : entry["device"]:"",
+	        "file" : entry["mount"]:"",
+		//FIXME:: nfsv4
+		"vfstype" : "nfs",
+		"mntops": entry["fstopt"]:""
+	    ]);
+	});
+	y2milestone("jezibaba %1", Nfs::nfs_entries);
+        nfs_entries = Nfs::nfs_entries;
+	InitFstabEntries();
+
+    }
+    else if (func == "HandleEvent")
+    {
+	any widget_id = param["widget_id"]:nil;
+	y2milestone("jezibaba %1", nfs_entries);
+
+	HandleEvent( widget_id);
+    }
+}

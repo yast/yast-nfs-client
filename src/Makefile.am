@@ -5,6 +5,7 @@ myincludedir = @yncludedir@/nfs
 client_DATA =		\
 	nfs_auto.ycp	\
 	nfs-client.ycp  \
+	nfs-client4part.ycp \
 	nfs.ycp
 
 myinclude_DATA =	\
