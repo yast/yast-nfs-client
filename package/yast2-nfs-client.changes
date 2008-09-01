@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Aug 25 00:23:41 CEST 2008 - ro@suse.de
+
+- fix build
+
+-------------------------------------------------------------------
 Thu Aug 14 17:46:51 CEST 2008 - kmachalkova@suse.cz
 
 - First steps to integrate nfs-client into partitioner (added a client

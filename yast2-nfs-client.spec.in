@@ -36,6 +36,7 @@ Summary:	Configuration of nfs
 @clientdir@/nfs.ycp
 @clientdir@/nfs-client.ycp
 @clientdir@/nfs_auto.ycp
+@clientdir@/nfs-client4part.ycp
 %dir @moduledir@
 @moduledir@/Nfs.ycp
 @moduledir@/Nfs.ybc
