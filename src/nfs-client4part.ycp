@@ -51,8 +51,34 @@
     else if (func == "HandleEvent")
     {
 	any widget_id = param["widget_id"]:nil;
-	y2milestone("jezibaba %1", nfs_entries);
+	list <symbol> w_ids = [ `newbut, `editbut, `delbut ];
 
 	HandleEvent( widget_id);
+	y2milestone("jezibaba %1", nfs_entries);
+	y2milestone("%1", modify_line);
+        Nfs::nfs_entries = nfs_entries;
+	if ( contains( w_ids, (symbol) widget_id ))
+	    return modify_line;
+	else
+	   return nil;
+    }
+
+    else if (func == "ToStorage" )
+    {
+	list <map <string, any> > ret = [];
+
+	/*ret = maplist( map <string, any> entry, Nfs::nfs_entries, {
+	    return ( $[
+		"type" : `nfs,
+		"used_fs" : `nfs,
+		"detected_fs" : `nfs,
+		"mountby" : `device,
+		"device" : entry["spec"]:"",
+		"mount" : entry["file"]:"",
+		"fstopt" : entry["mntops"]:""
+	    ]);
+	});*/
+
+	return Nfs::nfs_entries;
     }
 }

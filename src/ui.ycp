@@ -409,7 +409,8 @@ read the man page mount(8).</p>");
     ];
     map<string,any> fw_cwm_widget = CWMFirewallInterfaces::CreateOpenFirewallWidget (fw_settings);
 
-    list<map<string,any> > nfs_entries = Nfs::nfs_entries;
+    list< map <string,any> > nfs_entries = Nfs::nfs_entries;
+    map <string, any> modify_line = $[];
 
     term FstabTab()
     {
@@ -522,7 +523,10 @@ read the man page mount(8).</p>");
 	    map<string,any> entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
 
 	    if (entry != nil)
+	    {
 	        nfs_entries = add (nfs_entries, entry);
+		modify_line = entry;
+	    }
 
 	    UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	}
@@ -541,12 +545,15 @@ read the man page mount(8).</p>");
 		   return entry;
 	            });
 
+		    modify_line = entry;
 	            UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	        }
 	}
 	else if (widget == `delbut && size (nfs_entries) > 0)
 	{
 	        integer count = 0;
+		//FIXME: prompt user for delete confirmation
+		modify_line = nfs_entries[entryno]: $[];
 	        nfs_entries = remove (nfs_entries, entryno);
 
 	        UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
