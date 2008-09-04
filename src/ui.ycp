@@ -539,10 +539,10 @@ read the man page mount(8).</p>");
 	        {
 	           integer count = 0;
 	           nfs_entries = maplist(map<string,any> ent, nfs_entries, ``{
-		   count = count+1;
-		   if (count-1 != entryno)
-		   return ent;
-		   return entry;
+		       count = count+1;
+		       if (count-1 != entryno)
+		           return ent;
+		       return entry;
 	            });
 
 		    modify_line = entry;
@@ -551,12 +551,14 @@ read the man page mount(8).</p>");
 	}
 	else if (widget == `delbut && size (nfs_entries) > 0)
 	{
-	        integer count = 0;
-		//FIXME: prompt user for delete confirmation
-		modify_line = nfs_entries[entryno]: $[];
-	        nfs_entries = remove (nfs_entries, entryno);
+		map <string, any> share = nfs_entries[entryno]: $[];
+		if ( Popup::YesNo( sformat( _("Really delete %1?"), share["spec"]:"")) )
+		{
+		    modify_line = share;
+	            nfs_entries = remove (nfs_entries, entryno);
 
-	        UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
+	            UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
+		}
 	}
 	else if (widget == `enable_nfs4)
 	{
