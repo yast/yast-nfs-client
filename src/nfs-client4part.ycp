@@ -9,6 +9,7 @@
     textdomain "nfs";
 
     import "Nfs";
+    import "Wizard";
     include "nfs/ui.ycp";
 
     /*y2milestone("----------------------------------------");
@@ -26,6 +27,7 @@
     }
     if (func == "CreateUI")
     {
+	Wizard::SetHelpText( help_text1 );
 	return MainDialogLayout();
     }
 
