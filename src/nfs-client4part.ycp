@@ -25,6 +25,17 @@
         if(size(WFM::Args()) > 1 && is(WFM::Args(1), map))
 	param = (map)WFM::Args(1);
     }
+
+    map <string, any> ToStorage ( map <string, any> entry )
+    {
+
+	return ( $[
+		"device" : entry["spec"]:"",
+		"mount" : entry["file"]:"",
+		"fstopt" : entry["mntops"]:""
+	    ]);
+    }
+
     if (func == "CreateUI")
     {
 	Wizard::SetHelpText( help_text1 );
@@ -59,28 +70,11 @@
 	y2milestone("jezibaba %1", nfs_entries);
 	y2milestone("%1", modify_line);
         Nfs::nfs_entries = nfs_entries;
+
 	if ( contains( w_ids, (symbol) widget_id ))
-	    return modify_line;
+	    return ToStorage( modify_line );
 	else
 	   return nil;
     }
 
-    else if (func == "ToStorage" )
-    {
-	list <map <string, any> > ret = [];
-
-	/*ret = maplist( map <string, any> entry, Nfs::nfs_entries, {
-	    return ( $[
-		"type" : `nfs,
-		"used_fs" : `nfs,
-		"detected_fs" : `nfs,
-		"mountby" : `device,
-		"device" : entry["spec"]:"",
-		"mount" : entry["file"]:"",
-		"fstopt" : entry["mntops"]:""
-	    ]);
-	});*/
-
-	return Nfs::nfs_entries;
-    }
 }
