@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Mon Sep  8 13:57:09 CEST 2008 - kmachalkova@suse.cz
+
+- Necessary changes for having NFS read-write from partitioner 
+  (FaTE#303326)
+- Prompt user for confirmation of deleting NFS share
+- Make help texts accesible from outside (and make them tab-specific)
+- Support for reading/writing of /etc/idmapd.conf ( -> added
+  dependency on yast2-nfs-common)(bnc#387088)
+- 2.17.3
+
+-------------------------------------------------------------------
 Mon Aug 25 00:23:41 CEST 2008 - ro@suse.de
 
 - fix build
