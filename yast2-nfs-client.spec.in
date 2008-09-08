@@ -4,6 +4,8 @@
 BuildRequires: perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
 #Hostname::CurrentDomain
 Requires:	yast2 >= 2.16.48
+#idmapd_conf agent
+Requires:	yast2-nfs-common
 # showmount, #150382, #286300
 Recommends:	nfs-client
 
