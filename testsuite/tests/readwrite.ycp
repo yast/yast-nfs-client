@@ -113,7 +113,8 @@
 		    "vfstype":"nfs",
 		],
 		],
-	    ],
+	    "idmapd_conf" : "localhost"
+	  ],
 	"sysconfig": $[
 	     "nfs" : $[
 	         "NFS4_SUPPORT": "yes",

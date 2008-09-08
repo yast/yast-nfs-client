@@ -109,7 +109,8 @@
 		    "spec":"foo.bar.com:/space\\040dir",
 		    "vfstype":"nfs",
 		],
-		],
+	      ],
+	      "idmapd_conf" : "localhost"
 	    ],
 	"sysconfig": $[
 	     "nfs" : $[
