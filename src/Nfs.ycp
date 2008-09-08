@@ -69,6 +69,8 @@
 
     global boolean nfs4_enabled = false;
 
+    global string idmapd_domain = "";;
+
     // list of created directories
     list<string> created_dirs = [];
 
@@ -245,6 +247,7 @@
 	});
 
 	nfs4_enabled = (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
+	idmapd_domain = (string) SCR::Read(.etc.idmapd_conf, "Domain");
 
 	SuSEFirewall::Read ();
 
@@ -317,6 +320,7 @@ the NFS client configuration.\n"));
         if(nfs4_enabled)
         {
                 SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"yes");
+		SCR::Write(.etc.idmapd_conf, ["Domain",  idmapd_domain] );
         }
         else
         {

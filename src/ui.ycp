@@ -512,6 +512,8 @@ currently mounted share, use <B>Edit</B> button. Remove and unmount selected sha
     {
         CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
         UI::ChangeWidget(`id(`enable_nfs4), `Value, Nfs::nfs4_enabled);
+	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled);
+	UI::ChangeWidget(`id(`nfs4_domain), `Value, Nfs::idmapd_domain);
     }
     
     void SaveFstabEntries( )
@@ -523,6 +525,7 @@ currently mounted share, use <B>Edit</B> button. Remove and unmount selected sha
     {
         CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
         Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
+	Nfs::idmapd_domain = (string) UI::QueryWidget(`id(`nfs4_domain),`Value);
     }
 
     void HandleEvent( any widget )
