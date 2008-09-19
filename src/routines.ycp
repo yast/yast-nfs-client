@@ -202,7 +202,7 @@ and it must begin with a slash (/).")));
      * Check whether pormap is installed, ask user to install it if it is missing
      * @return boolean true if portmap is installed
      */
-    define boolean IsPortmapInstalled() ``{
-	return Package::Install ("portmap");
+    define boolean IsPortmapperInstalled( string portmapper ) ``{
+	return Package::Install( portmapper );
     }
 }
