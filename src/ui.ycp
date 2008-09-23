@@ -37,9 +37,7 @@
      */
     symbol ReadDialog() {
 	boolean ret = nil;
-	// move portmap check somewhere else?
-	// this may be too early
-	ret = IsPortmapInstalled () && Nfs::Read ();
+	ret = Nfs::Read ();
 	return ret ? `next : `abort;
     }
 
@@ -550,7 +548,7 @@ rights.") + fw_cwm_widget["help"]:"";
 	    {
 	        nfs_entries = add (nfs_entries, entry);
 		modify_line = entry;
-	 	
+		Nfs::SetModified();
 	    }
 
 	    UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
@@ -572,6 +570,7 @@ rights.") + fw_cwm_widget["help"]:"";
 
 		    modify_line = entry;
 	            UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
+		    Nfs::SetModified();
 	        }
 	}
 	else if (widget == `delbut && size (nfs_entries) > 0)
@@ -581,14 +580,15 @@ rights.") + fw_cwm_widget["help"]:"";
 		{
 		    modify_line = share;
 	            nfs_entries = remove (nfs_entries, entryno);
-
 	            UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
+		    Nfs::SetModified();
 		}
 	}
 	else if (widget == `enable_nfs4)
 	{
 	    boolean enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4), `Value);
 	    UI::ChangeWidget( `id(`nfs4_domain), `Enabled, enabled);
+	    Nfs::SetModified();
 	}
 	else if ( widget == `settings )
 	{
@@ -613,8 +613,6 @@ rights.") + fw_cwm_widget["help"]:"";
     define symbol FstabDialog () ``{
 	Wizard::SetScreenShotName ("nfs-client-1-fstab");
 
-	boolean changed = false;
-
         nfs_entries = Nfs::nfs_entries;
 
 	// dialog heading
@@ -637,7 +635,7 @@ rights.") + fw_cwm_widget["help"]:"";
 	   {
 	       ret = `abort;
 	   }
-	   else if (ret == `abort && changed && !Popup::ReallyAbort (true))
+	   else if (ret == `abort && Nfs::GetModified() && !Popup::ReallyAbort (true))
 	   {
 	       ret = `again;
 	   }
