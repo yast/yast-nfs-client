@@ -550,6 +550,7 @@ rights.") + fw_cwm_widget["help"]:"";
 	    {
 	        nfs_entries = add (nfs_entries, entry);
 		modify_line = entry;
+	 	
 	    }
 
 	    UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
@@ -622,13 +623,6 @@ rights.") + fw_cwm_widget["help"]:"";
 				   Label::BackButton (),
 				   Label::FinishButton ());
 
-	// initialize the widget (set the current value)
-	//CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
-
-	//UI::ChangeWidget (`id(`editbut), `Enabled, false);
-	//UI::ChangeWidget (`id(`delbut), `Enabled, false);
-	//UI::ChangeWidget (`id(`enable_nfs4), `Value, Nfs::nfs4_enabled);
-	//UI::ChangeWidget (`id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled);
 	InitFstabEntries();
 
 	map event = nil;
@@ -637,87 +631,12 @@ rights.") + fw_cwm_widget["help"]:"";
 
 	do
 	{
-
-	   /*if ( UI::WidgetExists(`id(`fstable)) )
-	   {
-	       entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
-	       UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
-	       UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
-
-	       // Kludge, because a `Table still does not have a shortcut.
-	       // Simple to solve here: there's only the table and buttons,
-	       // so it is OK to always set focus to the table
-	       UI::SetFocus (`id (`fstable));
-
-	   }*/
-
 	   event = UI::WaitForEvent ();	   
 	   ret = event["ID"]:nil;
 	   if (ret == `cancel)
 	   {
 	       ret = `abort;
 	   }
-
-	   // handle the events, enable/disable the button, show the popup if button clicked
-	   /*if ( UI::WidgetExists(`id("_cwm_firewall_details")) && UI::WidgetExists(`id("_cwm_open_firewall")) )
-	       CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", event);
-	   changed =
-	       true ||		// TODO: fw changed, #44106
-	       true;		// TODO: nfs changed
-	   if ( UI::WidgetExists(`id(`fstable)) )
-	       entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
-
-	   if (ret == `newbut)
-	   {
-	       map<string,any> entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
-
-	       if (entry != nil)
-		   nfs_entries = add (nfs_entries, entry);
-
-	       UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
-	   }
-	   else if (ret == `editbut)
-	   {
-		   integer count = 0;
-		   map<string,any> entry = GetFstabEntry (nfs_entries[entryno]:$[], // Default values
-					      (list<map>) union (Nfs::non_nfs_entries, remove (nfs_entries, entryno)));
-		   if (entry != nil)
-		   {
-		       integer count = 0;
-		       nfs_entries = maplist(map<string,any> ent, nfs_entries, ``{
-			   count = count+1;
-			   if (count-1 != entryno)
-			   return ent;
-			   return entry;
-		       });
-
-		       UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
-		   }
-	   }
-	   else if (ret == `delbut && size (nfs_entries) > 0)
-	   {
-		   integer count = 0;
-		   nfs_entries = remove (nfs_entries, entryno);
-
-		   UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
-	   }
-	   else if (ret == `enable_nfs4)
-	   {
-	       boolean enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4), `Value);
-	       UI::ChangeWidget( `id(`nfs4_domain), `Enabled, enabled);
-	   }
-	   else if ( ret == `settings )
-	   {
-		SaveFstabEntries( event );
-		UI::ReplaceWidget(`id(`rp), SettingsTab() );
-		InitSettings();
-	   }
-	   else if ( ret == `overview )
-	   {
-		SaveSettings( event );
-		UI::ReplaceWidget(`id(`rp), FstabTab() );
-		InitFstabEntries();
-	   }*/
 	   else if (ret == `abort && changed && !Popup::ReallyAbort (true))
 	   {
 	       ret = `again;
