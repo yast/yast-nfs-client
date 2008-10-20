@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 20 12:42:47 CEST 2008 - kmachalkova@suse.cz
+
+- Un-HTML-ize help text (bnc#432800)
+- ag_showexports (+ related scrconf file) moved to yast2 base 
+  package(bnc#257910)
+- 2.17.6
+
+-------------------------------------------------------------------
 Thu Oct  9 11:13:07 CEST 2008 - jsuchome@suse.cz
 
 - fixed failing testsuite (Service.ycp)
