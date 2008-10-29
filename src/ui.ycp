@@ -431,6 +431,12 @@ of NFS protocol), check <b>Enable NFSv4</b> option. In that case, you might need
 specific <b>NFSv4 Domain Name</b>, required for correct setting of file/directory access
 rights.</p>") + fw_cwm_widget["help"]:"";
 
+    void EnableDisableButtons()
+    {
+	UI::ChangeWidget(`id(`editbut), `Enabled, ( nfs_entries != [] ) );
+	UI::ChangeWidget(`id(`delbut), `Enabled, ( nfs_entries != [] ) );
+    }
+
     term FstabTab()
     {
 	term fstab_content =
@@ -496,10 +502,7 @@ rights.</p>") + fw_cwm_widget["help"]:"";
     void InitFstabEntries( )
     {
         UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
-
-	integer entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
-	UI::ChangeWidget (`id(`editbut), `Enabled, entryno != nil);
-	UI::ChangeWidget (`id(`delbut), `Enabled, entryno != nil);
+	EnableDisableButtons();
 
 	// Kludge, because a `Table still does not have a shortcut.
 	// Simple to solve here: there's only the table and buttons,
@@ -545,11 +548,13 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	    map<string,any> entry = GetFstabEntry (nil, (list<map>) union (Nfs::non_nfs_entries, nfs_entries));
 
 	    if (entry != nil)
-	    {
+	     {
 	        nfs_entries = add (nfs_entries, entry);
 		modify_line = entry;
+	        EnableDisableButtons();
+
 		Nfs::SetModified();
-	    }
+	     }
 
 	    UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	}
@@ -581,7 +586,9 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 		    modify_line = share;
 	            nfs_entries = remove (nfs_entries, entryno);
 	            UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
-		    Nfs::SetModified();
+	            EnableDisableButtons();
+
+	 	    Nfs::SetModified();
 		}
 	}
 	else if (widget == `enable_nfs4)
