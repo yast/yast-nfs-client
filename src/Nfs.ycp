@@ -36,6 +36,9 @@
     /* default value of settings modified */
     global boolean modified = false;
 
+    /* Should fstab reading be skipped ? (yes if we're
+    embedded in partitioner) */
+    global boolean skip_fstab = false;
 
     /**
      * Function sets internal variable, which indicates, that any
@@ -245,22 +248,29 @@
      * @return true on success
      */
     global define boolean Read () ``{
-	list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
-	fstab = UnescapeSpaces (fstab);
-	y2milestone ("fstab: %1", fstab);
 
-	// For simplicity, this leaves also the unused fileds in the maps.
-	nfs_entries = filter (map<string,any> entry, fstab, ``{
-	    return (entry["vfstype"]:"" == "nfs" || entry["vfstype"]:"" == "nfs4");
-	});
-	non_nfs_entries = filter (map entry, fstab, ``{
-	    return (entry["vfstype"]:"" != "nfs");
-	});
+	//Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
+	if( !skip_fstab )
+	{
+	    list<map<string,any> > fstab = (list<map<string,any> >) SCR::Read (.etc.fstab);
+	    fstab = UnescapeSpaces (fstab);
+	    y2milestone ("fstab: %1", fstab);
+
+	    // For simplicity, this leaves also the unused fileds in the maps.
+	    nfs_entries = filter (map<string,any> entry, fstab, ``{
+	        return (entry["vfstype"]:"" == "nfs" || entry["vfstype"]:"" == "nfs4");
+	    });
+	    non_nfs_entries = filter (map entry, fstab, ``{
+	        return (entry["vfstype"]:"" != "nfs");
+	    });
+	}
 
 	nfs4_enabled = (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
 	idmapd_domain = (string) SCR::Read(.etc.idmapd_conf, "Domain");
 
+	boolean progress_orig = Progress::set(false);
 	SuSEFirewall::Read ();
+	Progress::set(progress_orig);
 
 	portmapper = FindPortmapper();
 	//There is neither rpcbind  nor portmap  

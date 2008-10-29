@@ -56,10 +56,15 @@
 		"mntops": entry["fstopt"]:""
 	    ]);
 	});
-	y2milestone("jezibaba %1", Nfs::nfs_entries);
+	y2milestone("Nfs shares imported from storage %1", Nfs::nfs_entries);
         nfs_entries = Nfs::nfs_entries;
 	InitFstabEntries();
 
+    }
+    else if (func == "Read")
+    {
+	Nfs::skip_fstab = true;
+	Nfs::Read();
     }
     else if (func == "HandleEvent")
     {
@@ -67,7 +72,6 @@
 	list <symbol> w_ids = [ `newbut, `editbut, `delbut ];
 
 	HandleEvent( widget_id);
-	y2milestone("jezibaba %1", nfs_entries);
 	y2milestone("%1", modify_line);
         Nfs::nfs_entries = nfs_entries;
 
