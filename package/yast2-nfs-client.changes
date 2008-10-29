@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Oct 29 18:12:10 CET 2008 - kmachalkova@suse.cz
+
+- Correct enabling/disabling of edit and delete buttons depending 
+  on # of NFS shares (bnc#438665)
+- Initialize only non-fstab NFS settings (firewall, sysconfig, idmapd) 
+  if the client is run embedded in the partitioner (bnc#436897)
+- 2.17.7
+
+-------------------------------------------------------------------
 Mon Oct 20 12:42:47 CEST 2008 - kmachalkova@suse.cz
 
 - Un-HTML-ize help text (bnc#432800)
