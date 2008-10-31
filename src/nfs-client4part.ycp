@@ -28,12 +28,15 @@
 
     map <string, any> ToStorage ( map <string, any> entry )
     {
+	map <string, any> ret = $[];
 
-	return ( $[
+	if (entry != nil && entry != $[])
+	    ret =  $[
 		"device" : entry["spec"]:"",
 		"mount" : entry["file"]:"",
 		"fstopt" : entry["mntops"]:""
-	    ]);
+	    ];
+	return ret;
     }
 
     if (func == "CreateUI")
