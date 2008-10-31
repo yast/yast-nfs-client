@@ -107,7 +107,7 @@
     global define boolean Import (list<map> settings) ``{
 
 	boolean missing = false;
-	foreach(map s,settings,``{
+	settings = maplist(map s,settings,``{
 	    foreach (string k, ["server_path", "mount_point", "nfs_options"], ``{
 		if (! haskey (s, k))
 		{
@@ -124,6 +124,7 @@
 	    {
 	        s["vfstype"] = "nfs";
 	    }
+	    return s;
 
 	});
 	if (missing)
@@ -131,7 +132,6 @@
 	    return false;
 	}
 
-	
 	Set(settings);
 	return true;
     }
