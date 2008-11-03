@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Oct 31 16:45:29 CET 2008 - kmachalkova@suse.cz
+
+- Pass no data to the partitioner if the user decides to cancel 
+  add/edit/delete NFS share operation
+- Correct AY backwards compatibility code if 'vfstype' key is missing 
+  on Import - assume plain nfs in that case (bnc#438497) 
+- 2.17.8
+
+-------------------------------------------------------------------
 Wed Oct 29 18:12:10 CET 2008 - kmachalkova@suse.cz
 
 - Correct enabling/disabling of edit and delete buttons depending 
