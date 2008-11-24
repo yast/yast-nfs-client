@@ -261,7 +261,7 @@
 	        return (entry["vfstype"]:"" == "nfs" || entry["vfstype"]:"" == "nfs4");
 	    });
 	    non_nfs_entries = filter (map entry, fstab, ``{
-	        return (entry["vfstype"]:"" != "nfs");
+	        return (entry["vfstype"]:"" != "nfs" && entry["vfstype"]:"" != "nfs4");
 	    });
 	}
 
