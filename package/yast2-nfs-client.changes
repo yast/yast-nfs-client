@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 24 15:06:08 CET 2008 - kmachalkova@suse.cz
+
+- Do not include nfsv4 shares into non-nfs entries :) (bnc#446161)
+- Button re-labelling to comply to style-guide (bnc#440528)
+- 2.17.9 
+
+-------------------------------------------------------------------
 Fri Oct 31 16:45:29 CET 2008 - kmachalkova@suse.cz
 
 - Pass no data to the partitioner if the user decides to cancel 
