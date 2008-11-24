@@ -626,7 +626,9 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	Wizard::SetContentsButtons(_("NFS Client Configuration"),
 				   MainDialogLayout(), help_text1,
 				   Label::BackButton (),
-				   Label::FinishButton ());
+				   Label::OKButton ());
+	Wizard::HideBackButton();
+	Wizard::SetAbortButton(`abort, Label::CancelButton());
 
 	InitFstabEntries();
 
