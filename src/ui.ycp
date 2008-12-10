@@ -274,11 +274,18 @@
 	    {
 		if (hosts == nil)
 		{
+		    //newer, shinier, better rpcinfo from rpcbind (#450056)
+		    string prog_name = "/sbin/rpcinfo";
+
+		    //fallback from glibc
+		    if( !FileUtils::Exists(prog_name) )
+			prog_name = "/usr/sbin/rpcinfo";
+
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
 		    // #71064
 		    // this works also if ICMP broadcasts are ignored
-		    string cmd = "/usr/sbin/rpcinfo -b mountd 1 | cut -d ' ' -f 2 | sort -u";
+		    string cmd = prog_name + " -b mountd 1 | cut -d ' ' -f 2 | sort -u";
 		    map out = (map) SCR::Execute (.target.bash_output, cmd);
 		    hosts = filter (string s, splitstring (out["stdout"]:"", "\n"), ``( s != ""));
 		    UI::CloseDialog();
