@@ -28,6 +28,7 @@
     import "Label";
     import "Nfs";
     import "Popup";
+    import "SuSEFirewall";
     import "Wizard";
     include "nfs/routines.ycp";
 
@@ -276,25 +277,46 @@
 		{
 		    //newer, shinier, better rpcinfo from rpcbind (#450056)
 		    string prog_name = "/sbin/rpcinfo";
+		    string delim = "";
 
-		    //fallback from glibc
+		    //fallback from glibc (uses different field separators, grr :( )
 		    if( !FileUtils::Exists(prog_name) )
+		    {
 			prog_name = "/usr/sbin/rpcinfo";
+			delim = "-d ' ' ";
+		    }
 
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
 		    // #71064
 		    // this works also if ICMP broadcasts are ignored
-		    string cmd = prog_name + " -b mountd 1 | cut -d ' ' -f 2 | sort -u";
+		    string cmd = prog_name + " -b mountd 1 | cut " + delim + "-f 2 | sort -u";
 		    map out = (map) SCR::Execute (.target.bash_output, cmd);
 		    hosts = filter (string s, splitstring (out["stdout"]:"", "\n"), ``( s != ""));
 		    UI::CloseDialog();
+
 		}
-		string host = ChooseHostName(hosts);
-		if (host != nil)
+		if( hosts == [] || hosts == nil )
 		{
-		    UI::ChangeWidget(`id(`serverent), `Value, host);
-		}
+		    //Translators: 1st part of error message
+		    string error_msg = _("No NFS server has been found on your network.");
+
+		    if ( SuSEFirewall::GetStartService() )
+		    {
+			//Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
+		        error_msg = error_msg + _("\nThis could be caused by a running SuSEfirewall2,
+which probably blocks the network scanning.");
+		    }
+		    Report::Error(error_msg);
+		 }
+		 else
+		 {
+		     string host = ChooseHostName(hosts);
+		     if (host != nil)
+		     {
+		        UI::ChangeWidget(`id(`serverent), `Value, host);
+		     }
+		 }
 	    }
 	    else if (ret == `pathent_list)
 	    {
