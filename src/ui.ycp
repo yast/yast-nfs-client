@@ -193,6 +193,7 @@
 	boolean nfs4 = false;
 	string options = "defaults";
 	list <string> servers = [ ];
+	string old = "";
 
 	if (fstab_ent != nil)
 	{
@@ -203,6 +204,7 @@
 	    nfs4 = fstab_ent["vfstype"]:"" == "nfs4";
 	    options = fstab_ent["mntops"]:"";
 	    servers = [ server ];
+	    old = fstab_ent["spec"]:"";
 	}
         else
 	{
@@ -390,6 +392,8 @@ which probably blocks the network scanning.");
 			"vfstype" : nfs4 ? "nfs4" : "nfs",
 			"mntops"  : options,
 			];
+		    if (old != (server+":"+pth))
+			fstab_ent = add(fstab_ent, "old", old);
 		    ret = `ok;
 		}
 	    }
