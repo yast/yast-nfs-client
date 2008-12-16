@@ -537,11 +537,6 @@ rights.</p>") + fw_cwm_widget["help"]:"";
         UI::ChangeWidget (`id(`fstable), `Items, FstabTableItems (nfs_entries));
 	EnableDisableButtons();
 
-	// Kludge, because a `Table still does not have a shortcut.
-	// Simple to solve here: there's only the table and buttons,
-	// so it is OK to always set focus to the table
-	UI::SetFocus (`id (`fstable));
-
     }
     
     void InitSettings( )
@@ -664,6 +659,11 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	Wizard::SetAbortButton(`abort, Label::CancelButton());
 
 	InitFstabEntries();
+
+	// Kludge, because a `Table still does not have a shortcut.
+	// Simple to solve here: there's only the table and buttons,
+	// so it is OK to always set focus to the table
+	UI::SetFocus (`id (`fstable));
 
 	map event = nil;
 	any ret = nil;
