@@ -453,7 +453,7 @@ the NFS client configuration.\n"));
      * @return string directory where volume was mounted or nil if mount failed
      */
 
-    global define string Mount(string server, string share, string mpoint, string options) ``{
+    global define string Mount(string server, string share, string mpoint, string options, string type) ``{
 
 	if (size(server) == 0 || size(share) == 0)
 	{
@@ -525,7 +525,9 @@ the NFS client configuration.\n"));
 	}
 
 	// build mount command
-	string command = sformat("/bin/mount %1 %2:%3 %4", (size(options) > 0) ? "-o " + options : "", server, share, mpoint);
+	string command = sformat("/bin/mount %1 %2 %3:%4 %5", (size(options) > 0) ? "-o " + options : "",
+				 "-t " + (size(type) > 0  ? type : "nfs"),
+				 server, share, mpoint);
 
 	// execute mount command
 	return (SCR::Execute(.target.bash, command) == 0) ? mpoint : nil;
@@ -551,7 +553,7 @@ the NFS client configuration.\n"));
 		string type = (string) (m["vfstype"]:nil);
 		string file = (string) (m["file"]:nil);
 
-		if (type == "nfs" && file == mpoint)
+		if ( (type == "nfs" || type == "nfs4") && file == mpoint)
 		{
 		    found = true;
 		}
