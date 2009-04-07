@@ -450,6 +450,7 @@ the NFS client configuration.\n"));
      * @param share name of the exported directory
      * @param mpoint mount point (can be empty or nil, in this case it will be mounted in temporary directory)
      * @param options mount options - e.g. "ro,hard,intr", see man nfs
+     * @param type nfs type (nfs vs. nfsv4) - if empty, 'nfs' is used
      * @return string directory where volume was mounted or nil if mount failed
      */
 
