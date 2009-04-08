@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr  8 13:13:58 CEST 2009 - kmachalkova@suse.cz
+
+- Do not use ag_showexports to show nfsv4-shared dirs on a server, 
+  use Nfs::Mount and show directory listing instead (bnc#466454)
+- 2.18.0
+
+-------------------------------------------------------------------
 Thu Dec 11 15:51:48 CET 2008 - kmachalkova@suse.cz
 
 - Missing strings marked for translation (bnc#449199) 
