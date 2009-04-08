@@ -242,6 +242,7 @@
 			    `PushButton (`id (`pathent_list), _("&Select"))
 			    )
 		    ),
+		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `Left(
 			TextAndButton (
 			    `TextEntry(`id(`mountent),
@@ -255,7 +256,6 @@
 			),
 		    // textentry label
 		    `VSpacing(0.2),
-		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `HBox(
