@@ -242,6 +242,7 @@
 			    `PushButton (`id (`pathent_list), _("&Select"))
 			    )
 		    ),
+		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `Left(
 			TextAndButton (
 			    `TextEntry(`id(`mountent),
@@ -255,7 +256,6 @@
 			),
 		    // textentry label
 		    `VSpacing(0.2),
-		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `HBox(
@@ -323,13 +323,41 @@ which probably blocks the network scanning.");
 	    else if (ret == `pathent_list)
 	    {
 		string server = (string) UI::QueryWidget(`id(`serverent), `Value);
+		boolean v4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
+
+		if (!CheckHostName (server))
+		{
+		    UI::SetFocus (`id (`serverent));
+		    continue;
+		}
+
 		UI::OpenDialog (
 		    `Label (
 			// Popup dialog, %1 is a host name
 			sformat (_("Getting directory list for \"%1\"..."),
 				 server)
 			));
-		list<string> dirs = (list<string>) SCR::Read (.net.showexports, server);
+		list<string> dirs = [];
+
+		// showmounts does not work for nfsv4 (#466454)
+		if (v4)
+		{
+		    string tmpdir = Nfs::Mount(server, "/", nil, "ro", "nfs4");
+
+		    // This is completely stupid way how to explore what can be mounted
+		    // and I even don't know if it is correct. Maybe 'find tmpdir -xdev -type d'
+		    // should be used instead. No clue :(
+		    dirs = maplist( string dirent, (list <string> ) SCR::Read(.target.dir, tmpdir), {
+			return "/" + dirent;
+		    });
+		    dirs = prepend(dirs, "/");
+		    Nfs::Unmount( tmpdir );
+		}
+		else
+		{
+		    dirs = (list<string>) SCR::Read (.net.showexports, server);
+		}
+
 		if (dirs == nil)
 		{
 		    dirs = ["internal error"];
