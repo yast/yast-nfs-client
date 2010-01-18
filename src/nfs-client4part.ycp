@@ -35,7 +35,8 @@
 	    ret =  $[
 		"device" : entry["spec"]:"",
 		"mount" : entry["file"]:"",
-		"fstopt" : entry["mntops"]:""
+		"fstopt" : entry["mntops"]:"",
+		"vfstype" : entry["vfstype"]:"nfs"
 	    ];
 	    if (haskey ( entry, "old" ))
 		ret = add(ret,  "old_device" , entry["old"]:"" );
@@ -54,12 +55,10 @@
 	list <map <string, any> > shares = ( list < map <string, any> >) param["shares"]:[];
 
 	Nfs::nfs_entries = maplist( map <string, any> entry, shares, {
-
 	    return ( $[
 		"spec" : entry["device"]:"",
 	        "file" : entry["mount"]:"",
-		//FIXME:: nfsv4
-		"vfstype" : "nfs",
+		"vfstype" : entry["used_fs"]:`nfs == `nfs ? "nfs" : "nfs4",
 		"mntops": entry["fstopt"]:""
 	    ]);
 	});
