@@ -80,13 +80,33 @@
     // list of created directories
     list<string> created_dirs = [];
 
+    boolean ReadNfs4 () {
+	return (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes"); 
+    }
+
+    string ReadIdmapd() {
+	return (string) SCR::Read(.etc.idmapd_conf, "Domain");
+    }
+
     /**
      * Set module data
      * @param settings module settings
      * @return void
      */
-    global define void Set(list<map> settings) ``{
-	nfs_entries = maplist(map entry, settings, ``{
+    global define void Set(map <string, any> settings) ``{
+	if ( haskey(settings, "enable_nfs4") ) {
+	    nfs4_enabled = settings["enable_nfs4"]:false;
+	}
+	else
+	    nfs4_enabled = ReadNfs4();
+
+	if ( haskey(settings, "idmapd_domain") ) {
+	    idmapd_domain = settings["idmapd_domain"]:"localdomain";
+	}
+	else
+	    idmapd_domain = ReadIdmapd();
+
+	nfs_entries = maplist(map entry, settings["nfs_entries"]:[], ``{
 	    return($[
 		     "spec":entry["server_path"]:"",
 		     "file":entry["mount_point"]:"",
@@ -104,10 +124,10 @@
      * @param settings	a map with a single key: nfs_entries
      * @return	success
      */
-    global define boolean Import (list<map> settings) ``{
+    global define boolean Import (map <string, any> settings) ``{
 
 	boolean missing = false;
-	settings = maplist(map s,settings,``{
+	settings["nfs_entries"] = maplist(map s,settings["nfs_entries"]:[],``{
 	    foreach (string k, ["server_path", "mount_point", "nfs_options"], ``{
 		if (! haskey (s, k))
 		{
@@ -140,7 +160,12 @@
      * Dump the NFS settings to a map, for autoinstallation use.
      * @return a list of nfs entries.
      */
-    global define list Export () ``{
+    global define map Export () ``{
+	map <string, any> settings = $[];
+
+	settings["enable_nfs4"] = nfs4_enabled;
+	settings["idmapd_domain"] = idmapd_domain;
+
 	list entries = maplist(map entry, nfs_entries, ``{
 		return($[
 			"server_path":entry["spec"]:"",
@@ -149,7 +174,8 @@
 			"nfs_options":entry["mntops"]:""
 			]);
 	});
-	return  entries;
+	settings["nfs_entries"]= entries;
+	return  settings;
     }
 
     /* ------------------------------------------------------------ */

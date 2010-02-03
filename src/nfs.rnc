@@ -1,10 +1,14 @@
 nfs =
   element nfs {
-    LIST,
-    element nfs_entry {
-      element server_path { text }
-    & element mount_point { text }
-    & element vfstype {text}?
-    & element nfs_options { text }
-    }*
+    element enable_nfs4 { BOOLEAN }? &
+    element idmapd_domain { text }? &
+    element nfs_entries {
+      LIST,
+      element nfs_entry {
+        element server_path { text }
+        & element mount_point { text }
+        & element vfstype {text}?
+        & element nfs_options { text }
+      }*
+    }
   }
