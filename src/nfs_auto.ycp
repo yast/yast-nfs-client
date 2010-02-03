@@ -37,7 +37,7 @@ include "nfs/ui.ycp";
 
 any ret = nil;
 string func = "";
-map <string, any> param = [];
+map <string, any> param = $[];
 
 /* Check arguments */
 if(size(WFM::Args()) > 0 && is(WFM::Args(0), string)) {
@@ -58,8 +58,8 @@ else if(func == "Summary") {
 }
 /* Reset configuration */
 else if (func == "Reset") {
-    Nfs::Import([]);
-    ret = [];
+    Nfs::Import($[]);
+    ret = $[];
 }
 /* Change configuration (run AutoSequence) */
 else if (func == "Change") {
