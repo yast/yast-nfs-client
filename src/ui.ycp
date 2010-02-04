@@ -73,7 +73,7 @@
 		    `SelectionBox (`id (`items), title, items),
 		    `VSpacing(10)
 		    ),
-		`HBox (
+		`ButtonBox (
 		    `PushButton (`id (`ok), `opt (`default, `key_F10),
 				 Label::OKButton ()),
 		    `PushButton (`id (`cancel), `opt (`key_F9),
@@ -258,7 +258,7 @@
 		    `VSpacing(0.2),
 		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
 		    `VSpacing(0.2),
-		    `HBox(
+		    `ButtonBox(
 			`PushButton(`id(`ok), `opt(`default, `key_F10), Label::OKButton()),
 			`PushButton(`id(`cancel), `opt (`key_F9), Label::CancelButton()),
 			`PushButton(`id(`help), `opt (`key_F1), Label::HelpButton())),
@@ -679,12 +679,12 @@ rights.</p>") + fw_cwm_widget["help"]:"";
         nfs_entries = Nfs::nfs_entries;
 
 	// dialog heading
-	Wizard::SetContentsButtons(_("NFS Client Configuration"),
+	Wizard::SetContents(_("NFS Client Configuration"),
 				   MainDialogLayout(), help_text1,
-				   Label::BackButton (),
-				   Label::OKButton ());
-	Wizard::HideBackButton();
-	Wizard::SetAbortButton(`abort, Label::CancelButton());
+				   false,
+				   true);
+	//Wizard::HideBackButton();
+	//Wizard::SetAbortButton(`abort, Label::CancelButton());
 
 	InitFstabEntries();
 
