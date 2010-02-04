@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Feb  4 14:52:27 CET 2010 - kmachalkova@suse.cz
+
+- New structure of <nfs> section of AY profiles to allow setting up
+  global vars (bnc#457981) 
+- Some style fixes - use ButtonBoxes, use OK-Cancel dialog 
+  (bnc#571958)
+- 2.19.1
+
+-------------------------------------------------------------------
 Mon Jan 18 18:07:08 CET 2010 - aschnell@suse.de
 
 - adapted to NFS4 support in yast2-storage
