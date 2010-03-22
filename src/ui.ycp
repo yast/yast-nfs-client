@@ -712,9 +712,9 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	   else
 		HandleEvent( ret );
 	}
-	while (ret != `back && ret != `next && ret != `abort);
+	while (ret != `back && ret != `next && ret != `abort && ret != `ok);
 
-	if (ret == `next)
+	if (ret == `next || ret == `ok)
 	{
 	    // grab current settings, store them to SuSEFirewall::
 	    if( UI::WidgetExists(`id(`fstable)) )
