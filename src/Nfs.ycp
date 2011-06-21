@@ -28,6 +28,7 @@
     import "SuSEFirewall";
     import "Progress";
     import "PackageSystem";
+    import "PackagesProposal";
     import "Wizard";
 
     include "nfs/routines.ycp";
@@ -309,8 +310,18 @@
 	if (nfs4_enabled)
 	    required_packages = add( required_packages, "nfsidmap");
 
-	if ( !PackageSystem::CheckAndInstallPackagesInteractive( required_packages ) )
-	    return false;
+	if (Mode::installation())
+	{
+	    foreach (string p, required_packages,
+            {
+                PackagesProposal::AddResolvables ("yast2-nfs-client", `package, [p]);
+            });
+	}
+	else
+	{
+            if ( !PackageSystem::CheckAndInstallPackagesInteractive( required_packages ) )
+                return false;
+	}
 
 	return true;
     }

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun 21 18:24:39 CEST 2011 - kmachalkova@suse.cz
+
+- Fixed attempt to install rpmbind to inst-sys during installation
+  (bnc#621197)
+
+-------------------------------------------------------------------
 Wed May 26 16:58:39 CEST 2010 - kmachalkova@suse.cz
 
 - Fixed handling of return symbols (buggy patch for bnc#589541, now
