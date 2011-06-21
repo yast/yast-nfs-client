@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun 21 18:24:39 CEST 2011 - jreidinger@suse.cz
+
+- Fixed attempt to install rpmbind to inst-sys during installation
+  (bnc#621197)
+
+-------------------------------------------------------------------
 Wed Apr  8 16:37:35 CEST 2009 - kmachalkova@suse.cz
 
 - Do not use ag_showexports to show nfsv4-shared dirs on a server, 
