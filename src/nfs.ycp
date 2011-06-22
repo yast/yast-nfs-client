@@ -93,6 +93,14 @@ boolean NfsAddHandler (map options) {
 	return false;
     }
 
+    string type = options["type"]:"nfs";
+    if (type != "nfs" && type != "nfs4")
+    {
+	Report::Error (_("Unknown value for option \"type\"."));
+	return false;
+    }
+    options["vfstype"] = type;
+
     nfs_entries = add (nfs_entries, (map<string,any>) options);
     Nfs::nfs_entries = nfs_entries;
     return true;
@@ -116,6 +124,18 @@ boolean NfsEditHandler (map options) {
 	CommandLine::Print (_("No NFS mount specified."));
 	return false;
     }
+
+    string type = options["type"]:"nfs";
+    if (type != "nfs" && type != "nfs4")
+    {
+	Report::Error (_("Unknown value for option \"type\"."));
+	return false;
+    }
+    if (haskey(options,"type"))
+    {
+	options["vfstype"] = type;
+    }
+
     list<integer> entries	= [];
     integer i			= 0;
     foreach (map<string,any> entry, nfs_entries, {
@@ -260,12 +280,18 @@ map cmdline_description = $[
 	    // fstab(5): fs_mntops
 	    "help"	: _("Mount options"),
 	    ],
+	"type"	: $[
+	    "type"	: "string", // nfs or nfs4
+	    // command line option help
+	    // fstab(5): fs_type
+	    "help"	: _("File system id, supported nfs and nfs4. Default value is nfs."),
+	    ],
     ],
     "mappings"		: $[
 	"list"		: [],
-	"add"		: ["spec", "file", "mntops",],
+	"add"		: ["spec", "file", "mntops","type",],
 	// either of spec and file is key
-	"edit"		: ["spec", "file", "mntops",],
+	"edit"		: ["spec", "file", "mntops","type",],
 	// either of spec and file is key
 	"delete"	: ["spec", "file",],
     ]
