@@ -570,8 +570,8 @@ rights.</p>") + fw_cwm_widget["help"]:"";
     void InitSettings( )
     {
         CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
-        UI::ChangeWidget(`id(`enable_nfs4), `Value, Nfs::nfs4_enabled);
-	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled);
+        UI::ChangeWidget(`id(`enable_nfs4), `Value, Nfs::nfs4_enabled != false);
+	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled != false);
 	UI::ChangeWidget(`id(`nfs4_domain), `Value, Nfs::idmapd_domain);
     }
     

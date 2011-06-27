@@ -72,7 +72,7 @@
      */
     global list<map> non_nfs_entries = [];
 
-    global boolean nfs4_enabled = false;
+    global boolean nfs4_enabled = nil;
 
     global string idmapd_domain = "";
 
@@ -144,6 +144,11 @@
 	    if ( !haskey(s, "vfstype") )
 	    {
 	        s["vfstype"] = "nfs";
+	    } else {
+ 		if (s["vfstype"]:"nfs" == "nfs4")
+		{
+		    nfs4_enabled = true;
+ 		}
 	    }
 	    return s;
 
@@ -383,16 +388,15 @@ the NFS client configuration.\n"));
 	    Service::Enable("nfsboot");
 	}
 
-        if(nfs4_enabled)
+        if(nfs4_enabled == true)
         {
                 SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"yes");
 		SCR::Write(.etc.idmapd_conf, ["Domain",  idmapd_domain] );
         }
-        else
+        else if (nfs4_enabled == false)
         {
                 SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"no");
         }
-
 	boolean progress_orig = Progress::set (false);
 	SuSEFirewall::WriteOnly ();
 	Progress::set (progress_orig);
@@ -544,7 +548,7 @@ the NFS client configuration.\n"));
 	{
 	    if (Service::Start( portmapper ) == false)
 	    {
-		y2warning( sformat("%1 cannot be started", portmapper) );
+		y2warning("%1 cannot be started", portmapper);
 		return nil;
 	    }
 	}
