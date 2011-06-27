@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jun 27 10:50:58 UTC 2011 - jreidinger@novell.com
+
+- fix enablement of NFSv4 in autoyast (bnc#684859)
+- allow to set version of nfs on command line and also fix passing
+  default value (bnc#681275)
+- 2.17.13
+
+-------------------------------------------------------------------
 Tue Jun 21 18:24:39 CEST 2011 - jreidinger@suse.cz
 
 - Fixed attempt to install rpmbind to inst-sys during installation
