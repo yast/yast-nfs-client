@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Aug  5 12:34:14 CEST 2011 - tgoettlicher@suse.de
+
+- fixed .desktop file (bnc #681249)
+
+-------------------------------------------------------------------
 Tue Jun 21 18:24:39 CEST 2011 - jreidinger@suse.cz
 
 - Fixed attempt to install rpmbind to inst-sys during installation
