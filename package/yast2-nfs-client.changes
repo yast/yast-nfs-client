@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Aug  5 12:34:14 CEST 2011 - tgoettlicher@suse.de
+
+- fixed .desktop file (bnc #681249)
+
+-------------------------------------------------------------------
 Wed May 26 16:58:39 CEST 2010 - kmachalkova@suse.cz
 
 - Fixed handling of return symbols (buggy patch for bnc#589541, now
