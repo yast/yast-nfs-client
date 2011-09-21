@@ -2,6 +2,7 @@
 Wed Sep 21 10:54:32 CEST 2011 - visnov@suse.cz
 
 - set dialog title
+- set proper dependency on yast2
 - 2.21.1 
 
 -------------------------------------------------------------------
