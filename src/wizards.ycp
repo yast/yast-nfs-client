@@ -55,7 +55,7 @@ any NfsSequence ()
     ];
 
     Wizard::OpenOKDialog ();
-    Wizard::SetDesktopIcon ("nfs");
+    Wizard::SetDesktopTitleAndIcon ("nfs");
 
     any ret = Sequencer::Run (aliases, sequence);
 
