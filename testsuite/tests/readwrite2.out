@@ -6,7 +6,6 @@ Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Execute	.target.bash "/sbin/chkconfig -l SuSEfirewall2_init | /usr/bin/grep -q '[0-6]:on'" 0
 Execute	.target.bash "/sbin/chkconfig -l SuSEfirewall2_setup | /usr/bin/grep -q '[0-6]:on'" 0
-Execute	.target.bash "/sbin/service SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Write - nfs is in use - start services
@@ -29,7 +28,6 @@ Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0,
 Execute	.target.bash "/sbin/service portmap status" $["TERM":"raw"] 0
 Execute	.target.bash_output "/sbin/service nfs start" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Execute	.target.bash "/sbin/service nfs status" $["TERM":"raw"] 0
-Execute	.target.bash "/sbin/service SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs is in use & stopped
@@ -61,7 +59,6 @@ Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0,
 Execute	.target.bash "/sbin/service portmap status" $["TERM":"raw"] 0
 Execute	.target.bash_output "/sbin/service nfs start" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Execute	.target.bash "/sbin/service nfs status" $["TERM":"raw"] 0
-Execute	.target.bash "/sbin/service SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & running
@@ -78,7 +75,6 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/sbin/service SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & services are stopped
@@ -95,5 +91,4 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/sbin/service SuSEfirewall2_init status" $["TERM":"raw"] 0
 Return	true
