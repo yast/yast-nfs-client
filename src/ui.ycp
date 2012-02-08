@@ -58,6 +58,11 @@
     list<string> hosts = nil;
 
     /**
+     * List of already defined nfs mount points
+     */
+    list< map <string,any> > nfs_entries = Nfs::nfs_entries;
+
+    /**
      * Let the user choose one of a list of items
      * @param title	selectionbox title
      * @param items	a list of items
@@ -178,6 +183,7 @@
 	    `Bottom (button)
 	    );
     }
+
     /**
      * Ask user for an entry.
      * @param fstab_ent	$["spec": "file": "mntops":] or nil
@@ -213,6 +219,21 @@
 	        servers = [ proposed_server ];
 	}
 
+	// append already defined servers - bug #547983
+        foreach( map nfs_entry, nfs_entries,
+        {
+	    term couple = SpecToServPath( nfs_entry[ "spec"]:"");
+	    string known_server = "";
+
+	    known_server = couple[0]:"";
+
+	    if( !contains( servers, known_server))
+	        servers = add( servers, known_server);
+        });
+
+        servers = sort( servers);
+	//
+
 	UI::OpenDialog(
 	    `opt(`decorated),
 	    `HBox(
@@ -232,7 +253,8 @@
 			),
 			`HSpacing(0.5),
 			TextAndButton (
-			    `TextEntry(`id(`pathent),
+			    `InputField( `id(`pathent),
+					`opt(`hstretch),
 				       // textentry label
 				       _("&Remote Directory"), pth),
 			    // pushbutton label,
@@ -245,7 +267,8 @@
 		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `Left(
 			TextAndButton (
-			    `TextEntry(`id(`mountent),
+			    `InputField(`id(`mountent),
+					`opt(`hstretch),
 				       // textentry label
 				       _("&Mount Point (local)"), mount),
 			    // button label
@@ -256,7 +279,7 @@
 			),
 		    // textentry label
 		    `VSpacing(0.2),
-		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
+		    `InputField(`id(`optionsent), `opt( `hstretch), _("O&ptions"), options),
 		    `VSpacing(0.2),
 		    `ButtonBox(
 			`PushButton(`id(`ok), `opt(`default, `key_F10), Label::OKButton()),
@@ -468,7 +491,6 @@ read the man page mount(8).</p>");
     ];
     map<string,any> fw_cwm_widget = CWMFirewallInterfaces::CreateOpenFirewallWidget (fw_settings);
 
-    list< map <string,any> > nfs_entries = Nfs::nfs_entries;
     map <string, any> modify_line = $[];
 
     // Help, part 1 of 3

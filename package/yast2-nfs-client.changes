@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Feb  8 12:00:10 UTC 2012 - mfilka@suse.com
+
+- Base server hostname combobox on existing values - bnc#547983
+
+-------------------------------------------------------------------
 Wed Dec  7 10:05:12 UTC 2011 - coolo@suse.com
 
 - fix license to be in spdx.org format
