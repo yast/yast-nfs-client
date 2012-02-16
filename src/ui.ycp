@@ -223,9 +223,7 @@
         foreach( map nfs_entry, nfs_entries,
         {
 	    term couple = SpecToServPath( nfs_entry[ "spec"]:"");
-	    string known_server = "";
-
-	    known_server = couple[0]:"";
+	    string known_server = couple[0]:"";
 
 	    if( !contains( servers, known_server))
 	        servers = add( servers, known_server);

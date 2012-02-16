@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Feb 16 12:23:00 UTC 2012 - mfilka@suse.com
+
+- accepted comments from earlier review. 
+- some formatting
+- 2.21.4
+
+-------------------------------------------------------------------
 Wed Feb  8 12:00:10 UTC 2012 - mfilka@suse.com
 
 - Base server hostname combobox on existing values - bnc#547983
