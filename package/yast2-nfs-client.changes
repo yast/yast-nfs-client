@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Feb 16 13:16:18 UTC 2012 - mfilka@suse.com
+
+- removed some dead code, whitespaces
+
+-------------------------------------------------------------------
 Thu Feb 16 12:44:04 UTC 2012 - mfilka@suse.com
 
 - autoinstallation fails to enable portmapper/rpcbind service - bnc#744357 
