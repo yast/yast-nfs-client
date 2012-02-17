@@ -22,6 +22,6 @@
     TEST (``(SpecToServPath ("nocolon.only.server.com")), [], nil);
     TEST (``(SpecToServPath (":/only/path")), [], nil);
     TEST (``(SpecToServPath ("/nocolon/only/path")), [], nil);
-    TEST (``(SpecToServPath ("two:colons:used")), [], nil);
+    TEST (``(SpecToServPath ("fe80::219:d1ff:feac:fd10:/path")), [], nil);
     TEST (``(SpecToServPath ("")), [], nil);
 }
