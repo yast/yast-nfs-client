@@ -117,6 +117,9 @@
 	         "NFS4_SUPPORT": "no",
 	     ],
 	 ],
+	"target" : $[
+            "stat" : $[ "dummy": true ]
+	],
 	];
 
     // services portmap & nfs are stopped.

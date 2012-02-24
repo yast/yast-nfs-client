@@ -120,6 +120,9 @@
 	         "NFS4_SUPPORT": "yes",
 	     ],
 	 ],
+	"target" : $[
+            "stat" : $[ "dummy": true ]
+	],
 	];
 
     map WRITE = $[
