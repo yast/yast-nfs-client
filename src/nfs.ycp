@@ -284,7 +284,7 @@ map cmdline_description = $[
 	    "type"	: "string", // nfs or nfs4
 	    // command line option help
 	    // fstab(5): fs_type
-	    "help"	: _("File system id, supported nfs and nfs4. Default value is nfs."),
+	    "help"	: _("File system ID, supported nfs and nfs4. Default value is nfs."),
 	    ],
     ],
     "mappings"		: $[
