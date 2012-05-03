@@ -74,6 +74,8 @@
 
     global boolean nfs4_enabled = nil;
 
+    global boolean nfs_gss_enabled = nil;
+
     global string idmapd_domain = "";
 
     string portmapper = "";
@@ -83,6 +85,10 @@
 
     boolean ReadNfs4 () {
 	return (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
+    }
+
+    boolean ReadNfsGss () {
+	return (SCR::Read(.sysconfig.nfs.NFS_SECURITY_GSS)=="yes");
     }
 
     string ReadIdmapd() {
@@ -100,6 +106,12 @@
 	}
 	else
 	    nfs4_enabled = ReadNfs4();
+
+	if ( haskey(settings, "enable_nfs_gss") ) {
+	    nfs_gss_enabled = settings["enable_nfs_gss"]:false;
+	}
+	else
+	    nfs_gss_enabled = ReadNfsGss();
 
 	if ( haskey(settings, "idmapd_domain") ) {
 	    idmapd_domain = settings["idmapd_domain"]:"localdomain";
@@ -171,6 +183,7 @@
 	map <string, any> settings = $[];
 
 	settings["enable_nfs4"] = nfs4_enabled;
+	settings["enable_nfs_gss"] = nfs_gss_enabled;
 	settings["idmapd_domain"] = idmapd_domain;
 
 	list entries = maplist(map entry, nfs_entries, ``{
@@ -299,6 +312,7 @@
 	}
 
 	nfs4_enabled = (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
+	nfs_gss_enabled = (SCR::Read(.sysconfig.nfs.NFS_SECURITY_GSS)=="yes");
 	idmapd_domain = (string) SCR::Read(.etc.idmapd_conf, "Domain");
 
 	boolean progress_orig = Progress::set(false);
@@ -394,6 +408,8 @@ the NFS client configuration.\n"));
         {
                 SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"no");
         }
+        SCR::Write( .sysconfig.nfs.NFS_SECURITY_GSS, nfs_gss_enabled ? "yes" : "no");
+
 	boolean progress_orig = Progress::set (false);
 	SuSEFirewall::WriteOnly ();
 	Progress::set (progress_orig);

@@ -118,6 +118,7 @@
 	"sysconfig": $[
 	     "nfs" : $[
 	         "NFS4_SUPPORT": "yes",
+                 "NFS_SECURITY_GSS": "yes",
 	     ],
 	 ],
 	"target" : $[

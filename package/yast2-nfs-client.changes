@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu May  3 06:45:39 UTC 2012 - mfilka@suse.com
+
+- added option for enabling NFS4 GSS - bnc#681190
+- 2.21.6
+
+-------------------------------------------------------------------
 Thu Mar 29 15:28:12 CEST 2012 - jsuchome@suse.cz
 
 - merged proofread texts 

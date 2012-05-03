@@ -239,28 +239,28 @@
 		`VBox(
 		    `VSpacing(0.2),
 		    `HBox(
-		        TextAndButton (
-			`ComboBox(
-			    `id(`serverent),`opt(`editable),
-			    // text entry label
-			    _("&NFS Server Hostname"), servers ),
-			// pushbutton label
-			// choose a host from a list
-			// appears in help text too
-			`PushButton (`id (`choose), _("Choo&se"))
-			),
+                        TextAndButton (
+			    `ComboBox(
+			        `id(`serverent),`opt(`editable),
+    			        // text entry label
+			        _("&NFS Server Hostname"), servers ),
+			    // pushbutton label
+			    // choose a host from a list
+			    // appears in help text too
+			    `PushButton (`id (`choose), _("Choo&se"))
+                        ),
 			`HSpacing(0.5),
-			TextAndButton (
+			 TextAndButton (
 			    `InputField( `id(`pathent),
-					`opt(`hstretch),
-				       // textentry label
-				       _("&Remote Directory"), pth),
-			    // pushbutton label,
+			                `opt(`hstretch),
+				        // textentry label
+				        _("&Remote Directory"), pth),
+                            // pushbutton label,
 			    // select from a list of remote filesystems
 			    // make it short
 			    // appears in help text too
 			    `PushButton (`id (`pathent_list), _("&Select"))
-			    )
+			)
 		    ),
 		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `Left(
@@ -561,6 +561,8 @@ of file/directory access rights.</p>
 	            `HStretch()
 	        ),
 	        `VSpacing (1),
+                `Left(`CheckBox(`id(`enable_nfs_gss), `opt( `notify), _("Enable &GSS Security"))),
+	        `VSpacing (1),
 	        fw_cwm_widget["custom_widget"]:`Empty (),
 		`VStretch()
 	    );
@@ -595,6 +597,7 @@ of file/directory access rights.</p>
         UI::ChangeWidget(`id(`enable_nfs4), `Value, Nfs::nfs4_enabled != false);
 	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled != false);
 	UI::ChangeWidget(`id(`nfs4_domain), `Value, Nfs::idmapd_domain);
+        UI::ChangeWidget(`id(`enable_nfs_gss), `Value, Nfs::nfs_gss_enabled != false);
     }
 
     void SaveFstabEntries( )
@@ -606,6 +609,7 @@ of file/directory access rights.</p>
     {
         CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
         Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value);
+        Nfs::nfs_gss_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs_gss),`Value);
 	Nfs::idmapd_domain = (string) UI::QueryWidget(`id(`nfs4_domain),`Value);
     }
 

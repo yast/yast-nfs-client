@@ -3,6 +3,7 @@ Dump	Read  - nfs is in use & running
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Execute	.target.bash "/sbin/chkconfig -l SuSEfirewall2_init | /usr/bin/grep -q '[0-6]:on'" 0
 Execute	.target.bash "/sbin/chkconfig -l SuSEfirewall2_setup | /usr/bin/grep -q '[0-6]:on'" 0
@@ -24,6 +25,7 @@ Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":["3", "5"], "stop":["3",
 Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/chkconfig -a nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Execute	.target.bash "/sbin/service portmap status" $["TERM":"raw"] 0
 Execute	.target.bash_output "/sbin/service nfs start" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
@@ -34,6 +36,7 @@ Dump	Read  - nfs is in use & stopped
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -55,6 +58,7 @@ Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":[], "stop":[]], "portmap
 Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/chkconfig -a nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Execute	.target.bash "/sbin/service portmap status" $["TERM":"raw"] 0
 Execute	.target.bash_output "/sbin/service nfs start" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
@@ -65,6 +69,7 @@ Dump	Read  - nfs not used & running
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -74,6 +79,7 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Return	true
 Dump	
@@ -81,6 +87,7 @@ Dump	Read  - nfs not used & services are stopped
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -90,5 +97,6 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/sbin/service nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Return	true
