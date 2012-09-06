@@ -3,7 +3,11 @@
 @HEADER@
 Group:          System/YaST
 License:        GPL-2.0+
-BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
+BuildRequires:  perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite 
+# yast2-nfs-client depends on nfs-utils in term that edits nfs-utils' options.
+# Support was checked against nfs-utils 1.2.7.
+# As soon as nfs-utils reaches version 1.2.9 there should be another update.
+BuildRequires:	nfs-client < 1.2.9
 #ag_showexports moved to yast2 base
 #Wizard::SetDesktopTitleAndIcon
 Requires:       yast2 >= 2.21.22
