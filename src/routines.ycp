@@ -74,28 +74,66 @@
     }
 
     /**
+     * If param contains IPv6 in one of its various forms, extracts it.
+     *
+     * @param ip    a buffer with address
+     * @return      IPv6 part of ip param, unchanged ip param otherwise
+     */
+    define string ParseIpv6( string ip)
+    {
+            // if ip is closed in [ ] or contain % then it can be special case of IPv6 syntax,
+            // so extract ipv6 (see description later) and continue with check.
+            //
+            // IPv6 syntax:
+            // - pure ipv6 blob (e.g. f008::1)
+            // - ipv6 blob with link local suffix (e.g. f008::1%eth0)
+            // - dtto in square brackets (e.g. [f008::1%eth0] )
+            if( regexpmatch( ip, "^\\[.*\\]") || regexpmatch( ip, "^[^][%]+(%[^][%]+){0,1}$"))
+                ip = regexpsub( ip, "^\\[?([^][%]+)(%[^][%]+){0,1}(\\]|$)", "\\1");
+
+            return ip;
+    }
+
+    /**
+     * Checks if given entry is valid ip address
+     */
+    define boolean CheckIp( string ip)
+    {
+            return IP::Check( ParseIpv6( ip) );
+    }
+
+    /**
      * Check for the validity of a hostname: nonempty, shorter than 50 chars,
      * [-A-Za-z._]. If invalid, a message is displayed.
      * @param name      a hostname
      * @return          whether valid
      */
     define boolean CheckHostName(string name) ``{
-        string dirname_forbidden = ":";
+        string dirname_forbidden = ":[]";
 
         if (size(name) > 0 &&
             size(name) < 50 &&
-            name == filterchars(name, "-_.:" + String::CAlnum() )) {
-            if( IP::Check( name))
+            name == filterchars(name, "-_.:[]%" + String::CAlnum() )) 
+        {
+            if( CheckIp( name))
                 return true;
-            if( "" != filterchars( name, dirname_forbidden))
-                return false;
+            if( "" == filterchars( name, dirname_forbidden))
+                return true;
 
-            return true;
-        } else
+            Report::Error (sformat(_("The hostname entered is invalid. 
+Url contains forbidden characters or IP is incorrect.
+Use url, IPv4 or IPv6.")));
+
+            return false;
+        } 
+        else
+        {
             // error popup message
             Report::Error (sformat(_("The hostname entered is invalid. It must be
 shorter than 50 characters and only use
-0-9, A-Z, a-z, dots, -, and _.:")));
+0-9, A-Z, a-z, dots, -, and _.:[]%%")));
+        }
+
         return false;
     };
 
@@ -217,6 +255,17 @@ and it must begin with a slash (/).")));
         {
             return p;
         }
+    }
+
+    /**
+     * Formats hostname into form suitable for fstab.
+     * If given param is IPv6 then encloses it into square brackets.
+     */
+    define string FormatHostnameForFstab( string hostname)
+    {
+        if( IP::Check6( ParseIpv6( hostname)))
+            return sformat( regexpmatch( "\\[.*\\]", hostname) ? "%1" : "[%1]", hostname);
+        return hostname; 
     }
 
     /**
