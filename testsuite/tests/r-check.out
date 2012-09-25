@@ -23,3 +23,8 @@ Return	false
 Return	true
 Return	true
 Return	false
+Dump	FormatHostnameForFstab
+Return	[::1]
+Return	[::1]
+Return	127.0.0.1
+Return	suse.de

@@ -57,4 +57,10 @@
     TEST (``(CheckHostName (IPv6_link_local_nb)), [], nil);
     TEST (``(CheckHostName (IPv6_link_local_ib)), [], nil);
     TEST (``(CheckHostName (IPv6_link_local_invalid)), [], nil);
+
+    DUMP ( "FormatHostnameForFstab");
+    TEST ( FormatHostnameForFstab( "::1"), [], nil);
+    TEST ( FormatHostnameForFstab( "[::1]"), [], nil);
+    TEST ( FormatHostnameForFstab( "127.0.0.1"), [], nil);
+    TEST ( FormatHostnameForFstab( "suse.de"), [], nil);
 }
