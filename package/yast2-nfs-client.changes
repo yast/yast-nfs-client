@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Sep 20 12:57:40 UTC 2012 - mfilka@suse.com
+
+- added support for IPv6 in square brackets
+- expanded testsuite for IPv6 checks
+- bnc#719538
+- 2.21.8 
+
+-------------------------------------------------------------------
 Thu Aug 23 19:07:04 UTC 2012 - mfilka@suse.com
 
 - added support for comment, nofail fstab options
