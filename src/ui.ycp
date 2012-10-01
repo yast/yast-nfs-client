@@ -408,7 +408,7 @@ which probably blocks the network scanning.");
 	    }
 	    else if (ret == `ok)
 	    {
-		server = (string) UI::QueryWidget(`id(`serverent), `Value);
+		server = FormatHostnameForFstab( (string) UI::QueryWidget(`id(`serverent), `Value));
 		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
 		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
 		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
