@@ -129,7 +129,7 @@
 
     /* Return convenient hostname (FaTE #302863) to be proposed
      * i.e. nfs + current domain (nfs. + suse.cz)
-     * @return string 	proposed hostname
+     * @return string	proposed hostname
      */
     define string ProposeHostname() {
 	string ret = "";
@@ -586,7 +586,7 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	EnableDisableButtons();
 
     }
-    
+
     void InitSettings( )
     {
         CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
@@ -594,16 +594,16 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled != false);
 	UI::ChangeWidget(`id(`nfs4_domain), `Value, Nfs::idmapd_domain);
     }
-    
+
     void SaveFstabEntries( )
     {
         Nfs::nfs_entries = nfs_entries;
     }
-    
+
     void SaveSettings( map event )
     {
         CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
-        Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
+        Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value);
 	Nfs::idmapd_domain = (string) UI::QueryWidget(`id(`nfs4_domain),`Value);
     }
 
@@ -613,9 +613,6 @@ rights.</p>") + fw_cwm_widget["help"]:"";
         // handle the events, enable/disable the button, show the popup if button clicked
 	if ( UI::WidgetExists(`id("_cwm_firewall_details")) && UI::WidgetExists(`id("_cwm_open_firewall")) )
 	    CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", $[ "ID" : widget ]);
-	/*changed =
-	    true ||		// TODO: fw changed, #44106
-	    true;		// TODO: nfs changed*/
 	if ( UI::WidgetExists(`id(`fstable)) )
 	    entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 
@@ -719,7 +716,7 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 
 	do
 	{
-	   event = UI::WaitForEvent ();	   
+	   event = UI::WaitForEvent ();
 	   ret = event["ID"]:nil;
 	   if (ret == `ok)
 	   {
