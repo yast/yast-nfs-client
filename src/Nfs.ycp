@@ -349,11 +349,6 @@ the NFS client configuration.\n"));
 	    return false;
 	}
 
-/*	if (size (nfs_entries) == 0)
-	{
-	    // Service::Adjust ("nfs", "disable"); // what if autofs needs it?
-	}*/
-
 	portmapper = FindPortmapper();
 	if (size (nfs_entries) != 0)
 	{
@@ -610,8 +605,8 @@ the NFS client configuration.\n"));
 	return true;
     }
 
-	/**
-	* Return required packages for auto-installation
+    /**
+    * Return required packages for auto-installation
     * @return map of packages to be installed and to be removed
     */
     global define map AutoPackages() ``{
