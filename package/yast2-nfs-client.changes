@@ -2,6 +2,8 @@
 Mon Oct 15 08:28:10 UTC 2012 - mfilka@suse.com
 
 - ported several old fixes from master branch: 
+  - updated testsuite
+  - IPv6 addresses supported - bnc#719538
   - removed some dead code, whitespaces
   - autoinstallation fails to enable portmapper/rpcbind service - bnc#744357 
   - Base server hostname combobox on existing values - bnc#547983

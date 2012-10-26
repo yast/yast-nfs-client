@@ -23,17 +23,29 @@
 
     import "Package";
     import "Report";
+    import "IP";
+    import "String";
 
     /**
      * @param spec	"server:/path/specification"
      * @return		`couple("server", "/path/specification")
      */
     define term SpecToServPath(string spec) ``{
-	integer colonpos = findfirstof(spec, ":");
+        // split using ":/" (because of IPv6)
+        integer path_begin = search( spec, ":/");
 	string serv = "";
-	if (colonpos != nil) {
-	    serv = substring(spec, 0, colonpos);
-	    spec = substring(spec, colonpos+1);
+
+        // no :/ inside => <server>: or [/]<path>
+        if( path_begin == nil )
+        {
+            if(spec == filterchars(spec, "-_." + String::CAlnum() ) + ":")
+                // matches [a-zA-Z0-1.-_] and ends with colon? => <server>:
+                path_begin = size( spec) -1;
+        }
+
+	if (path_begin != nil) {
+	    serv = substring(spec, 0, path_begin);
+	    spec = substring(spec, path_begin+1);
 	}
 	return `couple(serv, spec);
     }
@@ -68,16 +80,22 @@
      * @return		whether valid
      */
     define boolean CheckHostName(string name) ``{
+        string dirname_forbidden = ":";
+
 	if (size(name) > 0 &&
 	    size(name) < 50 &&
-	    name == filterchars(name,
-				"-_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")) {
+	    name == filterchars(name, "-_.:" + String::CAlnum() )) {
+            if( IP::Check( name))
+                return true;
+            if( "" != filterchars( name, dirname_forbidden))
+                return false;
+
 	    return true;
 	} else
 	    // error popup message
 	    Report::Error (sformat(_("The hostname entered is invalid. It must be
 shorter than 50 characters and only use
-0-9, A-Z, a-z, dots, -, and _.")));
+0-9, A-Z, a-z, dots, -, and _.:")));
 	return false;
     };
 
