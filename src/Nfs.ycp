@@ -354,6 +354,7 @@ the NFS client configuration.\n"));
 	    // Service::Adjust ("nfs", "disable"); // what if autofs needs it?
 	}*/
 
+	portmapper = FindPortmapper();
 	if (size (nfs_entries) != 0)
 	{
 	    Service::Enable( portmapper );
