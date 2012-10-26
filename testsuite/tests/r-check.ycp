@@ -19,6 +19,9 @@
     string OK_Name     = "foo.bar.com.tw";
     string TooLongName = "123456789012345678901234567890123456789012345678901234567890";
     string IllegalName = "Something:wrong";
+    string IPv4        = "192.168.10.1";
+    string IPv4_invalid= "192.168.10:1";
+    string IPv6        = "fe80::219:d1ff:feac:fd10";
 
     DUMP ("check_options");
     TEST (``(check_options ("")), [], nil);
@@ -37,5 +40,9 @@
     TEST (``(CheckHostName (TooLongName)), [], nil);
     TEST (``(CheckHostName (IllegalName)), [], nil);
     // Too long & illegal char
-    TEST (``(CheckHostName (TooLongName + ":")), [], nil);
+    TEST (``(CheckHostName (TooLongName + "!")), [], nil);
+    // check IPv? adresses
+    TEST (``(CheckHostName (IPv4)), [], nil);
+    TEST (``(CheckHostName (IPv4_invalid)), [], nil);
+    TEST (``(CheckHostName (IPv6)), [], nil);
 }
