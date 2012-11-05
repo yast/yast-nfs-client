@@ -16,9 +16,18 @@
     include "testsuite.ycp";
     include "nfs/routines.ycp";
 
-    string OK_Name     = "foo.bar.com.tw";
-    string TooLongName = "123456789012345678901234567890123456789012345678901234567890";
-    string IllegalName = "Something:wrong";
+    string OK_Name                 = "foo.bar.com.tw";
+    string TooLongName             = "123456789012345678901234567890123456789012345678901234567890";
+    string IllegalName             = "Something:wrong";
+    string IPv4                    = "192.168.10.1";
+    string IPv4_invalid            = "192.168.10:1";
+    string IPv6                    = "fe80::219:d1ff:feac:fd10";
+    string IPv6_invalid            = "fe80::219::fd10";
+    string IPv6_brackets           = "[::1]";
+    string IPv6_brackets_invalid   = "[::1";
+    string IPv6_link_local_nb      = "fe80::3%eth0";
+    string IPv6_link_local_ib      = "[fe80::3%eth0]";
+    string IPv6_link_local_invalid = "[fe80::3%]";
 
     DUMP ("check_options");
     TEST (``(check_options ("")), [], nil);
@@ -37,5 +46,21 @@
     TEST (``(CheckHostName (TooLongName)), [], nil);
     TEST (``(CheckHostName (IllegalName)), [], nil);
     // Too long & illegal char
-    TEST (``(CheckHostName (TooLongName + ":")), [], nil);
+    TEST (``(CheckHostName (TooLongName + "!")), [], nil);
+    // check IPv? adresses
+    TEST (``(CheckHostName (IPv4)), [], nil);
+    TEST (``(CheckHostName (IPv4_invalid)), [], nil);
+    TEST (``(CheckHostName (IPv6)), [], nil);
+    TEST (``(CheckHostName (IPv6_invalid)), [], nil);
+    TEST (``(CheckHostName (IPv6_brackets)), [], nil);
+    TEST (``(CheckHostName (IPv6_brackets_invalid)), [], nil);
+    TEST (``(CheckHostName (IPv6_link_local_nb)), [], nil);
+    TEST (``(CheckHostName (IPv6_link_local_ib)), [], nil);
+    TEST (``(CheckHostName (IPv6_link_local_invalid)), [], nil);
+
+    DUMP ( "FormatHostnameForFstab");
+    TEST ( FormatHostnameForFstab( "::1"), [], nil);
+    TEST ( FormatHostnameForFstab( "[::1]"), [], nil);
+    TEST ( FormatHostnameForFstab( "127.0.0.1"), [], nil);
+    TEST ( FormatHostnameForFstab( "suse.de"), [], nil);
 }

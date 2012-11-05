@@ -3,7 +3,6 @@ Type=Application
 Categories=Settings;System;Qt;X-SuSE-YaST;X-SuSE-YaST-Net_advanced;
 
 X-KDE-ModuleType=Library
-X-KDE-RootOnly=true
 X-KDE-HasReadOnlyMode=true
 X-KDE-Library=yast2
 X-SuSE-YaST-Call=nfs
@@ -21,9 +20,8 @@ X-SuSE-YaST-AutoInstRequires=lan
 X-SuSE-YaST-AutoInstSchema=nfs.rnc
 
 Icon=yast-nfs
-Exec=/sbin/yast2 nfs 
+Exec=xdg-su -c "/sbin/yast2 nfs"
 
 Name=NFS Client
 GenericName=Configure an NFS client
-X-KDE-SubstituteUID=true
 StartupNotify=true

@@ -1,4 +1,23 @@
 -------------------------------------------------------------------
+Mon Oct 15 08:28:10 UTC 2012 - mfilka@suse.com
+
+- ported several old fixes from master branch: 
+  - updated testsuite
+  - added support for IPv6 in square brackets - bnc#719538
+  - IPv6 addresses supported - bnc#719538
+  - removed some dead code, whitespaces
+  - autoinstallation fails to enable portmapper/rpcbind service - bnc#744357 
+  - Base server hostname combobox on existing values - bnc#547983
+  - fixed .desktop file (bnc #681249)
+  - Fixed handling of return symbols (buggy patch for bnc#589541, now
+    bnc#608166)
+  - added fix for problem with OK button (bnc#589541)
+  - Adjusted .desktop file(s) to wrap /sbin/yast2/ calls in xdg-su
+    where root privileges are needed, removed X-KDE-SubstituteUID key 
+    (bnc#540627)
+- 2.17.14 
+
+-------------------------------------------------------------------
 Mon Jun 27 10:50:58 UTC 2011 - jreidinger@novell.com
 
 - fix enablement of NFSv4 in autoyast (bnc#684859)
