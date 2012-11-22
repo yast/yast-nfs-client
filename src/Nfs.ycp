@@ -117,22 +117,23 @@
 		}
 	    });
 
-	    //Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
-	    //thus we need to keep info on nfs version (v3 vs. v4)
-	    //But older AY profiles might not contain this element
-	    //so let's assume nfsv3 in that case (#395850)
-	    if ( !haskey(s, "vfstype") )
-	    {
-	        s["vfstype"] = "nfs";
-	    } else {
- 		if (s["vfstype"]:"nfs" == "nfs4")
-		{
-		    nfs4_enabled = true;
- 		}
-	    }
+            //Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
+            //thus we need to keep info on nfs version (v3 vs. v4)
+            //But older AY profiles might not contain this element
+            //so let's assume nfsv3 in that case (#395850)
+            if ( !haskey(s, "vfstype") )
+            {
+                s["vfstype"] = "nfs";
+            } else {
+                if (s["vfstype"]:"nfs" == "nfs4")
+                {
+                    nfs4_enabled = true;
+                }
+            }
 	    return s;
 
 	});
+
 	if (missing)
 	{
 	    return false;
@@ -279,10 +280,10 @@
 	Progress::set(progress_orig);
 
 	portmapper = FindPortmapper();
-	//There is neither rpcbind  nor portmap  
+	//There is neither rpcbind  nor portmap
 	if ( portmapper == "" )
 	{
-	    //so let's install rpcbind (default since #423026) 
+	    //so let's install rpcbind (default since #423026)
 	    required_packages = add( required_packages, "rpcbind" );
 	    portmapper = "rpcbind";
 	}
@@ -348,11 +349,7 @@ the NFS client configuration.\n"));
 	    return false;
 	}
 
-/*	if (size (nfs_entries) == 0)
-	{
-	    // Service::Adjust ("nfs", "disable"); // what if autofs needs it?
-	}*/
-
+	portmapper = FindPortmapper();
 	if (size (nfs_entries) != 0)
 	{
 	    Service::Enable( portmapper );
@@ -608,8 +605,8 @@ the NFS client configuration.\n"));
 	return true;
     }
 
-	/**
-	* Return required packages for auto-installation
+    /**
+    * Return required packages for auto-installation
     * @return map of packages to be installed and to be removed
     */
     global define map AutoPackages() ``{

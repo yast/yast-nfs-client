@@ -58,6 +58,11 @@
     list<string> hosts = nil;
 
     /**
+     * List of already defined nfs mount points
+     */
+    list< map <string,any> > nfs_entries = Nfs::nfs_entries;
+
+    /**
      * Let the user choose one of a list of items
      * @param title	selectionbox title
      * @param items	a list of items
@@ -73,7 +78,7 @@
 		    `SelectionBox (`id (`items), title, items),
 		    `VSpacing(10)
 		    ),
-		`HBox (
+		`ButtonBox (
 		    `PushButton (`id (`ok), `opt (`default, `key_F10),
 				 Label::OKButton ()),
 		    `PushButton (`id (`cancel), `opt (`key_F9),
@@ -124,7 +129,7 @@
 
     /* Return convenient hostname (FaTE #302863) to be proposed
      * i.e. nfs + current domain (nfs. + suse.cz)
-     * @return string 	proposed hostname
+     * @return string	proposed hostname
      */
     define string ProposeHostname() {
 	string ret = "";
@@ -178,9 +183,10 @@
 	    `Bottom (button)
 	    );
     }
+
     /**
      * Ask user for an entry.
-     * @param fstab_ent	$["spec": "file": "mntopts":] or nil
+     * @param fstab_ent	$["spec": "file": "mntops":] or nil
      * @param existing	list of fstab entries for duplicate mount-point checking
      * @return		a nfs_entry or nil
      */
@@ -213,6 +219,19 @@
 	        servers = [ proposed_server ];
 	}
 
+	// append already defined servers - bug #547983
+        foreach( map nfs_entry, nfs_entries,
+        {
+	    term couple = SpecToServPath( nfs_entry[ "spec"]:"");
+	    string known_server = couple[0]:"";
+
+	    if( !contains( servers, known_server))
+	        servers = add( servers, known_server);
+        });
+
+        servers = sort( servers);
+	//
+
 	UI::OpenDialog(
 	    `opt(`decorated),
 	    `HBox(
@@ -232,7 +251,8 @@
 			),
 			`HSpacing(0.5),
 			TextAndButton (
-			    `TextEntry(`id(`pathent),
+			    `InputField( `id(`pathent),
+					`opt(`hstretch),
 				       // textentry label
 				       _("&Remote Directory"), pth),
 			    // pushbutton label,
@@ -245,7 +265,8 @@
 		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
 		    `Left(
 			TextAndButton (
-			    `TextEntry(`id(`mountent),
+			    `InputField(`id(`mountent),
+					`opt(`hstretch),
 				       // textentry label
 				       _("&Mount Point (local)"), mount),
 			    // button label
@@ -256,9 +277,9 @@
 			),
 		    // textentry label
 		    `VSpacing(0.2),
-		    `TextEntry(`id(`optionsent), _("O&ptions"), options),
+		    `InputField(`id(`optionsent), `opt( `hstretch), _("O&ptions"), options),
 		    `VSpacing(0.2),
-		    `HBox(
+		    `ButtonBox(
 			`PushButton(`id(`ok), `opt(`default, `key_F10), Label::OKButton()),
 			`PushButton(`id(`cancel), `opt (`key_F9), Label::CancelButton()),
 			`PushButton(`id(`help), `opt (`key_F1), Label::HelpButton())),
@@ -387,7 +408,7 @@ which probably blocks the network scanning.");
 	    }
 	    else if (ret == `ok)
 	    {
-		server = (string) UI::QueryWidget(`id(`serverent), `Value);
+		server = FormatHostnameForFstab( (string) UI::QueryWidget(`id(`serverent), `Value));
 		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
 		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
 		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
@@ -468,7 +489,6 @@ read the man page mount(8).</p>");
     ];
     map<string,any> fw_cwm_widget = CWMFirewallInterfaces::CreateOpenFirewallWidget (fw_settings);
 
-    list< map <string,any> > nfs_entries = Nfs::nfs_entries;
     map <string, any> modify_line = $[];
 
     // Help, part 1 of 3
@@ -566,7 +586,7 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	EnableDisableButtons();
 
     }
-    
+
     void InitSettings( )
     {
         CWMFirewallInterfaces::OpenFirewallInit (fw_cwm_widget, "");
@@ -574,16 +594,16 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	UI::ChangeWidget( `id(`nfs4_domain), `Enabled, Nfs::nfs4_enabled != false);
 	UI::ChangeWidget(`id(`nfs4_domain), `Value, Nfs::idmapd_domain);
     }
-    
+
     void SaveFstabEntries( )
     {
         Nfs::nfs_entries = nfs_entries;
     }
-    
+
     void SaveSettings( map event )
     {
         CWMFirewallInterfaces::OpenFirewallStore (fw_cwm_widget, "", event);
-        Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value); 
+        Nfs::nfs4_enabled = (boolean) UI::QueryWidget(`id(`enable_nfs4),`Value);
 	Nfs::idmapd_domain = (string) UI::QueryWidget(`id(`nfs4_domain),`Value);
     }
 
@@ -593,9 +613,6 @@ rights.</p>") + fw_cwm_widget["help"]:"";
         // handle the events, enable/disable the button, show the popup if button clicked
 	if ( UI::WidgetExists(`id("_cwm_firewall_details")) && UI::WidgetExists(`id("_cwm_open_firewall")) )
 	    CWMFirewallInterfaces::OpenFirewallHandle (fw_cwm_widget, "", $[ "ID" : widget ]);
-	/*changed =
-	    true ||		// TODO: fw changed, #44106
-	    true;		// TODO: nfs changed*/
 	if ( UI::WidgetExists(`id(`fstable)) )
 	    entryno = (integer) UI::QueryWidget(`id(`fstable), `CurrentItem);
 
@@ -679,12 +696,12 @@ rights.</p>") + fw_cwm_widget["help"]:"";
         nfs_entries = Nfs::nfs_entries;
 
 	// dialog heading
-	Wizard::SetContentsButtons(_("NFS Client Configuration"),
+	Wizard::SetContents(_("NFS Client Configuration"),
 				   MainDialogLayout(), help_text1,
-				   Label::BackButton (),
-				   Label::OKButton ());
-	Wizard::HideBackButton();
-	Wizard::SetAbortButton(`abort, Label::CancelButton());
+				   false,
+				   true);
+	//Wizard::HideBackButton();
+	//Wizard::SetAbortButton(`abort, Label::CancelButton());
 
 	InitFstabEntries();
 
@@ -699,9 +716,13 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 
 	do
 	{
-	   event = UI::WaitForEvent ();	   
+	   event = UI::WaitForEvent ();
 	   ret = event["ID"]:nil;
-	   if (ret == `cancel)
+	   if (ret == `ok)
+	   {
+	       ret = `next;
+	   }
+	   else if (ret == `cancel)
 	   {
 	       ret = `abort;
 	   }
