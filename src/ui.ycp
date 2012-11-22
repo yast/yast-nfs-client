@@ -180,7 +180,7 @@
     }
     /**
      * Ask user for an entry.
-     * @param fstab_ent	$["spec": "file": "mntopts":] or nil
+     * @param fstab_ent	$["spec": "file": "mntops":] or nil
      * @param existing	list of fstab entries for duplicate mount-point checking
      * @return		a nfs_entry or nil
      */
@@ -701,7 +701,11 @@ rights.</p>") + fw_cwm_widget["help"]:"";
 	{
 	   event = UI::WaitForEvent ();	   
 	   ret = event["ID"]:nil;
-	   if (ret == `cancel)
+	   if (ret == `ok)
+	   {
+	       ret = `next;
+	   }
+	   else if (ret == `cancel)
 	   {
 	       ret = `abort;
 	   }
