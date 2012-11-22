@@ -2,6 +2,7 @@
 Mon Oct 15 08:28:10 UTC 2012 - mfilka@suse.com
 
 - ported several old fixes from master branch: 
+  - Base server hostname combobox on existing values - bnc#547983
   - Fixed handling of return symbols (buggy patch for bnc#589541, now
     bnc#608166)
   - added fix for problem with OK button (bnc#589541)
