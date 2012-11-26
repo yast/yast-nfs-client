@@ -32,7 +32,7 @@ global define string validate (string options) {
     list with_value  = ["rsize", "wsize", "timeo", "retrans", "acregmin", "acregmax",
     		    "acdirmin", "acdirmin", "acdirmax", "actimeo", "retry", "namlen",
     		    "port", "proto", "clientaddr", "mountport", "mounthost",
-    		    "mountprog", "mountvers", "nfsprog", "nfsvers", "vers",
+    		    "mountprog", "mountvers", "nfsprog", "nfsvers", "vers", "minorversion",
                         "sec" ];
     integer i = 0;
     string current_option = "";
@@ -60,6 +60,44 @@ global define string validate (string options) {
     }
 
     return "";
+}
+
+/**
+FIXME: factor out get_nfs4(vfstype, options) (depending on n::o)!
+ * @return is version >= 4.1 enabled
+ */
+global boolean get_nfs41(string options) {
+    list<string> option_list = splitstring (options, ",");
+
+    return contains(option_list, "minorversion=1");
+}
+
+/**
+ * Add or remove minorversion=1 according to nfs41.
+ * FIXME vfstype=nfs4 is deprecated in favor of nfsvers=4 (aka vers=4)
+ */
+global define string set_nfs41(string options, boolean nfs41) {
+    // don't mutate the string unnecessarily
+    if (get_nfs41(options) == nfs41) {
+        return options;
+    }
+
+    const string OPT   = "minorversion=1";
+    const string CLEAN = "minorversion=0";
+
+    if (options == "defaults") { options = ""; }
+    list<string> option_list = splitstring(options, ",");
+    option_list = filter(string opt, option_list, ``( opt != OPT ));
+    option_list = filter(string opt, option_list, ``( opt != CLEAN ));
+
+    if (nfs41) {
+        option_list = add(option_list, OPT);
+    }
+
+    options = mergestring(option_list, ",");
+    if (options == "") { options = "defaults"; }
+
+    return options;
 }
 
 /*EOF*/

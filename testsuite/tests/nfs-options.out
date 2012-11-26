@@ -9,3 +9,5 @@ Return	Unknown option: unknownoption
 Return	Unknown option: unknownassignment
 Return	Empty value for option: rsize
 Return	Unknown option: two
+Dump	Nfs::Options::get_nfs41
+Dump	Nfs::Options::set_nfs41

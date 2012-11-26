@@ -198,6 +198,7 @@
 	string pth = "";
 	string mount = "";
 	boolean nfs4 = false;
+        boolean nfs41 = false;
 	string options = "defaults";
 	list <string> servers = [ ];
 	string old = "";
@@ -210,6 +211,7 @@
 	    mount = fstab_ent["file"]:"";
 	    nfs4 = fstab_ent["vfstype"]:"" == "nfs4";
 	    options = fstab_ent["mntops"]:"";
+            nfs41 = nfs4 && Nfs::Options::get_nfs41 (options);
 	    servers = [ server ];
 	    old = fstab_ent["spec"]:"";
 	}
@@ -263,7 +265,14 @@
 			    `PushButton (`id (`pathent_list), _("&Select"))
 			    )
 		    ),
-		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
+		    `Left(
+                          `HBox(
+                                `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4),
+                                `HSpacing(2),
+                                // parallel NFS, protocol version 4.1
+                                `CheckBox(`id(`nfs41),  _("pNFS (v4.1)"), nfs41)
+                          )
+                    ),
 		    `Left(
 			TextAndButton (
 			    `InputField(`id(`mountent),
@@ -374,7 +383,9 @@ which probably blocks the network scanning.");
 		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
 		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
 		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
+		nfs41 = (boolean) UI::QueryWidget(`id(`nfs41), `Value);
 		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
+                options = Nfs::Options::set_nfs41(options, nfs41);
 
 		ret = nil;
 		string options_error = Nfs::Options::validate (options);
