@@ -27,6 +27,7 @@
     import "FileUtils";
     import "Label";
     import "Nfs";
+    import "Nfs::Options";
     import "Popup";
     import "SuSEFirewall";
     import "Wizard";
@@ -376,7 +377,7 @@ which probably blocks the network scanning.");
 		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
 
 		ret = nil;
-		string options_error = check_options (options);
+		string options_error = Nfs::Options::validate (options);
 		if (!CheckHostName (server))
 		{
 		    UI::SetFocus (`id (`serverent));

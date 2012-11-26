@@ -44,6 +44,9 @@ Summary:	Configuration of nfs
 %dir @moduledir@
 @moduledir@/Nfs.ycp
 @moduledir@/Nfs.ybc
+%dir @moduledir@/Nfs
+@moduledir@/Nfs/Options.ycp
+@moduledir@/Nfs/Options.ybc
 %dir @desktopdir@
 @desktopdir@/nfs.desktop
 %doc @docdir@

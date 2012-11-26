@@ -23,6 +23,7 @@
 
     import "FileUtils";
     import "Mode";
+    import "Nfs::Options";
     import "Report";
     import "Service";
     import "Summary";
@@ -477,7 +478,7 @@ the NFS client configuration.\n"));
 	// check if options are valid
 	if (size(options) > 0)
 	{
-	    if (check_options(options) != "")
+	    if (Nfs::Options::validate(options) != "")
 	    {
 		y2warning("invalid mount options: %1", options);
 		return nil;

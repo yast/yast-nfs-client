@@ -1,0 +1,16 @@
+{
+    include "testsuite.ycp";
+    import "Nfs::Options";
+
+    DUMP ("Nfs::Options::validate");
+    TEST (``(Nfs::Options::validate ("")), [], nil);
+    TEST (``(Nfs::Options::validate ("defaults")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,bg")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,nobg")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,rsize=8192")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock, bg")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,unknownoption")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,unknownassignment=true")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,rsize=")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,two=equal=signs")), [], nil);
+}
