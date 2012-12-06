@@ -23,120 +23,146 @@
 
     import "Package";
     import "Report";
+    import "IP";
+    import "Hostname";
+    import "String";
 
     /**
-     * @param spec	"server:/path/specification"
-     * @return		`couple("server", "/path/specification")
+     * @param spec      "server:/path/specification"
+     * @return          `couple("server", "/path/specification")
      */
     define term SpecToServPath(string spec) ``{
-	integer colonpos = findfirstof(spec, ":");
-	string serv = "";
-	if (colonpos != nil) {
-	    serv = substring(spec, 0, colonpos);
-	    spec = substring(spec, colonpos+1);
-	}
-	return `couple(serv, spec);
+        // split using ":/" (because of IPv6)
+        integer path_begin = search( spec, ":/");
+        string serv = "";
+
+        // no :/ inside => <server>: or [/]<path>
+        if( path_begin == nil )
+        {
+            if(spec == filterchars(spec, "-_." + String::CAlnum() ) + ":")
+                // matches [a-zA-Z0-1.-_] and ends with colon? => <server>:
+                path_begin = size( spec) -1;
+        }
+
+        if (path_begin != nil) {
+            serv = substring(spec, 0, path_begin);
+            spec = substring(spec, path_begin+1);
+        }
+        return `couple(serv, spec);
     }
 
 
     /**
      * Creates a list of ui table items for nfs fstab entries
-     * @param fstab	list of nfs fstab entries
-     * @return		itemized table entries
+     * @param fstab     list of nfs fstab entries
+     * @return          itemized table entries
      * @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
      */
     define list<term> FstabTableItems(list<map> fstab) ``{
-	integer count = 0;
-	return maplist(map entry, fstab, ``{
-	    term sp = SpecToServPath(entry["spec"]:"");
-	    term it = `item(`id(count),
-			    sp[0]:"" + " ",
-			    sp[1]:"" + " ",
-			    entry["file"]:"" + " ",
-			    entry["vfstype"]:" ",
-			    entry["mntops"]:"" + " ");
+        integer count = 0;
+        return maplist(map entry, fstab, ``{
+            term sp = SpecToServPath(entry["spec"]:"");
+            term it = `item(`id(count),
+                            sp[0]:"" + " ",
+                            sp[1]:"" + " ",
+                            entry["file"]:"" + " ",
+                            entry["vfstype"]:" ",
+                            entry["mntops"]:"" + " ");
 
-	    count = count+1;
-	    return it;
-	});
+            count = count+1;
+            return it;
+        });
     }
 
     /**
      * Check for the validity of a hostname: nonempty, shorter than 50 chars,
      * [-A-Za-z._]. If invalid, a message is displayed.
-     * @param name	a hostname
-     * @return		whether valid
+     * @param name      a hostname
+     * @return          whether valid
      */
     define boolean CheckHostName(string name) ``{
-	if (size(name) > 0 &&
-	    size(name) < 50 &&
-	    name == filterchars(name,
-				"-_.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")) {
-	    return true;
-	} else
-	    // error popup message
-	    Report::Error (sformat(_("The hostname entered is invalid. It must be
+
+        y2milestone( "CheckHostName: hostname=%1", name);
+
+        if (size(name) > 0 &&
+            size(name) < 50)
+        {
+            if( IP::Check4( name))
+                return true;
+            if( IP::Check6( IP::UndecorateIPv6( name)))
+                return true;
+            if( Hostname::CheckDomain( name))
+                return true;
+        }
+
+        // error popup message
+
+        Report::Error ( sformat(_("The hostname entered is invalid. It must be
 shorter than 50 characters and only use
-0-9, A-Z, a-z, dots, -, and _.")));
-	return false;
+valid IPv4, IPv6 or domain name.
+Valid IPv4: %1
+Valid IPv6: %2
+Valid domain: %3"), IP::Valid4(), IP::Valid6(), Hostname::ValidDomain()) );
+
+        return false;
     };
 
     /**
      * Check if a mountpoint is in the fstab. If yes, display a message.
-     * @param fstab	in .etc.fstab format (must contain the key "file")
-     * @param mpoint	mount point
-     * @return		is it there?
+     * @param fstab     in .etc.fstab format (must contain the key "file")
+     * @param mpoint    mount point
+     * @return          is it there?
      */
     define boolean IsMpInFstab(list<map> fstab, string mpoint) ``{
-	list tmp = filter(map fse, fstab, ``{
-	    return (fse["file"]:"" == mpoint);
-	});
+        list tmp = filter(map fse, fstab, ``{
+            return (fse["file"]:"" == mpoint);
+        });
 
-	if (size(tmp) == 0)
-	    return false;
-	else
-	    // error popup message
-	    Report::Error (sformat(_("fstab already contains an entry
+        if (size(tmp) == 0)
+            return false;
+        else
+            // error popup message
+            Report::Error (sformat(_("fstab already contains an entry
 with mount point '%1'."), mpoint));
-	return true;
+        return true;
     };
 
     /**
      * Check for the validity of a path/mountpoint:
      * nonempty, fewer than 70 chars, starts with a slash.
      * If invalid, a message is displayed.
-     * @param name	path
-     * @return		whether valid
+     * @param name      path
+     * @return          whether valid
      */
     define boolean CheckPath(string name) ``{
-	if (size(name) > 0 &&
-	    size(name) < 70 &&
-	    substring(name, 0, 1) == "/")
-	{
-	    return true;
-	}
+        if (size(name) > 0 &&
+            size(name) < 70 &&
+            substring(name, 0, 1) == "/")
+        {
+            return true;
+        }
 
-	// error popup message (spaces are now allowed)
-	Report::Error (sformat(_("The path entered is invalid.
+        // error popup message (spaces are now allowed)
+        Report::Error (sformat(_("The path entered is invalid.
 It must be shorter than 70 characters
 and it must begin with a slash (/).")));
-	return false;
+        return false;
     };
 
     /**
      * Checks the nfs options for /etc/fstab:
      * nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
-     * @param options	options
-     * @return		a translated string with error message, emtpy string if ok
+     * @param options   options
+     * @return          a translated string with error message, emtpy string if ok
      */
     define string check_options (string options) ``{
 
-	// To translators: error popup
-	if (size (options) == 0)   return _("Empty option strings are not allowed.");
-	if (options == "defaults") return "";
+        // To translators: error popup
+        if (size (options) == 0)   return _("Empty option strings are not allowed.");
+        if (options == "defaults") return "";
 
 
-	list<string> option_list = splitstring (options, ",");
+        list<string> option_list = splitstring (options, ",");
 
 //the options must be easy to sync with mount.c and nfsmount.c
 
@@ -157,45 +183,58 @@ and it must begin with a slash (/).")));
 	integer i = 0;
 	string current_option = "";
 
-	// first fiter out non value options and its nooptions forms (see nfs(5))
-	option_list = filter (string e, option_list, ``(!contains (non_value, e)));
-	non_value   = maplist (string e, non_value, ``(sformat ("no%1", e)));
-	option_list = filter (string e, option_list, ``(!contains (non_value, e)));
-	option_list = filter (string e, option_list, ``(!contains (non_value1, e)));
+        // first fiter out non value options and its nooptions forms (see nfs(5))
+        option_list = filter (string e, option_list, ``(!contains (non_value, e)));
+        non_value   = maplist (string e, non_value, ``(sformat ("no%1", e)));
+        option_list = filter (string e, option_list, ``(!contains (non_value, e)));
+        option_list = filter (string e, option_list, ``(!contains (non_value1, e)));
 
-	while (i < size (option_list))
-	{
-	    string opt = option_list[i]:"";
-	    list<string> value = splitstring (opt, "=");
-	    string v0 = value[0]:"";
-	    string v1 = value[1]:"";
-	    // FIXME: this also triggers for "intr=bogus"
-	    // To translators: error popup
-	    if (!contains (with_value, v0)) return sformat (_("Unknown option: %1"), v0);
-	    // To translators: error popup
-	    if (size (value) != 2) return sformat (_("Invalid option: %1"), opt);
-	    // To translators: error popup
-	    if (v1 == "") return sformat (_("Empty value for option: %1"), v0);
-	    i = i + 1;
-	}
+        while (i < size (option_list))
+        {
+            string opt = option_list[i]:"";
+            list<string> value = splitstring (opt, "=");
+            string v0 = value[0]:"";
+            string v1 = value[1]:"";
+            // FIXME: this also triggers for "intr=bogus"
+            // To translators: error popup
+            if (!contains (with_value, v0)) return sformat (_("Unknown option: %1"), v0);
+            // To translators: error popup
+            if (size (value) != 2) return sformat (_("Invalid option: %1"), opt);
+            // To translators: error popup
+            if (v1 == "") return sformat (_("Empty value for option: %1"), v0);
+            i = i + 1;
+        }
 
-	return "";
+        return "";
     }
 
     /**
      * Strips a superfluous slash off the end of a pathname.
-     * @param	p	pathname
-     * @return		stripped pathname
+     * @param   p       pathname
+     * @return          stripped pathname
      */
     define string StripExtraSlash (string p) ``{
-	if (regexpmatch (p, "^.+/$"))
-	{
-	    return regexpsub (p, "^(.+)/$", "\\1");
-	}
-	else
-	{
-	    return p;
-	}
+        if (regexpmatch (p, "^.+/$"))
+        {
+            return regexpsub (p, "^(.+)/$", "\\1");
+        }
+        else
+        {
+            return p;
+        }
+    }
+
+    /**
+     * Formats hostname into form suitable for fstab.
+     * If given param is IPv6 then encloses it into square brackets.
+     */
+    define string FormatHostnameForFstab( string hostname)
+    {
+        y2milestone( "FormatHostnameForFstab: hostname=%1", hostname);
+
+        if( IP::Check6( IP::UndecorateIPv6( hostname)))
+            return sformat( regexpmatch( hostname, "\\[.*\\]") ? "%1" : "[%1]", hostname);
+        return hostname; 
     }
 
     /**
@@ -203,6 +242,6 @@ and it must begin with a slash (/).")));
      * @return boolean true if portmap is installed
      */
     define boolean IsPortmapperInstalled( string portmapper ) ``{
-	return Package::Install( portmapper );
+        return Package::Install( portmapper );
     }
 }
