@@ -1,0 +1,19 @@
+# autotools
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.guess
+config.log
+config.status
+config.sub
+configure
+install-sh
+missing
+# devtools
+.dep
+*.ami
+/Makefile.am
+/Makefile.am.common
+configure.in
+doc/autodocs/*.html
