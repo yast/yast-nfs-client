@@ -2,31 +2,26 @@
 
 myincludedir = @yncludedir@/nfs
 
-client_DATA =		\
-	nfs_auto.ycp	\
-	nfs-client.ycp  \
-	nfs-client4part.ycp \
-	nfs.ycp
+YCPC_Y2DIR = .
 
-myinclude_DATA =	\
-	routines.ycp	\
-	ui.ycp		\
-	wizards.ycp
+client_DATA =			\
+	clients/nfs_auto.ycp	\
+	clients/nfs-client.ycp  \
+	clients/nfs-client4part.ycp \
+	clients/nfs.ycp
+
+myinclude_DATA =			\
+	include/nfs/routines.ycp	\
+	include/nfs/ui.ycp		\
+	include/nfs/wizards.ycp
 
 module_DATA =		\
-	Nfs.ycp
+	modules/Nfs.ycp
 
 desktop_DATA = nfs.desktop
 
 rncdir = $(schemadir)/autoyast/rnc
 rnc_DATA = nfs.rnc
-
-nfs:
-	ln -sf . nfs
-
-ycpchook = nfs
-
-YCPCFLAGS = -I.
 
 EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(desktop_DATA) $(rnc_DATA)
 
