@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jan  3 14:28:16 UTC 2013 - locilka@suse.com
+
+- Testsuites adapted to switching Service module to systemd
+  (yast2-2.23.15)
+- 2.21.9
+
+-------------------------------------------------------------------
 Thu Sep 20 12:57:40 UTC 2012 - mfilka@suse.com
 
 - added support for IPv6 in square brackets
