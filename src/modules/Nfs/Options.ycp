@@ -17,7 +17,18 @@ global define string validate (string options) {
 
     list<string> option_list = splitstring (options, ",");
 
-    //the options must be easy to sync with mount.c and nfsmount.c
+    // The options should be kept synced with the code that handles them,
+    // which is not an easy task, as there are many places:
+    // - util-linux.rpm
+    //   man 8 mount
+    //   https://git.kernel.org/?p=utils/util-linux/util-linux.git;a=history;f=libmount/src/optmap.c
+    // - nfs-client.rpm (nfs-utils.src.rpm)
+    //   man 5 nfs
+    //   http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=history;f=utils/mount/nfsmount.c
+    // - kernel: fs/nfs/super.c
+    //   http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=history;f=fs/nfs/super.c
+    // Note that minorversion in particular is mentioned only in the kernel
+    // but not in nfs-utils. WTF.
 
     // these can be negated by "no"
     list<string> non_value   = ["bg", "fg", "soft", "hard", "intr", "posix", "cto", "ac", "acl",
