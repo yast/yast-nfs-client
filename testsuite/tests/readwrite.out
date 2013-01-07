@@ -3,8 +3,7 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Read	.sysconfig.nfs.NFS4_SUPPORT "yes"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "yes"
 Read	.etc.idmapd_conf "Domain" "localhost"
-Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2_init.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2_setup.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2.service" 0
 Return	true
 Dump	Write OK
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
