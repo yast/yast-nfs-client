@@ -5,8 +5,7 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
-Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2_init.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2_setup.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2.service" 0
 Return	true
 Dump	
 Dump	Write - nfs is in use - start services
