@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
-Fri Dec 14 10:41:23 CET 2012 - mvidner@suse.cz
+Tue Jan 15 16:44:36 CET 2013 - mvidner@suse.cz
 
-- Added minorvers=1 for pNFS, NFS4.1 (FATE#312259).
+- Added minorversion=1 for pNFS, NFS4.1 (FATE#312259).
 - 2.17.16
 
 -------------------------------------------------------------------
