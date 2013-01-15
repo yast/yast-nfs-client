@@ -64,16 +64,17 @@ global define string validate (string options) {
         // so what is left is either unknown options, ...
         // FIXME: this also triggers for "intr=bogus"
         // because we should have considered '=' before the simple options
+        // FIXME "'" + foo + "'" used not to break translations; merge it.
         if (!contains (OPTIONS_WITH_VALUE, key))
           // To translators: error popup
-          error_message = sformat (_("Unknown option: %1"), key);
+          error_message = sformat (_("Unknown option: %1"), "'" + key + "'");
         // ... or known ones with badly specified values
         else if (size (opt_tuple) != 2)
           // To translators: error popup
-          error_message = sformat (_("Invalid option: %1"), opt);
+          error_message = sformat (_("Invalid option: %1"), "'" + opt + "'");
         else if (value == "")
           // To translators: error popup
-          error_message = sformat (_("Empty value for option: %1"), key);
+          error_message = sformat (_("Empty value for option: %1"), "'" + key + "'");
         if (error_message != "")
           break;
     });

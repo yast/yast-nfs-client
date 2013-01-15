@@ -14,6 +14,8 @@
     TEST (``(Nfs::Options::validate ("nolock,unknownassignment=true")), [], nil);
     TEST (``(Nfs::Options::validate ("nolock,rsize=")), [], nil);
     TEST (``(Nfs::Options::validate ("nolock,two=equal=signs")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,retrans=trans=trans")), [], nil);
+    TEST (``(Nfs::Options::validate ("nolock,intr=bogus")), [], nil);
 
     DUMP ("Nfs::Options::get_nfs41");
     Assert::Equal(false, Nfs::Options::get_nfs41(""));
