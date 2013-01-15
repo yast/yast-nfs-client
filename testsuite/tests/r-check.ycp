@@ -29,18 +29,6 @@
     string IPv6_link_local_ib      = "[fe80::3%eth0]";
     string IPv6_link_local_invalid = "[fe80::3%]";
 
-    DUMP ("check_options");
-    TEST (``(check_options ("")), [], nil);
-    TEST (``(check_options ("defaults")), [], nil);
-    TEST (``(check_options ("nolock,bg")), [], nil);
-    TEST (``(check_options ("nolock,nobg")), [], nil);
-    TEST (``(check_options ("nolock,rsize=8192")), [], nil);
-    TEST (``(check_options ("nolock, bg")), [], nil);
-    TEST (``(check_options ("nolock,unknownoption")), [], nil);
-    TEST (``(check_options ("nolock,unknownassignment=true")), [], nil);
-    TEST (``(check_options ("nolock,rsize=")), [], nil);
-    TEST (``(check_options ("nolock,two=equal=signs")), [], nil);
-
     DUMP ("CheckHostName");
     TEST (``(CheckHostName (OK_Name)), [], nil);
     TEST (``(CheckHostName (TooLongName)), [], nil);

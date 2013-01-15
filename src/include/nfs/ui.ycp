@@ -27,6 +27,7 @@
     import "FileUtils";
     import "Label";
     import "Nfs";
+    import "Nfs::Options";
     import "Popup";
     import "SuSEFirewall";
     import "Wizard";
@@ -197,6 +198,7 @@
 	string pth = "";
 	string mount = "";
 	boolean nfs4 = false;
+        boolean nfs41 = false;
 	string options = "defaults";
 	list <string> servers = [ ];
 	string old = "";
@@ -209,6 +211,7 @@
 	    mount = fstab_ent["file"]:"";
 	    nfs4 = fstab_ent["vfstype"]:"" == "nfs4";
 	    options = fstab_ent["mntops"]:"";
+            nfs41 = nfs4 && Nfs::Options::get_nfs41 (options);
 	    servers = [ server ];
 	    old = fstab_ent["spec"]:"";
 	}
@@ -262,7 +265,14 @@
 			    `PushButton (`id (`pathent_list), _("&Select"))
 			    )
 		    ),
-		    `Left( `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4)),
+		    `Left(
+                          `HBox(
+                                `CheckBox(`id(`nfs4),  _("NFS&v4 Share"), nfs4),
+                                `HSpacing(2),
+                                // parallel NFS, protocol version 4.1
+                                `CheckBox(`id(`nfs41),  _("pNFS (v4.1)"), nfs41)
+                          )
+                    ),
 		    `Left(
 			TextAndButton (
 			    `InputField(`id(`mountent),
@@ -298,26 +308,10 @@
 	    {
 		if (hosts == nil)
 		{
-		    //newer, shinier, better rpcinfo from rpcbind (#450056)
-		    string prog_name = "/sbin/rpcinfo";
-		    string delim = "";
-
-		    //fallback from glibc (uses different field separators, grr :( )
-		    if( !FileUtils::Exists(prog_name) )
-		    {
-			prog_name = "/usr/sbin/rpcinfo";
-			delim = "-d ' ' ";
-		    }
-
 		    // label message
 		    UI::OpenDialog(`Label(_("Scanning for hosts on this LAN...")));
-		    // #71064
-		    // this works also if ICMP broadcasts are ignored
-		    string cmd = prog_name + " -b mountd 1 | cut " + delim + "-f 2 | sort -u";
-		    map out = (map) SCR::Execute (.target.bash_output, cmd);
-		    hosts = filter (string s, splitstring (out["stdout"]:"", "\n"), ``( s != ""));
+                    hosts = Nfs::ProbeServers();
 		    UI::CloseDialog();
-
 		}
 		if( hosts == [] || hosts == nil )
 		{
@@ -358,32 +352,9 @@ which probably blocks the network scanning.");
 			sformat (_("Getting directory list for \"%1\"..."),
 				 server)
 			));
-		list<string> dirs = [];
-
-		// showmounts does not work for nfsv4 (#466454)
-		if (v4)
-		{
-		    string tmpdir = Nfs::Mount(server, "/", nil, "ro", "nfs4");
-
-		    // This is completely stupid way how to explore what can be mounted
-		    // and I even don't know if it is correct. Maybe 'find tmpdir -xdev -type d'
-		    // should be used instead. No clue :(
-		    dirs = maplist( string dirent, (list <string> ) SCR::Read(.target.dir, tmpdir), {
-			return "/" + dirent;
-		    });
-		    dirs = prepend(dirs, "/");
-		    Nfs::Unmount( tmpdir );
-		}
-		else
-		{
-		    dirs = (list<string>) SCR::Read (.net.showexports, server);
-		}
-
-		if (dirs == nil)
-		{
-		    dirs = ["internal error"];
-		}
+                list<string> dirs = Nfs::ProbeExports (server, v4);
 		UI::CloseDialog ();
+
 		string dir = ChooseExport (dirs);
 		if (dir != nil)
 		{
@@ -412,10 +383,12 @@ which probably blocks the network scanning.");
 		pth = StripExtraSlash ((string) UI::QueryWidget(`id(`pathent), `Value));
 		mount = StripExtraSlash ((string) UI::QueryWidget(`id(`mountent), `Value));
 		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
+		nfs41 = (boolean) UI::QueryWidget(`id(`nfs41), `Value);
 		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
+                options = Nfs::Options::set_nfs41(options, nfs41);
 
 		ret = nil;
-		string options_error = check_options (options);
+		string options_error = Nfs::Options::validate (options);
 		if (!CheckHostName (server))
 		{
 		    UI::SetFocus (`id (`serverent));

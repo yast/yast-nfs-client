@@ -21,7 +21,9 @@
 
     textdomain "nfs";
 
-    import "Mode";;
+    import "FileUtils";
+    import "Mode";
+    import "Nfs::Options";
     import "Report";
     import "Service";
     import "Summary";
@@ -63,7 +65,7 @@
     global list <string> required_packages = [ "nfs-client" ];
 
     /**
-     * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
+     * eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntops": "defaults"], ...]
      */
     global list<map<string,any> > nfs_entries = [];
 
@@ -476,7 +478,7 @@ the NFS client configuration.\n"));
 	// check if options are valid
 	if (size(options) > 0)
 	{
-	    if (check_options(options) != "")
+	    if (Nfs::Options::validate(options) != "")
 	    {
 		y2warning("invalid mount options: %1", options);
 		return nil;
@@ -614,7 +616,64 @@ the NFS client configuration.\n"));
 
     }
 
+    /**
+     * Probe the LAN for NFS servers.
+     * Uses RPC broadcast to mountd.
+     * @return a list of hostnames
+     */
+    global define list<string> ProbeServers() {
+        //newer, shinier, better rpcinfo from rpcbind (#450056)
+        string prog_name = "/sbin/rpcinfo";
+        string delim = "";
 
+        //fallback from glibc (uses different field separators, grr :( )
+        if( !FileUtils::Exists(prog_name) )
+        {
+            prog_name = "/usr/sbin/rpcinfo";
+            delim = "-d ' ' ";
+        }
 
+        // #71064
+        // this works also if ICMP broadcasts are ignored
+        string cmd = prog_name + " -b mountd 1 | cut " + delim + "-f 2 | sort -u";
+        map out = (map) SCR::Execute (.target.bash_output, cmd);
+        list<string> hosts = filter (string s, splitstring (out["stdout"]:"", "\n"), ``( s != ""));
+        return hosts;
+    }
+
+    /**
+     * Probe a server for its exports.
+     * @param server IP or hostname
+     * @param v4 Use NFSv4?
+     * @return a list of exported paths
+     */
+    global list<string> ProbeExports(string server, boolean v4) {
+        list<string> dirs = [];
+
+        // showmounts does not work for nfsv4 (#466454)
+        if (v4)
+        {
+            string tmpdir = Mount(server, "/", nil, "ro", "nfs4");
+
+            // This is completely stupid way how to explore what can be mounted
+            // and I even don't know if it is correct. Maybe 'find tmpdir -xdev -type d'
+            // should be used instead. No clue :(
+            dirs = maplist( string dirent, (list <string> ) SCR::Read(.target.dir, tmpdir), {
+                return "/" + dirent;
+            });
+            dirs = prepend(dirs, "/");
+            Unmount( tmpdir );
+        }
+        else
+        {
+            dirs = (list<string>) SCR::Read (.net.showexports, server);
+        }
+
+        if (dirs == nil)
+        {
+            dirs = ["internal error"];
+        }
+        return dirs;
+    }
 
 }
