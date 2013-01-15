@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan 15 16:44:36 CET 2013 - mvidner@suse.cz
+
+- Added minorversion=1 for pNFS, NFS4.1 (FATE#312259).
+- 2.17.16
+
+-------------------------------------------------------------------
 Fri Dec 14 10:35:14 CET 2012 - mvidner@suse.cz
 
 - enable compiling, testing, packaging from the WC (bnc#790490)
