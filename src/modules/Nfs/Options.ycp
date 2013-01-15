@@ -4,6 +4,28 @@ module "Nfs::Options";
 textdomain "nfs";
 
 /**
+ * Parse to an internal representation:
+ * Simply split by commas, but "defaults" is represented by the empty list
+ * @param options a fstab option string
+ * @return list of individual options
+ */
+list<string> from_string(string options) {
+    if (options == "defaults") { options = ""; }
+    return splitstring (options, ",");
+}
+
+/**
+ * Convert list of individual options to a fstab option string
+ * @param option_list list of individual options
+ * @return a fstab option string 
+ */
+string to_string(list<string> option_list) {
+    string options = mergestring(option_list, ",");
+    if (options == "") { options = "defaults"; }
+    return options;
+}
+
+/**
  * Checks the nfs options for /etc/fstab:
  * nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
  * @param options   options
@@ -13,7 +35,7 @@ global define string validate (string options) {
     // To translators: error popup
     if (size (options) == 0)   return _("Empty option strings are not allowed.");
 
-    list<string> option_list = splitstring (options, ",");
+    list<string> option_list = from_string(options);
 
     // The options should be kept synced with the code that handles them,
     // which is not an easy task, as there are many places:
@@ -88,7 +110,7 @@ FIXME: factor out get_nfs4(vfstype, options) (depending on n::o)!
  * @return is version >= 4.1 enabled
  */
 global boolean get_nfs41(string options) {
-    list<string> option_list = splitstring (options, ",");
+    list<string> option_list = from_string(options);
 
     const string ENABLED = "minorversion=1";
     return contains(option_list, ENABLED);
@@ -110,8 +132,7 @@ global define string set_nfs41(string options, boolean nfs41) {
     const string ENABLED  = "minorversion=1";
     const string DISABLED = "minorversion=0";
 
-    if (options == "defaults") { options = ""; }
-    list<string> option_list = splitstring(options, ",");
+    list<string> option_list = from_string(options);
     option_list = filter(string opt, option_list, ``( opt != ENABLED ));
     option_list = filter(string opt, option_list, ``( opt != DISABLED ));
 
@@ -119,10 +140,7 @@ global define string set_nfs41(string options, boolean nfs41) {
         option_list = add(option_list, ENABLED);
     }
 
-    options = mergestring(option_list, ",");
-    if (options == "") { options = "defaults"; }
-
-    return options;
+    return to_string(option_list);
 }
 
 /*EOF*/
