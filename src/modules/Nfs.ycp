@@ -83,21 +83,26 @@
     // list of created directories
     list<string> created_dirs = [];
 
-    /**
-     * Set module data
-     * @param settings module settings
-     * @return void
-     */
-    global define void Set(list<map> settings) ``{
-	nfs_entries = maplist(map entry, settings, ``{
-	    return($[
-		     "spec":entry["server_path"]:"",
-		     "file":entry["mount_point"]:"",
-		     "vfstype":entry["vfstype"]:"",
-		     "mntops":entry["nfs_options"]:""
-		   ]);
-	});
-	return;
+    boolean ReadNfs4() {
+        return SCR::Read(.sysconfig.nfs.NFS4_SUPPORT) == "yes";
+    }
+
+    string ReadIdmapd() {
+        return (string) SCR::Read(.etc.idmapd_conf, "Domain");
+    }
+
+
+    define boolean validate_ay_nfs_entry(map entry) {
+        boolean missing = false;
+        foreach (string k, ["server_path", "mount_point", "nfs_options"],
+        {
+	    if (! haskey (entry, k))
+            {
+                y2error ("Missing at Import: '%1'.", k);
+                missing = true;
+            }
+        });
+        return !missing;
     }
 
     /**
@@ -108,40 +113,48 @@
      * @return	success
      */
     global define boolean Import (list<map> settings) ``{
+        map global_options = $[];
+        // first the compat switch
+        if (haskey (settings[0]:$[], "enable_nfs4")) {
+            global_options = settings[0]:$[];
+            settings = remove(settings, 0);
+        }
+        
+        list<map<string, any> > entries = (list<map<string, any> >) settings;
+        // ...        
 
-	boolean missing = false;
-	settings = maplist(map s,settings,``{
-	    foreach (string k, ["server_path", "mount_point", "nfs_options"], ``{
-		if (! haskey (s, k))
-		{
-		    y2error ("Missing at Import: '%1'.", k);
-		    missing = true;
-		}
-	    });
+        if (find(map e, entries, ``(! validate_ay_nfs_entry(e)) ) != nil) {
+            return false;
+        }
 
+        entries = maplist(map<string, any> e, entries, {
             //Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
             //thus we need to keep info on nfs version (v3 vs. v4)
             //But older AY profiles might not contain this element
             //so let's assume nfsv3 in that case (#395850)
-            if ( !haskey(s, "vfstype") )
+            if ( !haskey(e, "vfstype") )
             {
-                s["vfstype"] = "nfs";
-            } else {
-                if (s["vfstype"]:"nfs" == "nfs4")
-                {
-                    nfs4_enabled = true;
-                }
+                e["vfstype"] = "nfs";
             }
-	    return s;
-
+	    return e;
 	});
 
-	if (missing)
-	{
-	    return false;
-	}
+        nfs4_enabled = global_options["enable_nfs4"]:ReadNfs4();
+        idmapd_domain = global_options["idmapd_domain"]:ReadIdmapd();
 
-	Set(settings);
+	nfs_entries = maplist(map entry, entries, {
+            // vfstype can override a missing enable_nfs4
+            if (entry["vfstype"]:"" == "nfs4") {
+              nfs4_enabled = true;
+            }
+	    return($[
+		     "spec":entry["server_path"]:"",
+		     "file":entry["mount_point"]:"",
+		     "vfstype":entry["vfstype"]:"",
+		     "mntops":entry["nfs_options"]:""
+		   ]);
+	});
+
 	return true;
     }
 
@@ -158,7 +171,12 @@
 			"nfs_options":entry["mntops"]:""
 			]);
 	});
-	return  entries;
+        map<string, any> options = $[
+            "enable_nfs4": nfs4_enabled,
+            "idmapd_domain": idmapd_domain
+        ];
+        // FIXME: now the list is always nonempty; is that OK?
+	return prepend(entries, options);
     }
 
     /* ------------------------------------------------------------ */
