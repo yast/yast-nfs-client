@@ -4,6 +4,7 @@
 
 nfs_global_options_content = (
     element enable_nfs4 { BOOLEAN }? &
+    element enable_nfs_gss { BOOLEAN }? &
     element idmapd_domain { text }?
 )
 

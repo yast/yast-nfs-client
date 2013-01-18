@@ -2,6 +2,8 @@
 Fri Jan 18 14:05:54 CET 2013 - mvidner@suse.cz
 
 - AutoYaST: fix to allow NFS4 options (FATE#312242, bnc#457981)
+- added option for enabling NFS4 GSS (FATE#312242, bnc#681190)
+- 2.17.17
 
 -------------------------------------------------------------------
 Tue Jan 15 16:44:36 CET 2013 - mvidner@suse.cz

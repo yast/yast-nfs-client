@@ -16,6 +16,7 @@
         "sysconfig": $[
              "nfs" : $[
                  "NFS4_SUPPORT": "no",
+                 "NFS_SECURITY_GSS": "no",
              ],
          ],
     ];
@@ -69,10 +70,12 @@
                            "enable_nfs4": true,
                            "idmapd_domain": "example.com"
                            ];
-    Nfs::Import([
+    TEST (``(
+             Nfs::Import([
                  global_options,
                  entry1
-                 ]);
+                 ])
+             ), [READ, $[], $[]], nil);
     Assert::Equal(true, Nfs::nfs4_enabled);
     Assert::Equal("example.com", Nfs::idmapd_domain);
     Assert::Equal(1, size(Nfs::nfs_entries));
@@ -86,4 +89,28 @@
     Assert::Equal("data.example.com:/mirror", e[1, "server_path"]:"");
     Assert::Equal("/mirror",                  e[1, "mount_point"]:"");
     Assert::Equal("defaults",                 e[1, "nfs_options"]:"");
+
+    // ---------
+    DUMP("- with GSS");
+    global_options = $[
+                           "enable_nfs4": true,
+                           "enable_nfs_gss": true,
+                           "idmapd_domain": "example.com"
+                           ];
+    TEST (``(
+             Nfs::Import([
+                 global_options,
+                 entry1
+                 ])
+             ), [READ, $[], $[]], nil);
+    // assertions shortened
+    Assert::Equal(true, Nfs::nfs_gss_enabled);
+    Assert::Equal(1, size(Nfs::nfs_entries));
+    Assert::Equal("data.example.com:/mirror", Nfs::nfs_entries[0, "spec"]:"");
+
+    DUMP("-- and Export");
+    e = Nfs::Export();
+    Assert::Equal(2, size(e));
+    Assert::Equal(true,          e[0, "enable_nfs_gss"]:false);
+    Assert::Equal("data.example.com:/mirror", e[1, "server_path"]:"");
 }

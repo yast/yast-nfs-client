@@ -3,6 +3,7 @@ Dump	Read  - nfs is in use & running
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Read	.init.scripts.exists "SuSEfirewall2_init" true
 Read	.init.scripts.runlevel "SuSEfirewall2_init" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
@@ -35,6 +36,7 @@ Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":["3", "5"], "stop":["3",
 Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash_output "/etc/init.d/nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "portmap" true
@@ -51,6 +53,7 @@ Dump	Read  - nfs is in use & stopped
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -81,6 +84,7 @@ Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":[], "stop":[]], "portmap
 Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
 Execute	.target.bash_output "/sbin/insserv -d /etc/init.d/nfsboot" $["exit":0, "stderr":"", "stdout":""]
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash_output "/etc/init.d/nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "portmap" true
@@ -97,6 +101,7 @@ Dump	Read  - nfs not used & running
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -106,6 +111,7 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash_output "/etc/init.d/nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
@@ -116,6 +122,7 @@ Dump	Read  - nfs not used & services are stopped
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
@@ -125,6 +132,7 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
+Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Read	.init.scripts.exists "nfs" true
 Execute	.target.bash_output "/etc/init.d/nfs stop" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Read	.init.scripts.exists "SuSEfirewall2_init" true
