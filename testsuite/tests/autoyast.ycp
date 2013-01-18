@@ -1,0 +1,39 @@
+{
+    include "testsuite.ycp";
+    import "Nfs";
+    import "Assert";
+
+    DUMP("Nfs::Import");
+    // ---------
+    DUMP("- basic, SLE11-SP2");
+    map entry1 = $[
+                   "server_path": "data.example.com:/mirror",
+                   "mount_point": "/mirror",
+                   "nfs_options": "defaults"
+                   ];
+    
+    Nfs::Import([ entry1 ]);
+    Assert::Equal(1, size(Nfs::nfs_entries));
+    Assert::Equal("data.example.com:/mirror", Nfs::nfs_entries[0, "spec"]:"");
+
+    DUMP("-- and Export");
+    list e = Nfs::Export();
+    Assert::Equal(1, size(e));
+    Assert::Equal("data.example.com:/mirror", e[1, "server_path"]:"");
+    Assert::Equal("/mirror",                  e[1, "mount_point"]:"");
+    Assert::Equal("defaults",                 e[1, "nfs_options"]:"");
+
+    // ---------
+    DUMP("- empty");
+    Nfs::Import([]);
+    Assert::Equal(0, size(Nfs::nfs_entries));
+
+    // ---------
+    DUMP("- invalid, missing basic data");
+    map entry_invalid = $[
+                   "server_path": "data.example.com:/mirror",
+                   ];
+    
+    Nfs::Import([ entry_invalid ]);
+    Assert::Equal(0, size(Nfs::nfs_entries));
+}

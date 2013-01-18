@@ -1,0 +1,9 @@
+Read	.target.tmpdir nil
+Log	Failed to set temporary directory: nil
+Dump	Nfs::Import
+Dump	- basic, SLE11-SP2
+Dump	-- and Export
+Dump	- empty
+Dump	- invalid, missing basic data
+Log	Missing at Import: 'mount_point'.
+Log	Missing at Import: 'nfs_options'.
