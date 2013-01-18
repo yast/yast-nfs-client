@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jan 18 14:05:54 CET 2013 - mvidner@suse.cz
+
+- AutoYaST: fix to allow NFS4 options (FATE#312242, bnc#457981)
+
+-------------------------------------------------------------------
 Tue Jan 15 16:44:36 CET 2013 - mvidner@suse.cz
 
 - Added minorversion=1 for pNFS, NFS4.1 (FATE#312259).
