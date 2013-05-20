@@ -59,13 +59,6 @@
 		    ],
 		],
 	    ],
-    /*
-	// targetpkg:
-	"targetpkg": $[
-	    // autofs
-	    "installed": true,
-	    ],
-    */
 	// Nis itself:
 	"etc": $[
 	    "fstab": [
@@ -185,7 +178,7 @@
     DUMP ("\nRead  - nfs is in use & stopped\n");
     TEST (``(Nfs::Read ()), [READ3, WRITE, EXECUTE], nil);
     // fstab unchanged - so, start services
-    DUMP ("\nWrite - nfs is in use - so, sart services\n");
+    DUMP ("\nWrite - nfs is in use - so, start services\n");
     TEST (``(Nfs::Write ()), [READ3, WRITE, EXECUTE], nil);
 
     // fstab contains no nfs mounts, services are running
