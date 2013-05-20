@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon May 20 16:06:42 CEST 2013 - locilka@suse.com
+
+- Testsuites adapted to changes in Service module (bnc#807507)
+- 2.24.0
+
+-------------------------------------------------------------------
 Thu Jan  3 14:28:16 UTC 2013 - locilka@suse.com
 
 - Testsuites adapted to switching Service module to systemd

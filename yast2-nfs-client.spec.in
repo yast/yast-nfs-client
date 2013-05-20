@@ -4,8 +4,8 @@
 Group:          System/YaST
 License:        GPL-2.0+
 BuildRequires:  perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite 
-# SuSEfirewall2_* scripts merged into one service in yast2-2.23.17
-BuildRequires:  yast2 >= 2.23.17
+# Don't use Info function to check enable state (bnc#807507)
+BuildRequires:  yast2 >= 2.23.23
 # yast2-nfs-client depends on nfs-utils in term that edits nfs-utils' options.
 # Support was checked against nfs-utils 1.2.7.
 # As soon as nfs-utils reaches version 1.2.9 there should be another update.
