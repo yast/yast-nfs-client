@@ -16,13 +16,9 @@ Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
-Read	.init.scripts.runlevel "portmap" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
-Read	.init.scripts.comment "portmap" $["nfs":$[], "portmap":$[]]
-Read	.init.scripts.runlevel "nfs" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
-Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
-Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":["3", "5"], "stop":["3", "5"]], "portmap":$["start":["3", "5"], "stop":["3", "5"]]]
-Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/bin/systemctl enable nfsboot.service" $["exit":0, "stderr":"", "stdout":""]
+Execute	.target.bash "/bin/systemctl is-enabled portmap.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled nfs.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
@@ -39,7 +35,7 @@ Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf "Domain" "localhost"
 Return	true
 Dump	
-Dump	Write - nfs is in use - so, sart services
+Dump	Write - nfs is in use - so, start services
 Dump	
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
 Execute	.target.mkdir "/home" true
@@ -47,15 +43,9 @@ Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
-Read	.init.scripts.runlevel "portmap" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
-Read	.init.scripts.comment "portmap" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/bin/systemctl enable portmap.service" $["exit":0, "stderr":"", "stdout":""]
-Read	.init.scripts.runlevel "nfs" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
-Read	.init.scripts.comment "nfs" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/bin/systemctl enable nfs.service" $["exit":0, "stderr":"", "stdout":""]
-Read	.init.scripts.runlevel "nfsboot" $["nfs":$["start":[], "stop":[]], "portmap":$["start":[], "stop":[]]]
-Read	.init.scripts.comment "nfsboot" $["nfs":$[], "portmap":$[]]
-Execute	.target.bash_output "/bin/systemctl enable nfsboot.service" $["exit":0, "stderr":"", "stdout":""]
+Execute	.target.bash "/bin/systemctl is-enabled portmap.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled nfs.service" 0
+Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
