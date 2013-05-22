@@ -93,12 +93,12 @@
         return SCR::Read(.sysconfig.nfs.NFS_SECURITY_GSS) == "yes";
     }
 
-   string ReadIdmapd() {
+    string ReadIdmapd() {
         return (string) SCR::Read(.etc.idmapd_conf, "Domain");
     }
 
 
-    define boolean validate_ay_nfs_entry(map entry) {
+    boolean ValidateAyNfsEntry(map entry) {
         boolean missing = false;
         foreach (string k, ["server_path", "mount_point", "nfs_options"],
         {
@@ -111,29 +111,25 @@
         return !missing;
     }
 
+
     /**
-     * Get all NFS configuration from a map.
-     * When called by nfs_auto (preparing autoinstallation data)
-     * the map may be empty.
-     * @param settings	a map with a single key: nfs_entries
-     * @return	success
+     * From settings (which is a list in SLE11 but a map in oS: bnc#820989),
+     * extract the options and the NFS fstab entries.
      */
-    global define boolean Import (list<map> settings) ``{
-        map global_options = $[];
-        // first the compat switch
+    void GetOptionsAndEntries(list<map> settings, map & global_options, list<map<string, any> > & entries) {
         if (haskey (settings[0]:$[], "enable_nfs4")) {
             global_options = settings[0]:$[];
             settings = remove(settings, 0);
         }
         
-        list<map<string, any> > entries = (list<map<string, any> >) settings;
-        // ...        
+        entries = (list<map<string, any> >) settings;
+    }
 
-        if (find(map e, entries, ``(! validate_ay_nfs_entry(e)) ) != nil) {
-            return false;
-        }
-
-        entries = maplist(map<string, any> e, entries, {
+    /**
+     * Fill in the defaults for AY profile entries.
+     */
+    list<map<string, any> > FillEntriesDefaults(list<map<string, any> > entries) {
+        return maplist(map<string, any> e, entries, {
             //Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
             //thus we need to keep info on nfs version (v3 vs. v4)
             //But older AY profiles might not contain this element
@@ -144,23 +140,43 @@
             }
 	    return e;
 	});
+    }
+
+    /**
+     * Get all NFS configuration from a map.
+     * When called by nfs_auto (preparing autoinstallation data)
+     * the map may be empty.
+     * @param settings	a list of nfs_entries
+     * @return	success
+     */
+    global define boolean Import (list<map> settings) ``{
+        map global_options = $[];
+        list<map<string, any> > entries = [];
+        GetOptionsAndEntries(settings, global_options, entries);
+
+        if (find(map e, entries, ``(! ValidateAyNfsEntry(e)) ) != nil) {
+            return false;
+        }
+
+        entries = FillEntriesDefaults(entries);
 
         nfs4_enabled = global_options["enable_nfs4"]:ReadNfs4();
         nfs_gss_enabled = global_options["enable_nfs_gss"]:ReadNfsGss();
         idmapd_domain = global_options["idmapd_domain"]:ReadIdmapd();
 
-	nfs_entries = maplist(map entry, entries, {
-            // vfstype can override a missing enable_nfs4
-            if (entry["vfstype"]:"" == "nfs4") {
+        // vfstype can override a missing enable_nfs4
+        if (find(map entry, entries, ``(entry["vfstype"]:"" == "nfs4")) != nil) {
               nfs4_enabled = true;
-            }
-	    return($[
+        }
+
+	nfs_entries = maplist(map entry, entries, ``(
+	           $[
 		     "spec":entry["server_path"]:"",
 		     "file":entry["mount_point"]:"",
 		     "vfstype":entry["vfstype"]:"",
 		     "mntops":entry["nfs_options"]:""
-		   ]);
-	});
+		   ]
+	));
 
 	return true;
     }
@@ -300,9 +316,9 @@
 	    });
 	}
 
-	nfs4_enabled = ReadNfs4();
+        nfs4_enabled = ReadNfs4();
         nfs_gss_enabled = ReadNfsGss();
-	idmapd_domain = ReadIdmapd();
+        idmapd_domain = ReadIdmapd();
 
 	boolean progress_orig = Progress::set(false);
 	SuSEFirewall::Read ();

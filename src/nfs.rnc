@@ -1,6 +1,6 @@
 # hack: the <nfs> list is heterogeneous,
 # with an optional first entry which carries the global options
-# bnc#...
+# bnc#820989
 
 nfs_global_options_content = (
     element enable_nfs4 { BOOLEAN }? &
