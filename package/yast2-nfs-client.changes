@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed May 22 12:21:21 UTC 2013 - mvidner@suse.cz
+
+- refactored the last change following a late review
+  (FATE#312242, bnc#820989)
+
+-------------------------------------------------------------------
 Fri Jan 18 14:05:54 CET 2013 - mvidner@suse.cz
 
 - AutoYaST: fix to allow NFS4 options (FATE#312242, bnc#457981)
