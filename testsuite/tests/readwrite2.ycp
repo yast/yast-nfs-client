@@ -115,6 +115,7 @@
 	"sysconfig": $[
 	     "nfs" : $[
 	         "NFS4_SUPPORT": "no",
+                 "NFS_SECURITY_GSS": "no",
 	     ],
 	 ],
 	];

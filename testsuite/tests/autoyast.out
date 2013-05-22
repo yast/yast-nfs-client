@@ -1,0 +1,28 @@
+Read	.target.tmpdir "/tmp"
+Dump	Nfs::Import
+Dump	- basic, SLE11-SP2
+Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
+Read	.etc.idmapd_conf "Domain" "localdomain"
+Return	true
+Dump	-- and Export
+Dump	- empty
+Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
+Read	.etc.idmapd_conf "Domain" "localdomain"
+Return	true
+Dump	- invalid, missing basic data
+Log	Missing at Import: 'mount_point'.
+Log	Missing at Import: 'nfs_options'.
+Dump	- basic, SLE11-SP3
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
+Return	true
+Dump	-- and Export
+Dump	- NFSv4 via vfstype
+Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
+Return	true
+Dump	-- and Export
+Dump	- with GSS
+Return	true
+Dump	-- and Export

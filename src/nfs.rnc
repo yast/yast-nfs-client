@@ -1,10 +1,27 @@
-nfs =
-  element nfs {
-    LIST,
-    element nfs_entry {
+# hack: the <nfs> list is heterogeneous,
+# with an optional first entry which carries the global options
+# bnc#820989
+
+nfs_global_options_content = (
+    element enable_nfs4 { BOOLEAN }? &
+    element enable_nfs_gss { BOOLEAN }? &
+    element idmapd_domain { text }?
+)
+
+nfs_entry_content = (
       element server_path { text }
     & element mount_point { text }
     & element vfstype {text}?
     & element nfs_options { text }
+)
+
+nfs =
+  element nfs {
+    LIST,
+    element nfs_entry {
+        nfs_global_options_content
+    }? ,
+    element nfs_entry {
+        nfs_entry_content
     }*
   }
