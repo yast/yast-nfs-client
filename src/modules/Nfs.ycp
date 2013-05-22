@@ -117,7 +117,8 @@
      * extract the options and the NFS fstab entries.
      */
     void GetOptionsAndEntries(list<map> settings, map & global_options, list<map<string, any> > & entries) {
-        if (haskey (settings[0]:$[], "enable_nfs4")) {
+        if (haskey (settings[0]:$[], "enable_nfs4") ||
+            haskey (settings[0]:$[], "idmapd_domain")) {
             global_options = settings[0]:$[];
             settings = remove(settings, 0);
         }

@@ -91,6 +91,39 @@
     Assert::Equal("defaults",                 e[1, "nfs_options"]:"");
 
     // ---------
+    DUMP("- NFSv4 via vfstype");
+    map global_options2 = $[
+                           "idmapd_domain": "example.com"
+                           ];
+    map entry2 = $[
+                   "server_path": "data.example.com:/mirror",
+                   "mount_point": "/mirror",
+                   "nfs_options": "defaults",
+                   "vfstype": "nfs4"
+                   ];
+
+    TEST (``(
+             Nfs::Import([
+                 global_options2,
+                 entry2
+                 ])
+             ), [READ, $[], $[]], nil);
+
+    Assert::Equal(true, Nfs::nfs4_enabled);
+    Assert::Equal("example.com", Nfs::idmapd_domain);
+    Assert::Equal(1, size(Nfs::nfs_entries));
+    Assert::Equal("data.example.com:/mirror", Nfs::nfs_entries[0, "spec"]:"");
+
+    DUMP("-- and Export");
+    e = Nfs::Export();
+    Assert::Equal(2, size(e));
+    Assert::Equal(true,          e[0, "enable_nfs4"]:false);
+    Assert::Equal("example.com", e[0, "idmapd_domain"]:"");
+    Assert::Equal("data.example.com:/mirror", e[1, "server_path"]:"");
+    Assert::Equal("/mirror",                  e[1, "mount_point"]:"");
+    Assert::Equal("defaults",                 e[1, "nfs_options"]:"");
+
+    // ---------
     DUMP("- with GSS");
     global_options = $[
                            "enable_nfs4": true,
