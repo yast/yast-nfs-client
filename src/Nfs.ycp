@@ -92,7 +92,7 @@
     }
 
     string ReadIdmapd() {
-	return (string) SCR::Read(.etc.idmapd_conf, "Domain");
+	return (string) SCR::Read(.etc.idmapd_conf.value.General.Domain);
     }
 
     /**
@@ -313,7 +313,7 @@
 
 	nfs4_enabled = (SCR::Read(.sysconfig.nfs.NFS4_SUPPORT)=="yes");
 	nfs_gss_enabled = (SCR::Read(.sysconfig.nfs.NFS_SECURITY_GSS)=="yes");
-	idmapd_domain = (string) SCR::Read(.etc.idmapd_conf, "Domain");
+	idmapd_domain = (string) SCR::Read(.etc.idmapd_conf.value.General.Domain);
 
 	boolean progress_orig = Progress::set(false);
 	SuSEFirewall::Read ();
@@ -402,7 +402,9 @@ the NFS client configuration.\n"));
         if(nfs4_enabled == true)
         {
                 SCR::Write(.sysconfig.nfs.NFS4_SUPPORT,"yes");
-		SCR::Write(.etc.idmapd_conf, ["Domain",  idmapd_domain] );
+		SCR::Write(.etc.idmapd_conf.value.General.Domain, idmapd_domain);
+                // flush the changes
+		SCR::Write(.etc.idmapd_conf, nil);
         }
         else if (nfs4_enabled == false)
         {
