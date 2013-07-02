@@ -14,7 +14,7 @@ BuildRequires:	nfs-client < 1.2.9
 #Wizard::SetDesktopTitleAndIcon
 Requires:       yast2 >= 2.23.6
 #idmapd_conf agent
-Requires:       yast2-nfs-common
+Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
 Recommends:     nfs-client
 

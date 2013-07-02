@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jun 26 16:43:32 UTC 2013 - lslezak@suse.cz
+
+- updated reading/writing /etc/idmapd.conf file (SCR agent switched
+  from Limal backend to ini-agent)
+- 2.24.1
+
+-------------------------------------------------------------------
 Mon May 20 16:06:42 CEST 2013 - locilka@suse.com
 
 - Testsuites adapted to changes in Service module (bnc#807507)
