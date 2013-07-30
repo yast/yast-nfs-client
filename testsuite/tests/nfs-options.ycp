@@ -1,73 +1,73 @@
 {
     include "testsuite.ycp";
-    import "Nfs::Options";
+    import "NfsOptions";
     import "Assert";
 
-    DUMP ("Nfs::Options::validate");
-    TEST (``(Nfs::Options::validate ("")), [], nil);
-    TEST (``(Nfs::Options::validate ("defaults")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,bg")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,nobg")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,rsize=8192")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock, bg")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,unknownoption")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,unknownassignment=true")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,rsize=")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,two=equal=signs")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,retrans=trans=trans")), [], nil);
-    TEST (``(Nfs::Options::validate ("nolock,intr=bogus")), [], nil);
+    DUMP ("NfsOptions::validate");
+    TEST (``(NfsOptions::validate ("")), [], nil);
+    TEST (``(NfsOptions::validate ("defaults")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,bg")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,nobg")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,rsize=8192")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock, bg")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,unknownoption")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,unknownassignment=true")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,rsize=")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,two=equal=signs")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,retrans=trans=trans")), [], nil);
+    TEST (``(NfsOptions::validate ("nolock,intr=bogus")), [], nil);
 
-    DUMP ("Nfs::Options::get_nfs41");
-    Assert::Equal(false, Nfs::Options::get_nfs41(""));
-    Assert::Equal(false, Nfs::Options::get_nfs41("defaults"));
-    Assert::Equal(false, Nfs::Options::get_nfs41("ro,sync"));
-    Assert::Equal(false, Nfs::Options::get_nfs41("minorversion=0"));
-    Assert::Equal(true,  Nfs::Options::get_nfs41("minorversion=1"));
+    DUMP ("NfsOptions::get_nfs41");
+    Assert::Equal(false, NfsOptions::get_nfs41(""));
+    Assert::Equal(false, NfsOptions::get_nfs41("defaults"));
+    Assert::Equal(false, NfsOptions::get_nfs41("ro,sync"));
+    Assert::Equal(false, NfsOptions::get_nfs41("minorversion=0"));
+    Assert::Equal(true,  NfsOptions::get_nfs41("minorversion=1"));
     // "minorversion=2" does not exist yet, YAGNI
-    Assert::Equal(false, Nfs::Options::get_nfs41("subminorversion=1")); // substring must not match
-    // Assert::Equal(?,  Nfs::Options::get_nfs41("minorversion=1,minorversion=0")); // don't care
-    Assert::Equal(false, Nfs::Options::get_nfs41("ro,minorversion=0,sync"));
-    Assert::Equal(true,  Nfs::Options::get_nfs41("ro,minorversion=1,sync"));
+    Assert::Equal(false, NfsOptions::get_nfs41("subminorversion=1")); // substring must not match
+    // Assert::Equal(?,  NfsOptions::get_nfs41("minorversion=1,minorversion=0")); // don't care
+    Assert::Equal(false, NfsOptions::get_nfs41("ro,minorversion=0,sync"));
+    Assert::Equal(true,  NfsOptions::get_nfs41("ro,minorversion=1,sync"));
 
-    DUMP ("Nfs::Options::set_nfs41");
+    DUMP ("NfsOptions::set_nfs41");
     Assert::Equal(                        "",
-                  Nfs::Options::set_nfs41("",                  false));
+                  NfsOptions::set_nfs41("",                  false));
     Assert::Equal(                        "minorversion=1",
-                  Nfs::Options::set_nfs41("",                  true));
+                  NfsOptions::set_nfs41("",                  true));
 
     Assert::Equal(                        "defaults",
-                  Nfs::Options::set_nfs41("defaults",          false));
+                  NfsOptions::set_nfs41("defaults",          false));
     Assert::Equal(                        "minorversion=1",
-                  Nfs::Options::set_nfs41("defaults",          true));
+                  NfsOptions::set_nfs41("defaults",          true));
 
     Assert::Equal(                        "ro,sync",
-                  Nfs::Options::set_nfs41("ro,sync",           false));
+                  NfsOptions::set_nfs41("ro,sync",           false));
     Assert::Equal(                        "ro,sync,minorversion=1",
-                  Nfs::Options::set_nfs41("ro,sync",           true));
+                  NfsOptions::set_nfs41("ro,sync",           true));
 
     Assert::Equal(                        "minorversion=0",
-                  Nfs::Options::set_nfs41("minorversion=0",    false));
+                  NfsOptions::set_nfs41("minorversion=0",    false));
     Assert::Equal(                        "minorversion=1",
-                  Nfs::Options::set_nfs41("minorversion=0",    true));
+                  NfsOptions::set_nfs41("minorversion=0",    true));
 
     Assert::Equal(                        "defaults",
-                  Nfs::Options::set_nfs41("minorversion=1",    false));
+                  NfsOptions::set_nfs41("minorversion=1",    false));
     Assert::Equal(                        "minorversion=1",
-                  Nfs::Options::set_nfs41("minorversion=1",    true));
+                  NfsOptions::set_nfs41("minorversion=1",    true));
 
     Assert::Equal(                        "subminorversion=1",
-                  Nfs::Options::set_nfs41("subminorversion=1", false));
+                  NfsOptions::set_nfs41("subminorversion=1", false));
     Assert::Equal(                        "subminorversion=1,minorversion=1",
-                  Nfs::Options::set_nfs41("subminorversion=1", true));
+                  NfsOptions::set_nfs41("subminorversion=1", true));
 
     Assert::Equal(                        "ro,minorversion=0,sync",
-                  Nfs::Options::set_nfs41("ro,minorversion=0,sync", false));
+                  NfsOptions::set_nfs41("ro,minorversion=0,sync", false));
     Assert::Equal(                        "ro,sync,minorversion=1",
-                  Nfs::Options::set_nfs41("ro,minorversion=0,sync", true));
+                  NfsOptions::set_nfs41("ro,minorversion=0,sync", true));
 
     Assert::Equal(                        "ro,sync",
-                  Nfs::Options::set_nfs41("ro,minorversion=1,sync", false));
+                  NfsOptions::set_nfs41("ro,minorversion=1,sync", false));
     Assert::Equal(                        "ro,minorversion=1,sync",
-                  Nfs::Options::set_nfs41("ro,minorversion=1,sync", true));
+                  NfsOptions::set_nfs41("ro,minorversion=1,sync", true));
 
 }

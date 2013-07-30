@@ -27,7 +27,7 @@
     import "FileUtils";
     import "Label";
     import "Nfs";
-    import "Nfs::Options";
+    import "NfsOptions";
     import "Popup";
     import "SuSEFirewall";
     import "Wizard";
@@ -211,7 +211,7 @@
 	    mount = fstab_ent["file"]:"";
 	    nfs4 = fstab_ent["vfstype"]:"" == "nfs4";
 	    options = fstab_ent["mntops"]:"";
-            nfs41 = nfs4 && Nfs::Options::get_nfs41 (options);
+            nfs41 = nfs4 && NfsOptions::get_nfs41 (options);
 	    servers = [ server ];
 	    old = fstab_ent["spec"]:"";
 	}
@@ -385,10 +385,10 @@ which probably blocks the network scanning.");
 		nfs4 = (boolean) UI::QueryWidget(`id(`nfs4), `Value);
 		nfs41 = (boolean) UI::QueryWidget(`id(`nfs41), `Value);
 		options = deletechars ((string) UI::QueryWidget(`id(`optionsent), `Value), " ");
-                options = Nfs::Options::set_nfs41(options, nfs41);
+                options = NfsOptions::set_nfs41(options, nfs41);
 
 		ret = nil;
-		string options_error = Nfs::Options::validate (options);
+		string options_error = NfsOptions::validate (options);
 		if (!CheckHostName (server))
 		{
 		    UI::SetFocus (`id (`serverent));

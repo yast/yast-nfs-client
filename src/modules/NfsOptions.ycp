@@ -1,6 +1,6 @@
 {
 
-module "Nfs::Options";
+module "NfsOptions";
 textdomain "nfs";
 
 /**

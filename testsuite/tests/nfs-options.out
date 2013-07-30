@@ -1,4 +1,4 @@
-Dump	Nfs::Options::validate
+Dump	NfsOptions::validate
 Return	Empty option strings are not allowed.
 Return	
 Return	
@@ -11,5 +11,5 @@ Return	Empty value for option: 'rsize'
 Return	Unknown option: 'two'
 Return	Invalid option: 'retrans=trans=trans'
 Return	Unknown option: 'intr'
-Dump	Nfs::Options::get_nfs41
-Dump	Nfs::Options::set_nfs41
+Dump	NfsOptions::get_nfs41
+Dump	NfsOptions::set_nfs41

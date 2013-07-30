@@ -53,9 +53,8 @@ file system access. It allows access to files on remote machines.
 %dir @moduledir@
 @moduledir@/Nfs.ycp
 @moduledir@/Nfs.ybc
-%dir @moduledir@/Nfs
-@moduledir@/Nfs/Options.ycp
-@moduledir@/Nfs/Options.ybc
+@moduledir@/NfsOptions.ycp
+@moduledir@/NfsOptions.ybc
 %dir @desktopdir@
 @desktopdir@/nfs.desktop
 %doc @docdir@
