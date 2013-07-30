@@ -25,6 +25,7 @@ y2milestone ("----------------------------------------");
 y2milestone ("NFS module started");
 
 import "Nfs";
+import "Nfs::Options";
 import "Progress";
 import "Report";
 import "String";
@@ -86,7 +87,7 @@ boolean NfsAddHandler (map options) {
     if (! haskey (options, "mntops"))
 	options["mntops"]	= "defaults";
 
-    string options_error = check_options (options["mntops"]:"");
+    string options_error = Nfs::Options::validate (options["mntops"]:"");
     if (size (options_error) > 0)
     {
 	Report::Error (options_error);
@@ -184,7 +185,7 @@ boolean NfsEditHandler (map options) {
 	!CheckPath (mount) || IsMpInFstab (existing, mount))
 	return false;
 
-    string options_error = check_options (entry["mntops"]:"");
+    string options_error = Nfs::Options::validate (entry["mntops"]:"");
     if (size (options_error) > 0)
     {
 	Report::Error (options_error);

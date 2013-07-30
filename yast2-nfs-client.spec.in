@@ -11,7 +11,7 @@ BuildRequires:  yast2 >= 2.23.23
 # As soon as nfs-utils reaches version 1.2.9 there should be another update.
 BuildRequires:	nfs-client < 1.2.9
 #ag_showexports moved to yast2 base
-#Wizard::SetDesktopTitleAndIcon
+# introduces extended IPv6 support.
 Requires:       yast2 >= 2.23.6
 #idmapd_conf agent
 Requires:       yast2-nfs-common >= 2.24.0
@@ -53,6 +53,9 @@ file system access. It allows access to files on remote machines.
 %dir @moduledir@
 @moduledir@/Nfs.ycp
 @moduledir@/Nfs.ybc
+%dir @moduledir@/Nfs
+@moduledir@/Nfs/Options.ycp
+@moduledir@/Nfs/Options.ybc
 %dir @desktopdir@
 @desktopdir@/nfs.desktop
 %doc @docdir@

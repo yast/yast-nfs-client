@@ -2,31 +2,36 @@
 
 myincludedir = @yncludedir@/nfs
 
-client_DATA =		\
-	nfs_auto.ycp	\
-	nfs-client.ycp  \
-	nfs-client4part.ycp \
-	nfs.ycp
+YCPC_Y2DIR = .
 
-myinclude_DATA =	\
-	routines.ycp	\
-	ui.ycp		\
-	wizards.ycp
+client_DATA =			\
+	clients/nfs_auto.ycp	\
+	clients/nfs-client.ycp  \
+	clients/nfs-client4part.ycp \
+	clients/nfs.ycp
+
+myinclude_DATA =			\
+	include/nfs/routines.ycp	\
+	include/nfs/ui.ycp		\
+	include/nfs/wizards.ycp
 
 module_DATA =		\
-	Nfs.ycp
+	modules/Nfs.ycp
+
+nfs_moduledir = @moduledir@/Nfs
+nfs_module_DATA = 	\
+	modules/Nfs/Options.ycp
+
+nfs_modulebindir = $(nfs_moduledir)
+nfs_modulebin_DATA = $(patsubst %.ycp,%.ybc,$(nfs_module_DATA))
+
+# .dep does not work with subdirs
+modules/Nfs.ybc: modules/Nfs/Options.ybc
 
 desktop_DATA = nfs.desktop
 
 rncdir = $(schemadir)/autoyast/rnc
 rnc_DATA = nfs.rnc
-
-nfs:
-	ln -sf . nfs
-
-ycpchook = nfs
-
-YCPCFLAGS = -I.
 
 nfs_client_version_checked = 1.2.7
 nfs_client_version_installed := $(shell rpm --queryformat %{Version} -q nfs-client)
@@ -40,6 +45,7 @@ version-check:
 
 check-local: version-check
 
-EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(desktop_DATA) $(rnc_DATA)
+EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(nfs_module_DATA) $(desktop_DATA) $(rnc_DATA)
 
 include $(top_srcdir)/Makefile.am.common
+ybcfiles += $(filter %.ybc,$(nfs_modulebin_DATA))
