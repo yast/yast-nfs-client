@@ -160,14 +160,7 @@
 	});
     }
 
-    /**
-     * Get all NFS configuration from a map.
-     * When called by nfs_auto (preparing autoinstallation data)
-     * the map may be empty.
-     * @param settings	a map($) of nfs_entries
-     * @return	success
-     */
-    global boolean Import (map <string, any> settings) {
+    boolean ImportAny (any settings) {
         // ($) since oS-1x.x, settings was changed to be a map,
         // which is incompatible with the sle profiles;
         // it owuld be nice to make it compatible again
@@ -201,6 +194,17 @@
 	));
 
 	return true;
+    }
+
+    /**
+     * Get all NFS configuration from a map.
+     * When called by nfs_auto (preparing autoinstallation data)
+     * the map may be empty.
+     * @param settings	a map($) of nfs_entries
+     * @return	success
+     */
+    global boolean Import (map <string, any> settings) {
+        return ImportAny(settings);
     }
 
     /**
