@@ -98,16 +98,16 @@
     }
 
     boolean ValidateAyNfsEntry(map entry) {
-        boolean missing = false;
+        boolean valid = true;
         foreach (string k, ["server_path", "mount_point", "nfs_options"],
         {
 	    if (! haskey (entry, k))
             {
                 y2error ("Missing at Import: '%1'.", k);
-                missing = true;
+                valid = false;
             }
         });
-        return !missing;
+        return valid;
     }
 
     void GetOptionsAndEntriesSLE11(list<map> settings, map & global_options, list<map<string, any> > & entries) {
@@ -139,7 +139,7 @@
             GetOptionsAndEntriesSLE11((list<map>) any_settings, global_options, entries);
         }
         else {
-            y2internal("Cannot happen, got neither a map nor a list");
+            y2internal("Cannot happen, got neither a map nor a list: %1", any_settings);
         }
     }
 
@@ -186,10 +186,10 @@
 
 	nfs_entries = maplist(map entry, entries, ``(
 	           $[
-		     "spec":entry["server_path"]:"",
-		     "file":entry["mount_point"]:"",
-		     "vfstype":entry["vfstype"]:"",
-		     "mntops":entry["nfs_options"]:""
+                     "spec":    entry["server_path"]:"",
+                     "file":    entry["mount_point"]:"",
+                     "vfstype": entry["vfstype"]:"",
+                     "mntops":  entry["nfs_options"]:""
 		   ]
 	));
 
