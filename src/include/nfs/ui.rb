@@ -29,6 +29,7 @@ module Yast
       Yast.import "FileUtils"
       Yast.import "Label"
       Yast.import "Nfs"
+      Yast.import "NfsOptions"
       Yast.import "Popup"
       Yast.import "SuSEFirewall"
       Yast.import "Wizard"
@@ -216,6 +217,7 @@ module Yast
       pth = ""
       mount = ""
       nfs4 = false
+      nfs41 = false
       options = "defaults"
       servers = []
       old = ""
@@ -227,6 +229,7 @@ module Yast
         mount = Ops.get_string(fstab_ent, "file", "")
         nfs4 = Ops.get_string(fstab_ent, "vfstype", "") == "nfs4"
         options = Ops.get_string(fstab_ent, "mntops", "")
+        nfs41 = nfs4 && NfsOptions.get_nfs41(options)
         servers = [server]
         old = Ops.get_string(fstab_ent, "spec", "")
       else
@@ -282,7 +285,14 @@ module Yast
                 PushButton(Id(:pathent_list), _("&Select"))
               )
             ),
-            Left(CheckBox(Id(:nfs4), _("NFS&v4 Share"), nfs4)),
+            Left(
+              HBox(
+                CheckBox(Id(:nfs4), _("NFS&v4 Share"), nfs4),
+                HSpacing(2),
+                # parallel NFS, protocol version 4.1
+                CheckBox(Id(:nfs41), _("pNFS (v4.1)"), nfs41)
+              )
+            ),
             Left(
               TextAndButton(
                 InputField(
@@ -321,28 +331,9 @@ module Yast
 
         if ret == :choose
           if @hosts == nil
-            #newer, shinier, better rpcinfo from rpcbind (#450056)
-            prog_name = "/sbin/rpcinfo"
-            delim = ""
-
-            #fallback from glibc (uses different field separators, grr :( )
-            if !FileUtils.Exists(prog_name)
-              prog_name = "/usr/sbin/rpcinfo"
-              delim = "-d ' ' "
-            end
-
             # label message
             UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
-            # #71064
-            # this works also if ICMP broadcasts are ignored
-            cmd = Ops.add(
-              Ops.add(Ops.add(prog_name, " -b mountd 1 | cut "), delim),
-              "-f 2 | sort -u"
-            )
-            out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
-            @hosts = Builtins.filter(
-              Builtins.splitstring(Ops.get_string(out, "stdout", ""), "\n")
-            ) { |s| s != "" }
+            @hosts = Nfs.ProbeServers
             UI.CloseDialog
           end
           if @hosts == [] || @hosts == nil
@@ -383,34 +374,9 @@ module Yast
               )
             )
           )
-          dirs = []
-
-          # showmounts does not work for nfsv4 (#466454)
-          if v4
-            tmpdir = Nfs.Mount(server2, "/", nil, "ro", "nfs4")
-
-            # This is completely stupid way how to explore what can be mounted
-            # and I even don't know if it is correct. Maybe 'find tmpdir -xdev -type d'
-            # should be used instead. No clue :(
-            dirs = Builtins.maplist(
-              Convert.convert(
-                SCR.Read(path(".target.dir"), tmpdir),
-                :from => "any",
-                :to   => "list <string>"
-              )
-            ) { |dirent| Ops.add("/", dirent) }
-            dirs = Builtins.prepend(dirs, "/")
-            Nfs.Unmount(tmpdir)
-          else
-            dirs = Convert.convert(
-              SCR.Read(path(".net.showexports"), server2),
-              :from => "any",
-              :to   => "list <string>"
-            )
-          end
-
-          dirs = ["internal error"] if dirs == nil
+          dirs = Nfs.ProbeExports(server2, v4)
           UI.CloseDialog
+
           dir = ChooseExport(dirs)
           UI.ChangeWidget(Id(:pathent), :Value, dir) if dir != nil
         elsif ret == :browse
@@ -434,13 +400,15 @@ module Yast
             Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
           )
           nfs4 = Convert.to_boolean(UI.QueryWidget(Id(:nfs4), :Value))
+          nfs41 = Convert.to_boolean(UI.QueryWidget(Id(:nfs41), :Value))
           options = Builtins.deletechars(
             Convert.to_string(UI.QueryWidget(Id(:optionsent), :Value)),
             " "
           )
+          options = NfsOptions.set_nfs41(options, nfs41)
 
           ret = nil
-          options_error = check_options(options)
+          options_error = NfsOptions.validate(options)
           if !CheckHostName(server)
             UI.SetFocus(Id(:serverent))
           elsif !CheckPath(pth)

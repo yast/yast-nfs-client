@@ -1,6 +1,7 @@
 # Sources for nfs-client
 
 module_DATA = \
+  modules/NfsOptions.rb \
   modules/Nfs.rb
 
 client_DATA = \

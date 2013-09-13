@@ -1,14 +1,3 @@
-Dump	check_options
-Return	Empty option strings are not allowed.
-Return	
-Return	
-Return	
-Return	
-Return	Unknown option:  bg
-Return	Unknown option: unknownoption
-Return	Unknown option: unknownassignment
-Return	Empty value for option: rsize
-Return	Unknown option: two
 Dump	CheckHostName
 Return	true
 Log	The hostname entered is invalid. It must be
