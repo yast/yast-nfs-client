@@ -1,16 +1,23 @@
 Dump	CheckHostName
 Return	true
+Log	The hostname entered is invalid. It must be
 Return	false
+Log	The hostname entered is invalid. It must be
 Return	false
-Return	false
-Return	true
-Return	false
-Return	true
-Return	false
-Return	true
+Log	The hostname entered is invalid. It must be
 Return	false
 Return	true
+Log	The hostname entered is invalid. It must be
+Return	false
 Return	true
+Log	The hostname entered is invalid. It must be
+Return	false
+Return	true
+Log	The hostname entered is invalid. It must be
+Return	false
+Return	true
+Return	true
+Log	The hostname entered is invalid. It must be
 Return	false
 Dump	FormatHostnameForFstab
 Return	[::1]
