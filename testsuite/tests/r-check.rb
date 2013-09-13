@@ -31,18 +31,6 @@ module Yast
       @IPv6_link_local_ib = "[fe80::3%eth0]"
       @IPv6_link_local_invalid = "[fe80::3%]"
 
-      DUMP("check_options")
-      TEST(lambda { check_options("") }, [], nil)
-      TEST(lambda { check_options("defaults") }, [], nil)
-      TEST(lambda { check_options("nolock,bg") }, [], nil)
-      TEST(lambda { check_options("nolock,nobg") }, [], nil)
-      TEST(lambda { check_options("nolock,rsize=8192") }, [], nil)
-      TEST(lambda { check_options("nolock, bg") }, [], nil)
-      TEST(lambda { check_options("nolock,unknownoption") }, [], nil)
-      TEST(lambda { check_options("nolock,unknownassignment=true") }, [], nil)
-      TEST(lambda { check_options("nolock,rsize=") }, [], nil)
-      TEST(lambda { check_options("nolock,two=equal=signs") }, [], nil)
-
       DUMP("CheckHostName")
       TEST(lambda { CheckHostName(@OK_Name) }, [], nil)
       TEST(lambda { CheckHostName(@TooLongName) }, [], nil)

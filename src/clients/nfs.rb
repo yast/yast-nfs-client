@@ -26,6 +26,7 @@ module Yast
       Builtins.y2milestone("NFS module started")
 
       Yast.import "Nfs"
+      Yast.import "NfsOptions"
       Yast.import "Progress"
       Yast.import "Report"
       Yast.import "String"
@@ -207,7 +208,7 @@ module Yast
         Ops.set(options, "mntops", "defaults")
       end
 
-      options_error = check_options(Ops.get_string(options, "mntops", ""))
+      options_error = NfsOptions.validate(Ops.get_string(options, "mntops", ""))
       if Ops.greater_than(Builtins.size(options_error), 0)
         Report.Error(options_error)
         return false
@@ -317,7 +318,7 @@ module Yast
         return false
       end
 
-      options_error = check_options(Ops.get_string(entry, "mntops", ""))
+      options_error = NfsOptions.validate(Ops.get_string(entry, "mntops", ""))
       if Ops.greater_than(Builtins.size(options_error), 0)
         Report.Error(options_error)
         return false

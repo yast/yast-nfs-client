@@ -1,0 +1,12 @@
+# dejagnu
+site.exp
+# * is the rpm name
+*.log
+*.sum
+*.test/
+# * are test cases
+tmp.out*
+tmp.err*
+# harness
+config/
+run/

@@ -1,4 +1,23 @@
 -------------------------------------------------------------------
+Fri Sep 13 12:18:03 UTC 2013 - mvidner@suse.com
+
+- merged changes from SLE11-SP3
+  - refactored the last change following a late review
+    (FATE#312242, bnc#820989)
+  - AutoYaST: fix to allow NFS4 options (FATE#312242, bnc#457981)
+  - added option for enabling NFS4 GSS (FATE#312242, bnc#681190)
+  - Added minorversion=1 for pNFS, NFS4.1 (FATE#312259).
+  - enable compiling, testing, packaging from the WC (bnc#790490)
+- merged changelogs from SLE-SP3 for changes
+  that already are in this branch
+  - fix enablement of NFSv4 in autoyast (bnc#684859)
+  - allow to set version of nfs on command line and also fix passing
+    default value (bnc#681275)
+  - Consistent setting of widget focus esp. when embedded in partitioner
+    (bnc#435992)
+- 3.0.1
+
+-------------------------------------------------------------------
 Wed Jul 31 08:33:54 UTC 2013 - yast-devel@opensuse.org
 
 - converted from YCP to Ruby by YCP Killer

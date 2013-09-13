@@ -1,14 +1,62 @@
-nfs =
+# It is complicated.
+
+nfs_entry_content = (
+      element server_path { text }
+    & element mount_point { text }
+    & element vfstype {text}?
+    & element nfs_options { text }
+)
+
+# SLE11-SP2 and earlier, openSUSE 11.2 and earlier:
+# A list of entries
+# (This definition is unused below but provided for historical context)
+nfs_sle11_sp2 = 
   element nfs {
+    LIST,
+    element nfs_entry {
+        nfs_entry_content
+    }*
+  }
+
+# openSUSE 11.3-12.3 (since yast2-nfs-client-2.19.1, openSUSE-11.3, 2010):
+# Switched to a map so that we can have global options
+
+nfs_global_options_content = (
     element enable_nfs4 { BOOLEAN }? &
-    element idmapd_domain { text }? &
+    element enable_nfs_gss { BOOLEAN }? &
+    element idmapd_domain { text }?
+)
+
+nfs_os113_123 =
+  element nfs {
+    nfs_global_options_content,
     element nfs_entries {
       LIST,
       element nfs_entry {
-        element server_path { text }
-        & element mount_point { text }
-        & element vfstype {text}?
-        & element nfs_options { text }
+        nfs_entry_content
       }*
     }
+
+# Now we want to port the options to SLE11-SP3.
+# But the AutoYaST core does not allow switching a list to a map!
+# bnc#820989
+
+# SLE11-SP3:
+# a list, like in SLE11-SP2, but
+# with an optional first entry which carries the global options
+nfs_sle11_sp3 =
+  element nfs {
+    LIST,
+    element nfs_entry {
+        nfs_global_options_content
+    }? ,
+    element nfs_entry {
+        nfs_entry_content
+    }*
   }
+
+# openSUSE-13.1:
+# Merge: allow all formats
+# Well, on this layer only. The AY core still allows a map only.
+# Needs to be fixed there.
+nfs = nfs_os113_123 | nfs_sle11_sp3

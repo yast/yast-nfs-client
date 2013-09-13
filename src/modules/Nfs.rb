@@ -23,7 +23,9 @@ module Yast
 
       textdomain "nfs"
 
+      Yast.import "FileUtils"
       Yast.import "Mode"
+      Yast.import "NfsOptions"
       Yast.import "Report"
       Yast.import "Service"
       Yast.import "Summary"
@@ -46,7 +48,7 @@ module Yast
       # Required packages
       @required_packages = ["nfs-client"]
 
-      # eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntopts": "defaults"], ...]
+      # eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntops": "defaults"], ...]
       @nfs_entries = []
 
       # Read only, intended for checking mount-point uniqueness.
@@ -90,34 +92,126 @@ module Yast
       Convert.to_string(SCR.Read(path(".etc.idmapd_conf.value.General.Domain")))
     end
 
-    # Set module data
-    # @param [Hash{String => Object}] settings module settings
-    # @return [void]
-    def Set(settings)
+    def ValidateAyNfsEntry(entry)
+      entry = deep_copy(entry)
+      valid = true
+      Builtins.foreach(["server_path", "mount_point", "nfs_options"]) do |k|
+        if !Builtins.haskey(entry, k)
+          Builtins.y2error("Missing at Import: '%1'.", k)
+          valid = false
+        end
+      end
+      valid
+    end
+
+    def GetOptionsAndEntriesSLE11(settings, global_options, entries)
       settings = deep_copy(settings)
-      if Builtins.haskey(settings, "enable_nfs4")
-        @nfs4_enabled = Ops.get_boolean(settings, "enable_nfs4", false)
-      else
-        @nfs4_enabled = ReadNfs4()
+      if Builtins.haskey(Ops.get(settings, 0, {}), "enable_nfs4") ||
+          Builtins.haskey(Ops.get(settings, 0, {}), "idmapd_domain")
+        global_options.value = Ops.get(settings, 0, {})
+        settings = Builtins.remove(settings, 0)
       end
 
-      if Builtins.haskey(settings, "enable_nfs_gss")
-        @nfs_gss_enabled = Ops.get_boolean(settings, "enable_nfs_gss", false)
-      else
-        @nfs_gss_enabled = ReadNfsGss()
-      end
+      entries.value = Convert.convert(
+        settings,
+        :from => "list <map>",
+        :to   => "list <map <string, any>>"
+      )
 
-      if Builtins.haskey(settings, "idmapd_domain")
-        @idmapd_domain = Ops.get_string(
-          settings,
-          "idmapd_domain",
-          "localdomain"
+      nil
+    end
+
+
+    def GetOptionsAndEntriesMap(settings, global_options, entries)
+      settings = deep_copy(settings)
+      global_options.value = Builtins.remove(settings, "nfs_entries")
+      entries.value = Ops.get_list(settings, "nfs_entries", [])
+
+      nil
+    end
+
+    # From settings (which is a list in SLE11 but a map in oS: bnc#820989),
+    # extract the options and the NFS fstab entries.
+    def GetOptionsAndEntries(any_settings, global_options, entries)
+      any_settings = deep_copy(any_settings)
+      # map: oS;
+      if Ops.is_map?(any_settings)
+        global_options_ref = arg_ref(global_options.value)
+        entries_ref = arg_ref(entries.value)
+        GetOptionsAndEntriesMap(
+          Convert.to_map(any_settings),
+          global_options_ref,
+          entries_ref
         )
+        global_options.value = global_options_ref.value
+        entries.value = entries_ref.value
+      elsif Ops.is(any_settings, "list <map>")
+        global_options_ref = arg_ref(global_options.value)
+        entries_ref = arg_ref(entries.value)
+        GetOptionsAndEntriesSLE11(
+          Convert.convert(any_settings, :from => "any", :to => "list <map>"),
+          global_options_ref,
+          entries_ref
+        )
+        global_options.value = global_options_ref.value
+        entries.value = entries_ref.value
       else
-        @idmapd_domain = ReadIdmapd()
+        Builtins.y2internal(
+          "Cannot happen, got neither a map nor a list: %1",
+          any_settings
+        )
       end
 
-      @nfs_entries = Builtins.maplist(Ops.get_list(settings, "nfs_entries", [])) do |entry|
+      nil
+    end
+
+    # Fill in the defaults for AY profile entries.
+    def FillEntriesDefaults(entries)
+      entries = deep_copy(entries)
+      Builtins.maplist(entries) do |e|
+        #Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
+        #thus we need to keep info on nfs version (v3 vs. v4)
+        #But older AY profiles might not contain this element
+        #so let's assume nfsv3 in that case (#395850)
+        Ops.set(e, "vfstype", "nfs") if !Builtins.haskey(e, "vfstype")
+        deep_copy(e)
+      end
+    end
+
+    def ImportAny(settings)
+      settings = deep_copy(settings)
+      # ($) since oS-1x.x, settings was changed to be a map,
+      # which is incompatible with the sle profiles;
+      # it owuld be nice to make it compatible again
+      # whjich this code is readyu to, but the Autoyast engine isn't.
+      global_options = {}
+      entries = []
+      global_options_ref = arg_ref(global_options)
+      entries_ref = arg_ref(entries)
+      GetOptionsAndEntries(settings, global_options_ref, entries_ref)
+      global_options = global_options_ref.value
+      entries = entries_ref.value
+
+      return false if Builtins.find(entries) { |e| !ValidateAyNfsEntry(e) } != nil
+
+      entries = FillEntriesDefaults(entries)
+
+      @nfs4_enabled = Ops.get_boolean(global_options, "enable_nfs4") do
+        ReadNfs4()
+      end
+      @nfs_gss_enabled = Ops.get_boolean(global_options, "enable_nfs_gss") do
+        ReadNfsGss()
+      end
+      @idmapd_domain = Ops.get_string(global_options, "idmapd_domain") do
+        ReadIdmapd()
+      end
+
+      # vfstype can override a missing enable_nfs4
+      @nfs4_enabled = true if Builtins.find(entries) do |entry|
+        Ops.get_string(entry, "vfstype", "") == "nfs4"
+      end != nil
+
+      @nfs_entries = Builtins.maplist(entries) do |entry|
         {
           "spec"    => Ops.get_string(entry, "server_path", ""),
           "file"    => Ops.get_string(entry, "mount_point", ""),
@@ -125,46 +219,18 @@ module Yast
           "mntops"  => Ops.get_string(entry, "nfs_options", "")
         }
       end
-      nil
+
+      true
     end
 
     # Get all NFS configuration from a map.
     # When called by nfs_auto (preparing autoinstallation data)
     # the map may be empty.
-    # @param [Hash{String => Object}] settings	a map with a single key: nfs_entries
+    # @param [Hash{String => Object}] settings	a map($) of nfs_entries
     # @return	success
     def Import(settings)
       settings = deep_copy(settings)
-      missing = false
-      Ops.set(
-        settings,
-        "nfs_entries",
-        Builtins.maplist(Ops.get_list(settings, "nfs_entries", [])) do |s|
-          Builtins.foreach(["server_path", "mount_point", "nfs_options"]) do |k|
-            if !Builtins.haskey(s, k)
-              Builtins.y2error("Missing at Import: '%1'.", k)
-              missing = true
-            end
-          end
-          #Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
-          #thus we need to keep info on nfs version (v3 vs. v4)
-          #But older AY profiles might not contain this element
-          #so let's assume nfsv3 in that case (#395850)
-          if !Builtins.haskey(s, "vfstype")
-            Ops.set(s, "vfstype", "nfs")
-          else
-            if Ops.get_string(s, "vfstype", "nfs") == "nfs4"
-              @nfs4_enabled = true
-            end
-          end
-          deep_copy(s)
-        end
-      )
-
-      return false if missing
-
-      Set(settings)
-      true
+      ImportAny(settings)
     end
 
     # Dump the NFS settings to a map, for autoinstallation use.
@@ -293,11 +359,9 @@ module Yast
         end
       end
 
-      @nfs4_enabled = SCR.Read(path(".sysconfig.nfs.NFS4_SUPPORT")) == "yes"
-      @nfs_gss_enabled = SCR.Read(path(".sysconfig.nfs.NFS_SECURITY_GSS")) == "yes"
-      @idmapd_domain = Convert.to_string(
-        SCR.Read(path(".etc.idmapd_conf.value.General.Domain"))
-      )
+      @nfs4_enabled = ReadNfs4()
+      @nfs_gss_enabled = ReadNfsGss()
+      @idmapd_domain = ReadIdmapd()
 
       progress_orig = Progress.set(false)
       SuSEFirewall.Read
@@ -513,7 +577,7 @@ module Yast
 
       # check if options are valid
       if Ops.greater_than(Builtins.size(options), 0)
-        if check_options(options) != ""
+        if NfsOptions.validate(options) != ""
           Builtins.y2warning("invalid mount options: %1", options)
           return nil
         end
@@ -634,6 +698,68 @@ module Yast
       { "install" => @required_packages, "remove" => [] }
     end
 
+    # Probe the LAN for NFS servers.
+    # Uses RPC broadcast to mountd.
+    # @return a list of hostnames
+    def ProbeServers
+      #newer, shinier, better rpcinfo from rpcbind (#450056)
+      prog_name = "/sbin/rpcinfo"
+      delim = ""
+
+      #fallback from glibc (uses different field separators, grr :( )
+      if !FileUtils.Exists(prog_name)
+        prog_name = "/usr/sbin/rpcinfo"
+        delim = "-d ' ' "
+      end
+
+      # #71064
+      # this works also if ICMP broadcasts are ignored
+      cmd = Ops.add(
+        Ops.add(Ops.add(prog_name, " -b mountd 1 | cut "), delim),
+        "-f 2 | sort -u"
+      )
+      out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
+      hosts = Builtins.filter(
+        Builtins.splitstring(Ops.get_string(out, "stdout", ""), "\n")
+      ) { |s| s != "" }
+      deep_copy(hosts)
+    end
+
+    # Probe a server for its exports.
+    # @param [String] server IP or hostname
+    # @param [Boolean] v4 Use NFSv4?
+    # @return a list of exported paths
+    def ProbeExports(server, v4)
+      dirs = []
+
+      # showmounts does not work for nfsv4 (#466454)
+      if v4
+        tmpdir = Mount(server, "/", nil, "ro", "nfs4")
+
+        # This is completely stupid way how to explore what can be mounted
+        # and I even don't know if it is correct. Maybe 'find tmpdir -xdev -type d'
+        # should be used instead. No clue :(
+        dirs = Builtins.maplist(
+          Convert.convert(
+            SCR.Read(path(".target.dir"), tmpdir),
+            :from => "any",
+            :to   => "list <string>"
+          )
+        ) { |dirent| Ops.add("/", dirent) }
+        dirs = Builtins.prepend(dirs, "/")
+        Unmount(tmpdir)
+      else
+        dirs = Convert.convert(
+          SCR.Read(path(".net.showexports"), server),
+          :from => "any",
+          :to   => "list <string>"
+        )
+      end
+
+      dirs = ["internal error"] if dirs == nil
+      deep_copy(dirs)
+    end
+
     publish :variable => :modified, :type => "boolean"
     publish :variable => :skip_fstab, :type => "boolean"
     publish :function => :SetModified, :type => "void ()"
@@ -644,7 +770,6 @@ module Yast
     publish :variable => :nfs4_enabled, :type => "boolean"
     publish :variable => :nfs_gss_enabled, :type => "boolean"
     publish :variable => :idmapd_domain, :type => "string"
-    publish :function => :Set, :type => "void (map <string, any>)"
     publish :function => :Import, :type => "boolean (map <string, any>)"
     publish :function => :Export, :type => "map ()"
     publish :function => :FindPortmapper, :type => "string ()"
@@ -655,6 +780,8 @@ module Yast
     publish :function => :Mount, :type => "string (string, string, string, string, string)"
     publish :function => :Unmount, :type => "boolean (string)"
     publish :function => :AutoPackages, :type => "map ()"
+    publish :function => :ProbeServers, :type => "list <string> ()"
+    publish :function => :ProbeExports, :type => "list <string> (string, boolean)"
   end
 
   Nfs = NfsClass.new
