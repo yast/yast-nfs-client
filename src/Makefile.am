@@ -1,41 +1,28 @@
-# Makefile.am for source/nfs-client/src
+# Sources for nfs-client
 
-myincludedir = @yncludedir@/nfs
+module_DATA = \
+  modules/Nfs.rb \
+  modules/NfsOptions.rb
 
-YCPC_Y2DIR = .
+client_DATA = \
+  clients/nfs_auto.rb \
+  clients/nfs-client4part.rb \
+  clients/nfs-client.rb \
+  clients/nfs.rb
 
-client_DATA =			\
-	clients/nfs_auto.ycp	\
-	clients/nfs-client.ycp  \
-	clients/nfs-client4part.ycp \
-	clients/nfs.ycp
+yncludedir = @yncludedir@/nfs
+ynclude_DATA = \
+  include/nfs/routines.rb \
+  include/nfs/ui.rb \
+  include/nfs/wizards.rb
 
-myinclude_DATA =			\
-	include/nfs/routines.ycp	\
-	include/nfs/ui.ycp		\
-	include/nfs/wizards.ycp
+schemafilesdir = $(schemadir)/autoyast/rnc
+schemafiles_DATA = \
+  autoyast-rnc/nfs.rnc
 
-module_DATA =		\
-	modules/NfsOptions.ycp \
-	modules/Nfs.ycp
+desktop_DATA = \
+  desktop/nfs.desktop
 
-desktop_DATA = nfs.desktop
-
-rncdir = $(schemadir)/autoyast/rnc
-rnc_DATA = nfs.rnc
-
-nfs_client_version_checked = 1.2.7
-nfs_client_version_installed := $(shell rpm --queryformat %{Version} -q nfs-client)
-
-version-check:
-	@if test "$(nfs_client_version_checked)" \< "$(nfs_client_version_installed)"; then \
-		echo -e "\nWARNING: List of nfs-client options might be obsolete."; \
-		echo "Checked version: $(nfs_client_version_checked)"; \
-		echo -e "Used version: $(nfs_client_version_installed)\n"; \
-	fi;
-
-check-local: version-check
-
-EXTRA_DIST = $(client_DATA) $(myinclude_DATA) $(module_DATA) $(nfs_module_DATA) $(desktop_DATA) $(rnc_DATA)
+EXTRA_DIST = $(module_DATA) $(client_DATA) $(ynclude_DATA) $(schemafiles_DATA) $(desktop_DATA)
 
 include $(top_srcdir)/Makefile.am.common
