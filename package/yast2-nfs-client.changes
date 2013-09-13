@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Mon Jul 29 14:54:21 UTC 2013 - mvidner@suse.com
+Fri Sep 13 12:18:03 UTC 2013 - mvidner@suse.com
 
 - merged changes from SLE11-SP3
   - refactored the last change following a late review
@@ -14,7 +14,15 @@ Mon Jul 29 14:54:21 UTC 2013 - mvidner@suse.com
   - allow to set version of nfs on command line and also fix passing
     default value (bnc#681275)
   - Consistent setting of widget focus esp. when embedded in partitioner
-    (bnc#435992) 
+    (bnc#435992)
+- 3.0.1
+
+-------------------------------------------------------------------
+Wed Jul 31 08:33:54 UTC 2013 - yast-devel@opensuse.org
+
+- converted from YCP to Ruby by YCP Killer
+  (https://github.com/yast/ycp-killer)
+- version 3.0.0
 
 -------------------------------------------------------------------
 Wed Jun 26 16:43:32 UTC 2013 - lslezak@suse.cz

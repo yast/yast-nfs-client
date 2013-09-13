@@ -1,20 +1,20 @@
 # Sources for nfs-client
 
 module_DATA = \
-  modules/Nfs.rb \
-  modules/NfsOptions.rb
+  modules/NfsOptions.rb \
+  modules/Nfs.rb
 
 client_DATA = \
+  clients/nfs.rb \
   clients/nfs_auto.rb \
   clients/nfs-client4part.rb \
-  clients/nfs-client.rb \
-  clients/nfs.rb
+  clients/nfs-client.rb
 
 yncludedir = @yncludedir@/nfs
 ynclude_DATA = \
-  include/nfs/routines.rb \
+  include/nfs/wizards.rb \
   include/nfs/ui.rb \
-  include/nfs/wizards.rb
+  include/nfs/routines.rb
 
 schemafilesdir = $(schemadir)/autoyast/rnc
 schemafiles_DATA = \
