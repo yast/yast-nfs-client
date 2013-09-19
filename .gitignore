@@ -8,6 +8,7 @@ config.log
 config.status
 config.sub
 configure
+configure.ac
 install-sh
 missing
 # devtools
@@ -17,3 +18,4 @@ missing
 /Makefile.am.common
 configure.in
 doc/autodocs/*.html
+package/*.tar.bz2

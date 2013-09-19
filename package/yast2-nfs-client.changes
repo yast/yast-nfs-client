@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep 19 11:31:10 UTC 2013 - lslezak@suse.cz
+
+- do not use *.spec.in template, use *.spec file with RPM macros
+  instead
+- 3.0.2
+
+-------------------------------------------------------------------
 Fri Sep 13 12:18:03 UTC 2013 - mvidner@suse.com
 
 - merged changes from SLE11-SP3
