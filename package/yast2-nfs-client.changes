@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Sep 20 15:14:39 UTC 2013 - lslezak@suse.cz
+
+- fixed syntax error in nfs.rnc (bnc#841550)
+- 3.0.2
+
+-------------------------------------------------------------------
 Fri Sep 13 12:18:03 UTC 2013 - mvidner@suse.com
 
 - merged changes from SLE11-SP3
