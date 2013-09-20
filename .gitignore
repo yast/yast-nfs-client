@@ -15,5 +15,6 @@ missing
 *.ami
 /Makefile.am
 /Makefile.am.common
-configure.in
+configure.ac
 doc/autodocs/*.html
+package/*.tar.bz2

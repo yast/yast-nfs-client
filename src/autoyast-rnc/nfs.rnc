@@ -36,6 +36,7 @@ nfs_os113_123 =
         nfs_entry_content
       }*
     }
+  }
 
 # Now we want to port the options to SLE11-SP3.
 # But the AutoYaST core does not allow switching a list to a map!
