@@ -13,6 +13,7 @@ describe "#validate" do
       "nolock,bg",
       "nolock,nobg",
       "nolock,rsize=8192",
+      "defaults,ro,noatime,nodiratime,users,exec"
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
       expect(returned).to be_empty, "options '#{options}' returned '#{returned}'"
