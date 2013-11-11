@@ -4,41 +4,6 @@ require "yast"
 
 module Yast
   class NfsOptionsClass < Module
-    def main
-      textdomain "nfs"
-    end
-
-    # Parse to an internal representation:
-    # Simply split by commas, but "defaults" is represented by the empty list
-    # @param [String] options a fstab option string
-    # @return [Array] of individual options
-    def from_string(options)
-      options = "" if options == "defaults"
-      Builtins.splitstring(options, ",")
-    end
-
-    # Convert list of individual options to a fstab option string
-    # @param [Array<String>] option_list list of individual options
-    # @return a fstab option string
-    def to_string(option_list)
-      option_list = deep_copy(option_list)
-      options = Builtins.mergestring(option_list, ",")
-      options = "defaults" if options == ""
-      options
-    end
-
-    # Checks the nfs options for /etc/fstab:
-    # nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
-    # @param [String] options   options
-    # @return          a translated string with error message, emtpy string if ok
-    def validate(options)
-      # To translators: error popup
-      if Builtins.size(options) == 0
-        return _("Empty option strings are not allowed.")
-      end
-
-      option_list = from_string(options)
-
       # The options should be kept synced with the code that handles them,
       # which is not an easy task, as there are many places:
       # - util-linux.rpm
@@ -50,121 +15,138 @@ module Yast
       # - kernel: fs/nfs/super.c
       #   http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=history;f=fs/nfs/super.c
       # Note that minorversion in particular is mentioned only in the kernel
-      # but not in nfs-utils. WTF.
+      # but not in nfs-utils.
 
       # these can be negated by "no"
-      _NEGATABLE_OPTIONS = [
-        "bg",
-        "fg",
-        "soft",
-        "hard",
-        "intr",
-        "posix",
-        "cto",
+      NEGATABLE_OPTIONS = [
         "ac",
         "acl",
-        "lock",
-        "tcp",
-        "udp",
-        "rdirplus",
-        # these are common for all fs types
         "atime",
         "auto",
+        "bg",
+        "cto",
         "dev",
         "exec",
+        "fg",
         "group",
+        "hard",
+        "intr",
+        "lock",
         "owner",
+        "posix",
+        "rdirplus",
+        "soft",
         "suid",
+        "tcp",
+        "udp",
         "user",
         "users"
       ]
-      _NEGATED_OPTIONS = Builtins.maplist(_NEGATABLE_OPTIONS) do |e|
-        Builtins.sformat("no%1", e)
-      end
+
+      NEGATED_OPTIONS = NEGATABLE_OPTIONS.map{ |o| "no#{o}" }
 
       # these cannot be negated
       # they are not nfs specific BTW
-      _SIMPLE_OPTIONS = [
-        "defaults",
+      SIMPLE_OPTIONS = [
+        "_netdev",
         "async",
-        "sync",
+        "bind",
+        "defaults",
         "dirsync",
+        "rbind",
+        "remount",
         "ro",
         "rw",
-        "remount",
-        "bind",
-        "rbind",
-        "_netdev"
+        "sync"
       ]
-      _OPTIONS_WITH_VALUE = [
-        "rsize",
-        "wsize",
-        "timeo",
-        "retrans",
-        "acregmin",
-        "acregmax",
-        "acdirmin",
-        "acdirmin",
+
+      OPTIONS_WITH_VALUE = [
         "acdirmax",
+        "acdirmin",
+        "acdirmin",
+        "acregmax",
+        "acregmin",
         "actimeo",
-        "retry",
-        "namlen",
-        "port",
-        "proto",
         "clientaddr",
-        "mountport",
+        "minorversion",
         "mounthost",
+        "mountport",
         "mountprog",
         "mountvers",
+        "namlen",
         "nfsprog",
         "nfsvers",
+        "port",
+        "proto",
+        "retrans",
+        "retry",
+        "rsize",
+        "sec",
+        "timeo",
         "vers",
-        "minorversion",
-        "sec"
+        "wsize"
       ]
 
-      # first fiter out non value options and its nooptions forms (see nfs(5))
-      option_list = Builtins.filter(option_list) do |e|
-        !Builtins.contains(_NEGATABLE_OPTIONS, e)
-      end
-      option_list = Builtins.filter(option_list) do |e|
-        !Builtins.contains(_NEGATED_OPTIONS, e)
-      end
-      option_list = Builtins.filter(option_list) do |e|
-        !Builtins.contains(_SIMPLE_OPTIONS, e)
+    def main
+      textdomain "nfs"
+    end
+
+    # Parse to an internal representation:
+    # Simply split by commas, but "defaults" is represented by the empty list
+    # @param [String] options a fstab option string
+    # @return [Array] of individual options
+    def from_string(options)
+      return [] if options == "defaults"
+
+      options.split(",")
+    end
+
+    # Convert list of individual options to a fstab option string
+    # @param [Array<String>] option_list list of individual options
+    # @return a fstab option string
+    def to_string(option_list)
+      return "defaults" if option_list.empty?
+
+      option_list.join(",")
+    end
+
+    # Checks the nfs options for /etc/fstab:
+    # nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
+    # @param [String] options   options
+    # @return          a translated string with error message, emtpy string if ok
+    def validate(options)
+      # To translators: error popup
+      if options.empty?
+        return _("Empty option strings are not allowed.")
       end
 
+      option_list = from_string(options)
+
+      # first fiter out non value options and its nooptions forms (see nfs(5))
+      option_list.reject!{ |o| NEGATABLE_OPTIONS.include?(o) }
+      option_list.reject!{ |o| NEGATED_OPTIONS.include?(o) }
+      option_list.reject!{ |o| SIMPLE_OPTIONS.include?(o) }
+
       error_message = ""
-      Builtins.foreach(option_list) do |opt|
-        opt_tuple = Builtins.splitstring(opt, "=")
-        key = Ops.get(opt_tuple, 0, "")
-        value = Ops.get(opt_tuple, 1, "")
+      option_list.each do |opt|
+        key_value = opt.split("=")
+        key, value = key_value
         # By now we have filtered out known options without values;
         # so what is left is either unknown options, ...
         # FIXME: this also triggers for "intr=bogus"
         # because we should have considered '=' before the simple options
-        # FIXME "'" + foo + "'" used not to break translations; merge it.
-        if !Builtins.contains(_OPTIONS_WITH_VALUE, key)
+        if ! OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
-          error_message = Builtins.sformat(
-            _("Unknown option: %1"),
-            Ops.add(Ops.add("'", key), "'")
-          )
+          error_message = _("Unknown option: '%{key}'") % { :key => key }
         # ... or known ones with badly specified values
-        elsif Builtins.size(opt_tuple) != 2
+        elsif key_value.size > 2
           # To translators: error popup
-          error_message = Builtins.sformat(
-            _("Invalid option: %1"),
-            Ops.add(Ops.add("'", opt), "'")
-          )
-        elsif value == ""
+          error_message = _("Invalid option: '%{opt}'") % { :opt => opt }
+        elsif value.nil?
           # To translators: error popup
-          error_message = Builtins.sformat(
-            _("Empty value for option: %1"),
-            Ops.add(Ops.add("'", key), "'")
-          )
+          error_message = _("Empty value for option: '%{key}'") % { :key => key }
         end
-        raise Break if error_message != ""
+        break unless error_message.empty?
       end
 
       error_message
