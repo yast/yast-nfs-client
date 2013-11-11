@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.0
+Version:        3.1.1
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -33,6 +33,7 @@ BuildRequires:  yast2 >= 2.23.23
 # Support was checked against nfs-utils 1.2.7.
 # As soon as nfs-utils reaches version 1.2.9 there should be another update.
 BuildRequires:	nfs-client < 1.2.9
+BuildRequires:	rubygem-rspec
 #ag_showexports moved to yast2 base
 # introduces extended IPv6 support.
 Requires:       yast2 >= 2.23.6
