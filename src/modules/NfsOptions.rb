@@ -123,6 +123,10 @@ module Yast
       option_list.join(",")
     end
 
+    def non_value_option?(option)
+      NEGATABLE_OPTIONS.include?(option) || NEGATED_OPTIONS.include?(option) || SIMPLE_OPTIONS.include?(option)
+    end
+
     # Checks the nfs options for /etc/fstab:
     # nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
     # @param [String] options   options
@@ -133,31 +137,30 @@ module Yast
         return _("Empty option strings are not allowed.")
       end
 
-      option_list = from_string(options)
-
-      # first fiter out non value options and its nooptions forms (see nfs(5))
-      option_list.reject!{ |o| NEGATABLE_OPTIONS.include?(o) }
-      option_list.reject!{ |o| NEGATED_OPTIONS.include?(o) }
-      option_list.reject!{ |o| SIMPLE_OPTIONS.include?(o) }
-
       error_message = ""
-      option_list.each do |opt|
+
+      from_string(options).each do |opt|
         key, value, *rest = opt.split("=")
-        # By now we have filtered out known options without values;
-        # so what is left is either unknown options, ...
-        # FIXME: this also triggers for "intr=bogus"
-        # because we should have considered '=' before the simple options
-        if ! OPTIONS_WITH_VALUE.include?(key)
+
+        # Known options without any expected value
+        if non_value_option?(key)
+          next if value.nil?
+          # To translators: error popup
+          error_message = _("Unexpected value '#{value}' for option '#{key}'") % { :value => value, :key => key }
+        # All unknown options
+        elsif ! OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
           error_message = _("Unknown option: '%{key}'") % { :key => key }
-        # ... or known ones with badly specified values
+        # All known ones with badly specified values
         elsif !rest.empty?
           # To translators: error popup
           error_message = _("Invalid option: '%{opt}'") % { :opt => opt }
+        # All options missing a value
         elsif value.nil?
           # To translators: error popup
           error_message = _("Empty value for option: '%{key}'") % { :key => key }
         end
+
         break unless error_message.empty?
       end
 
