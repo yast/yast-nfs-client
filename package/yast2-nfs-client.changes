@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 11 17:43:04 CET 2013 - locilka@suse.com
+
+- Added missing mount options (bnc#848768)
+- Refactored NfsOptions library
+- 3.1.1
+
+-------------------------------------------------------------------
 Thu Sep 26 11:31:10 UTC 2013 - lslezak@suse.cz
 
 - do not use *.spec.in template, use *.spec file with RPM macros
