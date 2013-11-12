@@ -142,8 +142,7 @@ module Yast
 
       error_message = ""
       option_list.each do |opt|
-        key_value = opt.split("=")
-        key, value = key_value
+        key, value, *rest = opt.split("=")
         # By now we have filtered out known options without values;
         # so what is left is either unknown options, ...
         # FIXME: this also triggers for "intr=bogus"
@@ -152,7 +151,7 @@ module Yast
           # To translators: error popup
           error_message = _("Unknown option: '%{key}'") % { :key => key }
         # ... or known ones with badly specified values
-        elsif key_value.size > 2
+        elsif !rest.empty?
           # To translators: error popup
           error_message = _("Invalid option: '%{opt}'") % { :opt => opt }
         elsif value.nil?
