@@ -10,6 +10,6 @@ Return	Unknown option: 'unknownassignment'
 Return	Empty value for option: 'rsize'
 Return	Unknown option: 'two'
 Return	Invalid option: 'retrans=trans=trans'
-Return	Unknown option: 'intr'
+Return	Unexpected value 'bogus' for option 'intr'
 Dump	NfsOptions::get_nfs41
 Dump	NfsOptions::set_nfs41
