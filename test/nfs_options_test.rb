@@ -25,7 +25,7 @@ describe "#validate" do
     expect(returned).to start_with("Empty option strings are not allowed"), "options '' returned '#{returned}'"
   end
 
-  it "returns 'Empty value' error message on incorrect options" do
+  it "returns 'Empty value' error message on options that expect key=value and the value is empty" do
     [
       "noatime,port=",
       "mountvers=",
@@ -37,7 +37,7 @@ describe "#validate" do
     end
   end
 
-  it "returns 'Invalid option' error message on incorrect options" do
+  it "returns 'Invalid option' error message on options that expect key=value and the value contains '='" do
     [
       "noatime,port=dort=fort",
       "mountvers=port=23",
@@ -48,7 +48,7 @@ describe "#validate" do
     end
   end
 
-  it "returns 'Unknown option' error message on incorrect options" do
+  it "returns 'Unknown option' error message on options that are unknown" do
     [
       "noatime,unknownparam",
       "mountvers2",
