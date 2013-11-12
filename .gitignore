@@ -17,5 +17,10 @@ missing
 /Makefile.am
 /Makefile.am.common
 configure.ac
-doc/autodocs/*.html
+doc/autodocs
+!doc/autodocs/Makefile.am
 package/*.tar.bz2
+/test-driver
+test/*.log
+test/*.trs
+testsuite/*.bak
