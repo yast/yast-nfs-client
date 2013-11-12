@@ -37,6 +37,16 @@ describe "#validate" do
     end
   end
 
+  it "returns 'Unexpected value' error message on options that do not expect key=value but some value is present" do
+    [
+      "nolock,intr=bogus",
+      "nosuid=true",
+    ].each do |options|
+      returned = Yast::NfsOptions.validate(options)
+      expect(returned).to start_with("Unexpected value"), "options '#{options}' returned '#{returned}'"
+    end
+  end
+
   it "returns 'Invalid option' error message on options that expect key=value and the value contains '='" do
     [
       "noatime,port=dort=fort",
@@ -55,7 +65,6 @@ describe "#validate" do
       "nolock, bg",
       "nolock,unknownoption",
       "nolock,unknownassignment=true",
-      "nolock,intr=bogus",
       "nolock,two=equal=signs",
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
