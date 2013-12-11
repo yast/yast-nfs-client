@@ -26,7 +26,7 @@ Source0:        %{name}-%{version}.tar.bz2
 Group:          System/YaST
 License:        GPL-2.0+
 BuildRequires:  perl-XML-Writer update-desktop-files yast2-testsuite 
-BuildRequires:  yast2-devtools >= 3.0.6
+BuildRequires:  yast2-devtools >= 3.1.10
 # Don't use Info function to check enable state (bnc#807507)
 BuildRequires:  yast2 >= 2.23.23
 # yast2-nfs-client depends on nfs-utils in term that edits nfs-utils' options.
