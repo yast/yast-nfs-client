@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Mar 12 09:41:52 UTC 2014 - vmoravec@suse.com
+
+- Fix failing tests
+- 3.1.2
+
+-------------------------------------------------------------------
 Mon Nov 11 17:43:04 CET 2013 - locilka@suse.com
 
 - Added missing mount options (bnc#848768)

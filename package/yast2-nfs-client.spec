@@ -17,8 +17,9 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.1
+Version:        3.1.2
 Release:        0
+Url:            https://github.com/yast/yast-nfs-client
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
@@ -53,7 +54,6 @@ BuildArch:      noarch
 Requires:       yast2-ruby-bindings >= 1.0.0
 
 Summary:        YaST2 - NFS Configuration
-Url:            http://en.opensuse.org/Portal:YaST
 
 %description
 The YaST2 component for configuration of NFS. NFS stands for network

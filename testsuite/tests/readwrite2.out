@@ -22,9 +22,9 @@ Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status portmap.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active portmap.service" $["TERM":"raw"] 0
 Execute	.target.bash_output "/bin/systemctl start nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status nfs.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active nfs.service" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs is in use & stopped
@@ -49,9 +49,9 @@ Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status portmap.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active portmap.service" $["TERM":"raw"] 0
 Execute	.target.bash_output "/bin/systemctl start nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status nfs.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active nfs.service" $["TERM":"raw"] 0
 Return	true
 Dump	
 Dump	Read  - nfs not used & running
