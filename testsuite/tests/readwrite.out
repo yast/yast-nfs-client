@@ -20,9 +20,9 @@ Write	.etc.idmapd_conf.value.General.Domain "localhost" true
 Write	.etc.idmapd_conf nil true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "yes" true
 Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status portmap.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active portmap.service" $["TERM":"raw"] 0
 Execute	.target.bash_output "/bin/systemctl start nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl status nfs.service" $["TERM":"raw"] 0
+Execute	.target.bash "/bin/systemctl is-active nfs.service" $["TERM":"raw"] 0
 Return	true
 Dump	Write KO
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
