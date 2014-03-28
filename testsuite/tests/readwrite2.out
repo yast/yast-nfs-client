@@ -5,7 +5,6 @@ Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec"
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf.value.General.Domain "localhost"
-Execute	.target.bash "/bin/systemctl is-enabled SuSEfirewall2.service" 0
 Return	true
 Dump	
 Dump	Write - nfs is in use - start services
@@ -16,16 +15,12 @@ Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
-Execute	.target.bash "/bin/systemctl is-enabled portmap.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled nfs.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
-Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl is-active portmap.service" $["TERM":"raw"] 0
-Execute	.target.bash_output "/bin/systemctl start nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl is-active nfs.service" $["TERM":"raw"] 0
-Return	true
+Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
+Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
+Log	Unable to mount the NFS entries from /etc/fstab.
+Return	false
 Dump	
 Dump	Read  - nfs is in use & stopped
 Dump	
@@ -43,16 +38,12 @@ Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
-Execute	.target.bash "/bin/systemctl is-enabled portmap.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled nfs.service" 0
-Execute	.target.bash "/bin/systemctl is-enabled nfsboot.service" 0
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
-Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl is-active portmap.service" $["TERM":"raw"] 0
-Execute	.target.bash_output "/bin/systemctl start nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
-Execute	.target.bash "/bin/systemctl is-active nfs.service" $["TERM":"raw"] 0
-Return	true
+Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
+Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
+Log	Unable to mount the NFS entries from /etc/fstab.
+Return	false
 Dump	
 Dump	Read  - nfs not used & running
 Dump	
@@ -69,7 +60,6 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
-Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Return	true
 Dump	
 Dump	Read  - nfs not used & services are stopped
@@ -87,5 +77,4 @@ Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save",
 Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
-Execute	.target.bash_output "/bin/systemctl stop nfs.service" $["TERM":"raw"] $["exit":0, "stderr":"", "stdout":""]
 Return	true
