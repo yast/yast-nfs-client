@@ -34,6 +34,7 @@ module Yast
       Yast.import "PackageSystem"
       Yast.import "PackagesProposal"
       Yast.import "Wizard"
+      Yast.import "Message"
 
       Yast.include self, "nfs/routines.rb"
 
@@ -519,15 +520,17 @@ module Yast
 
         Progress.NextStage
         if Ops.greater_than(Builtins.size(@nfs_entries), 0)
-          if Service.Status(@portmapper) != 0
-            # portmap must not be started if it is running already (see bug # 9999)
-            Service.Start(@portmapper)
+          # portmap must not be started if it is running already (see bug # 9999)
+          Service.Start(@portmapper) unless Service.active?(@portmapper)
+
+          unless Service.active?(@portmapper)
+            Report.Error(Message.CannotStartService(@portmapper))
+            return false
           end
 
           Service.Start("nfs")
-          # #74597: if all mounts are noauto, $? is 6 (unconfigured)
-          status = Service.Status("nfs")
-          if status != 0 && status != 6
+
+          unless Service.active?("nfs")
             # error popup message
             Report.Error(_("Unable to mount the NFS entries from /etc/fstab."))
             return false
@@ -614,8 +617,8 @@ module Yast
 
 
       # start portmapper if it isn't running
-      if Service.Status(portmapper) != 0
-        if Service.Start(portmapper) == false
+      unless Service.active?(portmapper)
+        unless Service.Start(portmapper)
           Builtins.y2warning("%1 cannot be started", portmapper)
           return nil
         end
