@@ -15,9 +15,7 @@ Write	.sysconfig.nfs.NFS4_SUPPORT "yes" true
 Write	.etc.idmapd_conf.value.General.Domain "localhost" true
 Write	.etc.idmapd_conf nil true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "yes" true
-Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
-Log	[DEPRECIATION] `Status' is deprecated; use `active?` instead
-Log	Unable to mount the NFS entries from /etc/fstab.
+Log	Cannot start 'portmap' service
 Return	false
 Dump	Write KO
 Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
