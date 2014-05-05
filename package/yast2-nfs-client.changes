@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon May  5 14:49:12 CEST 2014 - locilka@suse.com
+
+- Obsolete Service.Status replaced with new Service.active?
+- 3.1.4
+
+-------------------------------------------------------------------
 Fri Mar 28 16:54:19 UTC 2014 - vmoravec@suse.com
 
 - Fix failing tests again
