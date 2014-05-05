@@ -24,3 +24,4 @@ package/*.tar.bz2
 test/*.log
 test/*.trs
 testsuite/*.bak
+/testsuite/raw.*
