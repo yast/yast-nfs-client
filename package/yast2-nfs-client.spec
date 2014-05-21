@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.4
+Version:        3.1.5
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -33,7 +33,11 @@ BuildRequires:  yast2 >= 2.23.23
 # yast2-nfs-client depends on nfs-utils in term that edits nfs-utils' options.
 # Support was checked against nfs-utils 1.2.7.
 # As soon as nfs-utils reaches version 1.2.9 there should be another update.
-BuildRequires:  nfs-client < 1.2.9
+# FIXME: 1.3.0 works but adds these new options we need to handle:
+# - multiple "sec" with colons
+# - "migration"
+# - "v4.1" v4.x
+BuildRequires:  nfs-client < 1.3.1
 BuildRequires:  rubygem-rspec
 #ag_showexports moved to yast2 base
 # introduces extended IPv6 support.
