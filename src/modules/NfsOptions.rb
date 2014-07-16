@@ -76,6 +76,7 @@ module Yast
         "acregmax",
         "acregmin",
         "actimeo",
+        "bsize",
         "clientaddr",
         "context",
         "defcontext",
