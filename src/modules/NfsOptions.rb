@@ -29,6 +29,7 @@ module Yast
         "diratime",
         "exec",
         "fg",
+        "fsc",
         "group",
         "hard",
         "intr",

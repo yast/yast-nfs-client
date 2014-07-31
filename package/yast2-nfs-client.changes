@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jul 31 14:02:30 UTC 2014 - cwh@suse.com
+
+- Added 'fsc' to the list of valid negatable options (bnc#873142)
+- 3.1.7
+
+-------------------------------------------------------------------
 Wed Jul 16 09:43:14 CEST 2014 - aschnell@suse.de
 
 - allow mount option bsize (bnc#887369)
