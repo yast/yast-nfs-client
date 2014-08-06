@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug  6 12:36:27 UTC 2014 - ancor@suse.com
+
+- Don't display 'NFS Settings' tab when called from partitioner
+  (bnc#890410)
+- 3.1.8
+
+-------------------------------------------------------------------
 Thu Jul 31 14:02:30 UTC 2014 - cwh@suse.com
 
 - Added 'fsc' to the list of valid negatable options (bnc#873142)
