@@ -33,7 +33,7 @@ module Yast
 
       if @func == "CreateUI"
         Wizard.SetHelpText(@help_text1)
-        return MainDialogLayout()
+        return FstabTab()
       elsif @func == "FromStorage"
         @shares = Ops.get_list(@param, "shares", [])
 
