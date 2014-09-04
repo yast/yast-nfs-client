@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.8
+Version:        3.1.9
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -38,7 +38,7 @@ BuildRequires:  yast2 >= 2.23.23
 # - "migration"
 # - "v4.1" v4.x
 BuildRequires:  nfs-client < 1.3.1
-BuildRequires:  rubygem-rspec
+BuildRequires:  rubygem(rspec)
 #ag_showexports moved to yast2 base
 # introduces extended IPv6 support.
 Requires:       yast2 >= 2.23.6
