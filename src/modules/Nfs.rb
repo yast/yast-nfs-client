@@ -459,9 +459,6 @@ module Yast
       if Builtins.size(@nfs_entries) != 0
         Service.Enable(@portmapper)
         Service.Enable("nfs")
-        # #36737: it just runs sm_notify at boot time
-        # replaces rpc.statd
-        Service.Enable("nfsboot")
       end
 
       if @nfs4_enabled == true

@@ -39,7 +39,6 @@ module Yast
             "runlevel" => {
               "portmap"        => @service_on,
               "nfs"            => @service_on,
-              "nfsboot"        => @service_off,
               "network"        => @service_off,
               "networkmanager" => @service_on
             },
