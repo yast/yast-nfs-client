@@ -148,7 +148,7 @@ module Yast
         if non_value_option?(key)
           next if value.nil?
           # To translators: error popup
-          error_message = _("Unexpected value '#{value}' for option '#{key}'") % { :value => value, :key => key }
+          error_message = _("Unexpected value '%{value}' for option '%{key}'") % { :value => value, :key => key }
         # All unknown options
         elsif ! OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
