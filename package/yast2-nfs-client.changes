@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Nov 18 07:32:59 UTC 2014 - lslezak@suse.cz
+
+- fixed string substitution in a translated message
+
+-------------------------------------------------------------------
 Fri Nov  7 17:00:31 CET 2014 - locilka@suse.com
 
 - Removed obsolete service (nfsboot) handling (bnc#867766)
