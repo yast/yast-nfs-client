@@ -269,34 +269,13 @@ module Yast
       end }
     end
 
-    # (like awk gsub, but return the result, not number of replacements)
-    # replaces from back!
-    # @param [String] regex regular expression to replace
-    # @param [String] replacement the replacement string
-    # @param [String] s where to replace
-    # @return the changed string
-    def gsub(regex, replacement, s)
-      while true
-        # argh, regexpsub logs an error if it cannot sub
-        break if !Builtins.regexpmatch(s, Ops.add(Ops.add(".*", regex), ".*"))
-        temp = Builtins.regexpsub(
-          s,
-          Ops.add(Ops.add("(.*)", regex), "(.*)"),
-          Ops.add(Ops.add("\\1", replacement), "\\2")
-        )
-        break if temp == nil
-        s = temp
-      end
-      s
-    end
-
     # Un-escape spaces "\\040" -> " "
     # @param [String] s string or nil
     # @return escaped string or nil
     def UnescapeSpaces1(s)
+      return nil if s.nil?
       # escaped space, \040, is /\\040/
-      # which is "\\\\040"
-      s == nil ? nil : gsub("\\\\040", " ", s)
+      s.gsub(/\\040/, " ")
     end
 
     # Un-escape spaces "\\040" -> " " in all values of all entries
