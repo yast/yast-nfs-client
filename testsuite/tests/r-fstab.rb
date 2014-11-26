@@ -49,27 +49,27 @@ module Yast
       ]
 
       DUMP("FstabTableItems")
-      TEST(lambda { FstabTableItems(@nfs_entries) }, [], nil)
+      TEST(->() { FstabTableItems(@nfs_entries) }, [], nil)
 
       DUMP("IsMpInFstab")
       # MountPoint in fstab
-      TEST(lambda { IsMpInFstab(@nfs_entries, "/home") }, [], nil)
+      TEST(->() { IsMpInFstab(@nfs_entries, "/home") }, [], nil)
       # MountPoint in fstab
-      TEST(lambda { IsMpInFstab(@nfs_entries, "/install") }, [], nil)
+      TEST(->() { IsMpInFstab(@nfs_entries, "/install") }, [], nil)
       # MountPoint NOT in fstab
-      TEST(lambda { IsMpInFstab(@nfs_entries, "/not/in/fstab") }, [], nil)
+      TEST(->() { IsMpInFstab(@nfs_entries, "/not/in/fstab") }, [], nil)
 
       DUMP("CheckPath")
       # Empty path
-      TEST(lambda { CheckPath("") }, [], nil)
+      TEST(->() { CheckPath("") }, [], nil)
       # Path is too long (cca 80 chars)
-      TEST(lambda { CheckPath(@PathTooLong) }, [], nil)
+      TEST(->() { CheckPath(@PathTooLong) }, [], nil)
       # First slash is missing
-      TEST(lambda { CheckPath("not/begins/with/slash") }, [], nil)
+      TEST(->() { CheckPath("not/begins/with/slash") }, [], nil)
       # Too long with slash
-      TEST(lambda { CheckPath(Ops.add("/", @PathTooLong)) }, [], nil)
+      TEST(->() { CheckPath(Ops.add("/", @PathTooLong)) }, [], nil)
       # Regular path
-      TEST(lambda { CheckPath("/regular/path") }, [], nil)
+      TEST(->() { CheckPath("/regular/path") }, [], nil)
 
       nil
     end

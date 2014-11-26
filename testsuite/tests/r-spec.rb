@@ -19,13 +19,13 @@ module Yast
       Yast.include self, "nfs/routines.rb"
 
       DUMP("SpecToServPath")
-      TEST(lambda { SpecToServPath("big.foo.com:/share/data") }, [], nil)
-      TEST(lambda { SpecToServPath("only.server.com:") }, [], nil)
-      TEST(lambda { SpecToServPath("nocolon.only.server.com") }, [], nil)
-      TEST(lambda { SpecToServPath(":/only/path") }, [], nil)
-      TEST(lambda { SpecToServPath("/nocolon/only/path") }, [], nil)
-      TEST(lambda { SpecToServPath("fe80::219:d1ff:feac:fd10:/path") }, [], nil)
-      TEST(lambda { SpecToServPath("") }, [], nil)
+      TEST(->() { SpecToServPath("big.foo.com:/share/data") }, [], nil)
+      TEST(->() { SpecToServPath("only.server.com:") }, [], nil)
+      TEST(->() { SpecToServPath("nocolon.only.server.com") }, [], nil)
+      TEST(->() { SpecToServPath(":/only/path") }, [], nil)
+      TEST(->() { SpecToServPath("/nocolon/only/path") }, [], nil)
+      TEST(->() { SpecToServPath("fe80::219:d1ff:feac:fd10:/path") }, [], nil)
+      TEST(->() { SpecToServPath("") }, [], nil)
 
       nil
     end

@@ -19,10 +19,10 @@ module Yast
       Yast.include self, "nfs/routines.rb"
 
       DUMP("StripExtraSlash")
-      TEST(lambda { StripExtraSlash("") }, [], nil)
-      TEST(lambda { StripExtraSlash("/") }, [], nil)
-      TEST(lambda { StripExtraSlash("/normal/path") }, [], nil)
-      TEST(lambda { StripExtraSlash("/trailing/slash/") }, [], nil)
+      TEST(->() { StripExtraSlash("") }, [], nil)
+      TEST(->() { StripExtraSlash("/") }, [], nil)
+      TEST(->() { StripExtraSlash("/normal/path") }, [], nil)
+      TEST(->() { StripExtraSlash("/trailing/slash/") }, [], nil)
 
       nil
     end
