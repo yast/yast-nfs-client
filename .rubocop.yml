@@ -8,10 +8,6 @@
 inherit_from:
   .rubocop_yast_style.yml
 
-# Offense count: 4
-Metrics/BlockNesting:
-  Max: 4
-
 # Offense count: 5
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
@@ -59,10 +55,6 @@ Style/MethodName:
 # "unless" has a different connotation than "if not"
 Style/NegatedIf:
   Enabled: false
-
-Style/NonNilCheck:
-  Enabled: true
-  IncludeSemanticChanges: true
 
 Style/VariableName:
   EnforcedStyle: snake_case
