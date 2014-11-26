@@ -44,16 +44,6 @@ Style/Documentation:
 Style/FileName:
   Enabled: false
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/IndentationConsistency:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/IndentationWidth:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/InfiniteLoop:

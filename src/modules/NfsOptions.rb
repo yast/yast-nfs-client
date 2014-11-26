@@ -6,103 +6,103 @@ require "yast"
 module Yast
   # Handle NFS mount options
   class NfsOptionsClass < Module
-      # The options should be kept synced with the code that handles them,
-      # which is not an easy task, as there are many places:
-      # - util-linux.rpm
-      #   man 8 mount
-      #   https://git.kernel.org/?p=utils/util-linux/util-linux.git;a=history;f=libmount/src/optmap.c
-      # - nfs-client.rpm (nfs-utils.src.rpm)
-      #   man 5 nfs
-      #   http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=history;f=utils/mount/nfsmount.c
-      # - kernel: fs/nfs/super.c
-      #   http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=history;f=fs/nfs/super.c
-      # Note that minorversion in particular is mentioned only in the kernel
-      # but not in nfs-utils.
+    # The options should be kept synced with the code that handles them,
+    # which is not an easy task, as there are many places:
+    # - util-linux.rpm
+    #   man 8 mount
+    #   https://git.kernel.org/?p=utils/util-linux/util-linux.git;a=history;f=libmount/src/optmap.c
+    # - nfs-client.rpm (nfs-utils.src.rpm)
+    #   man 5 nfs
+    #   http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=history;f=utils/mount/nfsmount.c
+    # - kernel: fs/nfs/super.c
+    #   http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=history;f=fs/nfs/super.c
+    # Note that minorversion in particular is mentioned only in the kernel
+    # but not in nfs-utils.
 
-      # these can be negated by "no"
-      NEGATABLE_OPTIONS = [
-        "ac",
-        "acl",
-        "atime",
-        "auto",
-        "bg",
-        "cto",
-        "dev",
-        "diratime",
-        "exec",
-        "fg",
-        "fsc",
-        "group",
-        "hard",
-        "intr",
-        "iversion",
-        "lock",
-        "mand",
-        "owner",
-        "posix",
-        "rdirplus",
-        "relatime",
-        "soft",
-        "strictatime",
-        "suid",
-        "tcp",
-        "udp",
-        "user",
-        "users"
-      ]
+    # these can be negated by "no"
+    NEGATABLE_OPTIONS = [
+      "ac",
+      "acl",
+      "atime",
+      "auto",
+      "bg",
+      "cto",
+      "dev",
+      "diratime",
+      "exec",
+      "fg",
+      "fsc",
+      "group",
+      "hard",
+      "intr",
+      "iversion",
+      "lock",
+      "mand",
+      "owner",
+      "posix",
+      "rdirplus",
+      "relatime",
+      "soft",
+      "strictatime",
+      "suid",
+      "tcp",
+      "udp",
+      "user",
+      "users"
+    ]
 
-      NEGATED_OPTIONS = NEGATABLE_OPTIONS.map{ |o| "no#{o}" }
+    NEGATED_OPTIONS = NEGATABLE_OPTIONS.map{ |o| "no#{o}" }
 
-      # these cannot be negated
-      # they are not nfs specific BTW
-      SIMPLE_OPTIONS = [
-        "_netdev",
-        "async",
-        "bind",
-        "defaults",
-        "dirsync",
-        "loud",
-        "nofail",
-        "owner",
-        "rbind",
-        "remount",
-        "ro",
-        "rw",
-        "silent",
-        "sync"
-      ]
+    # these cannot be negated
+    # they are not nfs specific BTW
+    SIMPLE_OPTIONS = [
+      "_netdev",
+      "async",
+      "bind",
+      "defaults",
+      "dirsync",
+      "loud",
+      "nofail",
+      "owner",
+      "rbind",
+      "remount",
+      "ro",
+      "rw",
+      "silent",
+      "sync"
+    ]
 
-      OPTIONS_WITH_VALUE = [
-        "acdirmax",
-        "acdirmin",
-        "acdirmin",
-        "acregmax",
-        "acregmin",
-        "actimeo",
-        "bsize",
-        "clientaddr",
-        "context",
-        "defcontext",
-        "fscontext",
-        "minorversion",
-        "mounthost",
-        "mountport",
-        "mountprog",
-        "mountvers",
-        "namlen",
-        "nfsprog",
-        "nfsvers",
-        "port",
-        "proto",
-        "retrans",
-        "retry",
-        "rootcontext",
-        "rsize",
-        "sec",
-        "timeo",
-        "vers",
-        "wsize"
-      ]
+    OPTIONS_WITH_VALUE = [
+      "acdirmax",
+      "acdirmin",
+      "acdirmin",
+      "acregmax",
+      "acregmin",
+      "actimeo",
+      "bsize",
+      "clientaddr",
+      "context",
+      "defcontext",
+      "fscontext",
+      "minorversion",
+      "mounthost",
+      "mountport",
+      "mountprog",
+      "mountvers",
+      "namlen",
+      "nfsprog",
+      "nfsvers",
+      "port",
+      "proto",
+      "retrans",
+      "retry",
+      "rootcontext",
+      "rsize",
+      "sec",
+      "timeo",
+      "vers",
+      "wsize"
+    ]
 
     def main
       textdomain "nfs"
