@@ -182,7 +182,7 @@ module Yast
     end
 
     # Add or remove minorversion=1 according to nfs41.
-    # FIXME vfstype=nfs4 is deprecated in favor of nfsvers=4 (aka vers=4)
+    # FIXME: vfstype=nfs4 is deprecated in favor of nfsvers=4 (aka vers=4)
     # @param [String] options fstab option string
     # @param [Boolean] nfs41   is version >= 4.1 enabled
     # @return        new fstab option string
