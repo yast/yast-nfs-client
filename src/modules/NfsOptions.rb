@@ -51,7 +51,7 @@ module Yast
       "users"
     ]
 
-    NEGATED_OPTIONS = NEGATABLE_OPTIONS.map{ |o| "no#{o}" }
+    NEGATED_OPTIONS = NEGATABLE_OPTIONS.map { |o| "no#{o}" }
 
     # these cannot be negated
     # they are not nfs specific BTW
@@ -150,7 +150,7 @@ module Yast
           # To translators: error popup
           error_message = _("Unexpected value '%{value}' for option '%{key}'") % { :value => value, :key => key }
         # All unknown options
-        elsif ! OPTIONS_WITH_VALUE.include?(key)
+        elsif !OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
           error_message = _("Unknown option: '%{key}'") % { :key => key }
         # All known ones with badly specified values
