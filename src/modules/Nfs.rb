@@ -62,7 +62,7 @@ module Yast
 
     # Functions which returns if the settings were modified
     # @return [Boolean]  settings were modified
-    def GetModified
+    def GetModified             # rubocop:disable Style/TrivialAccessors
       @modified
     end
 
