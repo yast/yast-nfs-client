@@ -64,12 +64,6 @@ Style/NonNilCheck:
   Enabled: true
   IncludeSemanticChanges: true
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, Whitelist.
-Style/TrivialAccessors:
-  Enabled: false
-
 Style/VariableName:
   EnforcedStyle: snake_case
   Exclude:
