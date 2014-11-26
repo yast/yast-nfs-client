@@ -147,7 +147,7 @@ module Yast
       ret = ""
       cur_domain = Hostname.CurrentDomain
 
-      ret = Ops.add("nfs.", cur_domain) if cur_domain != nil || cur_domain != ""
+      ret = Ops.add("nfs.", cur_domain) if cur_domain || cur_domain != ""
       ret
     end
 
@@ -205,7 +205,7 @@ module Yast
       servers = []
       old = ""
 
-      if fstab_ent != nil
+      if fstab_ent
         couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
         server = Ops.get_string(couple, 0, "")
         pth = Ops.get_string(couple, 1, "")
@@ -336,7 +336,7 @@ module Yast
             Report.Error(error_msg)
           else
             host = ChooseHostName(@hosts)
-            UI.ChangeWidget(Id(:serverent), :Value, host) if host != nil
+            UI.ChangeWidget(Id(:serverent), :Value, host) if host
           end
         elsif ret == :pathent_list
           server2 = Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
@@ -360,7 +360,7 @@ module Yast
           UI.CloseDialog
 
           dir = ChooseExport(dirs)
-          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir != nil
+          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
         elsif ret == :browse
           dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
           dir = "/" if dir.nil? || Builtins.size(dir) == 0
@@ -368,7 +368,7 @@ module Yast
           # heading for a directory selection dialog
           dir = UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
 
-          if dir != nil && Ops.greater_than(Builtins.size(dir), 0)
+          if dir && Ops.greater_than(Builtins.size(dir), 0)
             UI.ChangeWidget(Id(:mountent), :Value, dir)
           end
         elsif ret == :ok
@@ -597,7 +597,7 @@ module Yast
           )
         )
 
-        if entry != nil
+        if entry
           @nfs_entries = Builtins.add(@nfs_entries, entry)
           @modify_line = deep_copy(entry)
           EnableDisableButtons()
@@ -618,7 +618,7 @@ module Yast
             :to   => "list <map>"
           ) # Default values
         )
-        if entry != nil
+        if entry
           count2 = 0
           @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
             count2 = Ops.add(count2, 1)

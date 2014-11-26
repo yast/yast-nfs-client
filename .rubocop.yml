@@ -60,11 +60,9 @@ Style/MethodName:
 Style/NegatedIf:
   Enabled: false
 
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: IncludeSemanticChanges.
 Style/NonNilCheck:
-  Enabled: false
+  Enabled: true
+  IncludeSemanticChanges: true
 
 # Offense count: 1
 # Cop supports --auto-correct.

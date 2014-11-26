@@ -177,7 +177,7 @@ module Yast
       global_options = global_options_ref.value
       entries = entries_ref.value
 
-      return false if Builtins.find(entries) { |e| !ValidateAyNfsEntry(e) } != nil
+      return false if Builtins.find(entries) { |e| !ValidateAyNfsEntry(e) }
 
       entries = FillEntriesDefaults(entries)
 
@@ -194,7 +194,7 @@ module Yast
       # vfstype can override a missing enable_nfs4
       @nfs4_enabled = true if Builtins.find(entries) do |entry|
         Ops.get_string(entry, "vfstype", "") == "nfs4"
-      end != nil
+      end
 
       @nfs_entries = Builtins.maplist(entries) do |entry|
         {

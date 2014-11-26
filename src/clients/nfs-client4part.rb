@@ -74,7 +74,7 @@ module Yast
       entry = deep_copy(entry)
       ret = {}
 
-      if entry != nil && entry != {}
+      if entry && entry != {}
         ret = {
           "device"  => Ops.get_string(entry, "spec", ""),
           "mount"   => Ops.get_string(entry, "file", ""),

@@ -33,7 +33,7 @@ module Yast
         end
       end
 
-      if path_begin != nil
+      if path_begin
         serv = Builtins.substring(spec, 0, path_begin)
         spec = Builtins.substring(spec, Ops.add(path_begin, 1))
       end
