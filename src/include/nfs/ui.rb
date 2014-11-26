@@ -581,7 +581,7 @@ module Yast
         CWMFirewallInterfaces.OpenFirewallHandle(
           @fw_cwm_widget,
           "",
-          { "ID" => widget }
+          "ID" => widget
         )
       end
       if UI.WidgetExists(Id(:fstable))
@@ -657,7 +657,7 @@ module Yast
         InitSettings()
         Wizard.SetHelpText(@help_text2)
       elsif widget == :overview
-        SaveSettings({ "ID" => widget })
+        SaveSettings("ID" => widget)
         UI.ReplaceWidget(Id(:rp), FstabTab())
         InitFstabEntries()
         Wizard.SetHelpText(@help_text1)

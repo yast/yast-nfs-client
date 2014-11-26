@@ -387,7 +387,7 @@ module Yast
           Convert.convert(
             Builtins.union(
               entry,
-              { "freq" => 0, "passno" => 0 } # "vfstype": "nfs",
+              "freq" => 0, "passno" => 0 # "vfstype": "nfs",
             ),
             :from => "map",
             :to   => "map <string, any>"
@@ -408,7 +408,7 @@ module Yast
       SCR.Execute(
         path(".target.bash"),
         "/bin/cp $ORIG $BACKUP",
-        { "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save" }
+        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
       )
 
       fstab = EscapeSpaces(fstab)
