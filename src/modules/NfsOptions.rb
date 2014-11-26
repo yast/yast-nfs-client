@@ -2,7 +2,9 @@
 
 require "yast"
 
+# YaST namespace
 module Yast
+  # Handle NFS mount options
   class NfsOptionsClass < Module
       # The options should be kept synced with the code that handles them,
       # which is not an easy task, as there are many places:

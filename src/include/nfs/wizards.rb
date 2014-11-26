@@ -1,12 +1,8 @@
 # encoding: utf-8
 
-# File:	include/nfs/wizards.ycp
-# Package:	Configuration of nfs
-# Summary:	Wizards definitions
-# Authors:	Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
+# YaST namespace
 module Yast
+  # Wizards definitions
   module NfsWizardsInclude
     def initialize_nfs_wizards(include_target)
       Yast.import "UI"

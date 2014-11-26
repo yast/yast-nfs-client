@@ -1,9 +1,8 @@
 # encoding: utf-8
 
-# Author:	Martin Vidner <mvidner@suse.cz>
-# Summary:	Just a redirection
-# $Id$
+# YaST namespace
 module Yast
+  # Just a redirection
   class NfsClientClient < Client
     def main
       @target = "nfs"

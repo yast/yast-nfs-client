@@ -73,9 +73,9 @@ Style/BracesAroundHashParameters:
 Style/CommentAnnotation:
   Enabled: false
 
-# Offense count: 20
 Style/Documentation:
-  Enabled: false
+  Exclude:
+    - testsuite/tests/*.rb
 
 # Offense count: 9
 # Cop supports --auto-correct.

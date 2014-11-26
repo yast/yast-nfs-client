@@ -1,23 +1,10 @@
 # encoding: utf-8
 
-# File:
-#   Nfs.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   NFS client configuration data, I/O functions.
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
 require "yast"
 
+# YaST namespace
 module Yast
+  # NFS client configuration data, I/O functions.
   class NfsClass < Module
     def main
 

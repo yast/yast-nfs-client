@@ -1,23 +1,8 @@
 # encoding: utf-8
 
-# File:
-#   routines.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   Network NFS routines
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#
-# $Id$
-#
-# Network NFS routines
-#
+# YaST namespace
 module Yast
+  # Miscellaneous
   module NfsRoutinesInclude
     def initialize_nfs_routines(include_target)
       textdomain "nfs"

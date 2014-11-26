@@ -1,28 +1,8 @@
 # encoding: utf-8
 
-# File:
-#   nfs_auto.ycp
-#
-# Package:
-#   Configuration of NFS client
-#
-# Summary:
-#   Client for autoinstallation
-#
-# Authors:
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
-#
-# This is a client for autoinstallation. It takes its arguments,
-# goes through the configuration and return the setting.
-# Does not do any changes to the configuration.
-
-# @param first a map of mail settings
-# @return [Hash] edited settings or empty map if canceled
-# @example map mm = $[ "FAIL_DELAY" : "77" ];
-# @example map ret = WFM::CallModule ("mail_auto", [ mm ]);
+# YaST namespace
 module Yast
+  # Client for autoinstallation
   class NfsAutoClient < Client
     def main
       Yast.import "UI"

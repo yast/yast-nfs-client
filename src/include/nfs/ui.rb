@@ -1,24 +1,8 @@
 # encoding: utf-8
 
-# File:
-#   ui.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   Network NFS client dialogs
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
-#
-# Network NFS client dialogs
-#
+# YaST namespace
 module Yast
+  # NFS client dialogs
   module NfsUiInclude
     def initialize_nfs_ui(include_target)
       Yast.import "UI"
