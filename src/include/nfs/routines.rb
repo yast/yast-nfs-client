@@ -97,11 +97,11 @@ module Yast
       Report.Error(
         Builtins.sformat(
           _(
-            "The hostname entered is invalid. It must be\n" +
-              "shorter than 50 characters and only use\n" +
-              "valid IPv4, IPv6 or domain name.\n" +
-              "Valid IPv4: %1\n" +
-              "Valid IPv6: %2\n" +
+            "The hostname entered is invalid. It must be\n" \
+              "shorter than 50 characters and only use\n" \
+              "valid IPv4, IPv6 or domain name.\n" \
+              "Valid IPv4: %1\n" \
+              "Valid IPv6: %2\n" \
               "Valid domain: %3"
           ),
           IP.Valid4,
@@ -153,8 +153,8 @@ module Yast
       Report.Error(
         Builtins.sformat(
           _(
-            "The path entered is invalid.\n" +
-              "It must be shorter than 70 characters\n" +
+            "The path entered is invalid.\n" \
+              "It must be shorter than 70 characters\n" \
               "and it must begin with a slash (/)."
           )
         )

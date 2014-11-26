@@ -60,24 +60,24 @@ module Yast
       ) +
         # Help, part 2 of 3
         _(
-          "<p>Each NFS share is identified by remote NFS server address and\n" +
-            "exported directory, local directory where the remote directory is mounted, \n" +
-            "NFS type (either plain nfs or nfsv4) and mount options. For further information \n" +
+          "<p>Each NFS share is identified by remote NFS server address and\n" \
+            "exported directory, local directory where the remote directory is mounted, \n" \
+            "NFS type (either plain nfs or nfsv4) and mount options. For further information \n" \
             "about mounting NFS and mount options, refer to <tt>man nfs.</tt></p>"
         ) +
         # Help, part 3 of 3
         _(
-          "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" +
-            "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" +
+          "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" \
+            "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" \
             "share with <B>Delete</B>.</p>\n"
         )
 
 
       @help_text2 = Ops.add(
         _(
-          "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" +
-            "protocol), check the <b>Enable NFSv4</b> option. In that case, you might need\n" +
-            "to supply specific a <b>NFSv4 Domain Name</b> required for the correct setting\n" +
+          "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
+            "protocol), check the <b>Enable NFSv4</b> option. In that case, you might need\n" \
+            "to supply specific a <b>NFSv4 Domain Name</b> required for the correct setting\n" \
             "of file/directory access rights.</p>\n"
         ),
         Ops.get_string(@fw_cwm_widget, "help", "")
@@ -346,8 +346,8 @@ module Yast
               error_msg = Ops.add(
                 error_msg,
                 _(
-                  "\n" +
-                    "This could be caused by a running SuSEfirewall2,\n" +
+                  "\n" \
+                    "This could be caused by a running SuSEfirewall2,\n" \
                     "which probably blocks the network scanning."
                 )
               )
@@ -435,8 +435,8 @@ module Yast
           #help text 1/4
           # change: locally defined -> servers on LAN
           helptext = _(
-            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" +
-              "<b>Choose</b>, browse through a list of\n" +
+            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" \
+              "<b>Choose</b>, browse through a list of\n" \
               "NFS servers on the local network.</p>\n"
           )
           # help text 2/4
@@ -444,9 +444,9 @@ module Yast
           helptext = Ops.add(
             helptext,
             _(
-              "<p>In <b>Remote File System</b>,\n" +
-                "enter the path to the directory on the NFS server.  Use\n" +
-                "<b>Select</b> to select one from those exported by the server.\n" +
+              "<p>In <b>Remote File System</b>,\n" \
+                "enter the path to the directory on the NFS server.  Use\n" \
+                "<b>Select</b> to select one from those exported by the server.\n" \
                 "</p>"
             )
           )
@@ -457,7 +457,7 @@ module Yast
               "<p>\t\t\n" +
                 "For <b>Mount Point</b>, enter the path in the local " \
                 "file system where the directory should be mounted. With\n" +
-                "<b>Browse</b>, select your mount point\n" +
+                "<b>Browse</b>, select your mount point\n" \
                 "interactively.</p>"
             )
           )

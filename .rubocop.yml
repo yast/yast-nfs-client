@@ -117,11 +117,6 @@ Style/InfiniteLoop:
 Style/LeadingCommentSpace:
   Enabled: false
 
-# Offense count: 27
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Enabled: false
-
 Style/MethodName:
   EnforcedStyle: snake_case
   Exclude:

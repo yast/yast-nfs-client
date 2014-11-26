@@ -447,8 +447,8 @@ module Yast
         # error popup message
         Report.Error(
           _(
-            "Unable to write to /etc/fstab.\n" +
-              "No changes will be made to the\n" +
+            "Unable to write to /etc/fstab.\n" \
+              "No changes will be made to the\n" \
               "the NFS client configuration.\n"
           )
         )
