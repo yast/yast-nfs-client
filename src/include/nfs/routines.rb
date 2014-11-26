@@ -40,7 +40,6 @@ module Yast
       term(:couple, serv, spec)
     end
 
-
     # Creates a list of ui table items for nfs fstab entries
     # @param [Array<Hash>] fstab     list of nfs fstab entries
     # @return          itemized table entries
@@ -146,7 +145,6 @@ module Yast
       )
       false
     end
-
 
     # Strips a superfluous slash off the end of a pathname.
     # @param [String] p       pathname

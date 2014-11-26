@@ -7,7 +7,6 @@ module Yast
   # NFS client configuration data, I/O functions.
   class NfsClass < Module
     def main
-
       textdomain "nfs"
 
       Yast.import "FileUtils"
@@ -24,7 +23,6 @@ module Yast
       Yast.import "Message"
 
       Yast.include self, "nfs/routines.rb"
-
 
       # default value of settings modified
       @modified = false
@@ -108,7 +106,6 @@ module Yast
 
       nil
     end
-
 
     def GetOptionsAndEntriesMap(settings, global_options, entries)
       settings = deep_copy(settings)
@@ -532,7 +529,6 @@ module Yast
       summary
     end
 
-
     # Mount NFS directory
     # @param [String] server remote server name
     # @param [String] share name of the exported directory
@@ -581,7 +577,6 @@ module Yast
         Builtins.y2warning("Neither rpcbind nor portmap is installed")
         return nil
       end
-
 
       # start portmapper if it isn't running
       unless Service.active?(portmapper)
@@ -637,7 +632,6 @@ module Yast
         file = Ops.get_string(m, "file")
         found = true if (type == "nfs" || type == "nfs4") && file == mpoint
       end 
-
 
       if found
         command = Builtins.sformat("/bin/umount %1", mpoint)

@@ -40,16 +40,6 @@ Style/Documentation:
     - testsuite/tests/*.rb
 
 # Offense count: 9
-# Cop supports --auto-correct.
-Style/EmptyLines:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/EmptyLinesAroundBody:
-  Enabled: false
-
-# Offense count: 9
 # Configuration parameters: Exclude.
 Style/FileName:
   Enabled: false
