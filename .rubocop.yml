@@ -39,10 +39,12 @@ Style/Documentation:
   Exclude:
     - testsuite/tests/*.rb
 
-# Offense count: 9
-# Configuration parameters: Exclude.
 Style/FileName:
-  Enabled: false
+  Exclude:
+    - src/clients/nfs-client.rb
+    - src/clients/nfs-client4part.rb
+    - src/modules/Nfs.rb
+    - src/modules/NfsOptions.rb
 
 Style/MethodName:
   EnforcedStyle: snake_case
@@ -53,11 +55,6 @@ Style/MethodName:
     - src/include/nfs/ui.rb
     - src/include/nfs/wizards.rb
     - src/modules/Nfs.rb
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/MultilineBlockLayout:
-  Enabled: false
 
 # Offense count: 4
 Style/MultilineTernaryOperator:
