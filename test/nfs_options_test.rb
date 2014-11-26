@@ -30,7 +30,7 @@ describe "#validate" do
       "noatime,port=",
       "mountvers=",
       "mountvers,=port=23",
-      "nolock,rsize=",
+      "nolock,rsize="
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
       expect(returned).to start_with("Empty value"), "options '#{options}' returned '#{returned}'"
@@ -40,7 +40,7 @@ describe "#validate" do
   it "returns 'Unexpected value' error message on options that do not expect key=value but some value is present" do
     [
       "nolock,intr=bogus",
-      "nosuid=true",
+      "nosuid=true"
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
       expect(returned).to start_with("Unexpected value"), "options '#{options}' returned '#{returned}'"
@@ -51,7 +51,7 @@ describe "#validate" do
     [
       "noatime,port=dort=fort",
       "mountvers=port=23",
-      "nolock,retrans=trans=trans",
+      "nolock,retrans=trans=trans"
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
       expect(returned).to start_with("Invalid option"), "options '#{options}' returned '#{returned}'"
@@ -65,7 +65,7 @@ describe "#validate" do
       "nolock, bg",
       "nolock,unknownoption",
       "nolock,unknownassignment=true",
-      "nolock,two=equal=signs",
+      "nolock,two=equal=signs"
     ].each do |options|
       returned = Yast::NfsOptions.validate(options)
       expect(returned).to start_with("Unknown option"), "options '#{options}' returned '#{returned}'"

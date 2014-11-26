@@ -66,12 +66,6 @@ Style/NonNilCheck:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline, SupportedStyles.
-Style/TrailingComma:
-  Enabled: false
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Style/TrailingWhitespace:
   Enabled: false
 
