@@ -126,10 +126,15 @@ Style/LeadingCommentSpace:
 Style/LineEndConcatenation:
   Enabled: false
 
-# Offense count: 61
-# Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/MethodName:
-  Enabled: false
+  EnforcedStyle: snake_case
+  Exclude:
+    - src/clients/nfs-client4part.rb
+    - src/clients/nfs.rb
+    - src/include/nfs/routines.rb
+    - src/include/nfs/ui.rb
+    - src/include/nfs/wizards.rb
+    - src/modules/Nfs.rb
 
 # Offense count: 2
 # Cop supports --auto-correct.
