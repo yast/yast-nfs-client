@@ -134,7 +134,7 @@ module Yast
     # Print summary in command line
     # @param [Hash] options command options
     # @return false so that Write is not called in non-interactive mode
-    def NfsListHandler(options)
+    def NfsListHandler(_options)
       nfs_entries = deep_copy(Nfs.nfs_entries)
       if Ops.less_than(Builtins.size(nfs_entries), 1)
         CommandLine.Print(Summary.NotConfigured)

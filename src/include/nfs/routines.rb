@@ -4,7 +4,7 @@
 module Yast
   # Miscellaneous
   module NfsRoutinesInclude
-    def initialize_nfs_routines(include_target)
+    def initialize_nfs_routines(_include_target)
       textdomain "nfs"
 
       Yast.import "Package"
