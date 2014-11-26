@@ -56,14 +56,8 @@ Style/MethodName:
     - src/include/nfs/wizards.rb
     - src/modules/Nfs.rb
 
-# Offense count: 12
-# Cop supports --auto-correct.
+# "unless" has a different connotation than "if not"
 Style/NegatedIf:
-  Enabled: false
-
-# Offense count: 11
-# Cop supports --auto-correct.
-Style/NilComparison:
   Enabled: false
 
 # Offense count: 11

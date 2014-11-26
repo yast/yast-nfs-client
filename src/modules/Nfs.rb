@@ -553,10 +553,10 @@ module Yast
       end
 
       # mount to temporary directory if mpoint is nil
-      if mpoint == nil
+      if mpoint.nil?
         tmpdir = Convert.to_string(SCR.Read(path(".target.tmpdir")))
 
-        if tmpdir == nil || tmpdir == ""
+        if tmpdir.nil? || tmpdir == ""
           Builtins.y2security("Warning: using /tmp directory!")
           tmpdir = "/tmp"
         end
@@ -590,7 +590,7 @@ module Yast
       end
 
       # create mount point if it doesn't exist
-      if SCR.Read(path(".target.dir"), mpoint) == nil
+      if SCR.Read(path(".target.dir"), mpoint).nil?
         if !Convert.to_boolean(SCR.Execute(path(".target.mkdir"), mpoint))
           Builtins.y2warning("cannot create mount point %1", mpoint)
           return nil
@@ -721,7 +721,7 @@ module Yast
         )
       end
 
-      dirs = ["internal error"] if dirs == nil
+      dirs = ["internal error"] if dirs.nil?
       deep_copy(dirs)
     end
 
