@@ -276,7 +276,6 @@ module Yast
     # @param [String] s where to replace
     # @return the changed string
     def gsub(regex, replacement, s)
-      temp = nil
       while true
         # argh, regexpsub logs an error if it cannot sub
         break if !Builtins.regexpmatch(s, Ops.add(Ops.add(".*", regex), ".*"))

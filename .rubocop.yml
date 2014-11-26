@@ -21,10 +21,6 @@ Lint/Loop:
 Lint/UnusedMethodArgument:
   Enabled: false
 
-# Offense count: 9
-Lint/UselessAssignment:
-  Enabled: false
-
 # Offense count: 4
 Metrics/BlockNesting:
   Max: 4
