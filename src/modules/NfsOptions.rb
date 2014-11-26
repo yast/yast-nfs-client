@@ -134,12 +134,10 @@ module Yast
     # Checks the nfs options for /etc/fstab:
     # nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
     # @param [String] options   options
-    # @return          a translated string with error message, emtpy string if ok
+    # @return         a translated string with error message, emtpy string if ok
     def validate(options)
       # To translators: error popup
-      if options.empty?
-        return _("Empty option strings are not allowed.")
-      end
+      return _("Empty option strings are not allowed.") if options.empty?
 
       error_message = ""
 
