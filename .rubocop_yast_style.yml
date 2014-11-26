@@ -1,0 +1,8 @@
+# Rubocop style configuration
+#
+# Following
+# https://github.com/SUSE/style-guides/blob/master/Ruby.md
+
+# https://github.com/SUSE/style-guides/blob/master/Ruby.md#strings
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
