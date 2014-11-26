@@ -1,17 +1,8 @@
 # encoding: utf-8
 
-# File:	clients/nfs.ycp
-# Package:	Configuration of NFS
-# Summary:	Main file
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
-#
-# Main file for nfs configuration. Uses all other files.
+# YaST namespace
 module Yast
+  # Main file
   class NfsClient < Client
     def main
       Yast.import "UI"
