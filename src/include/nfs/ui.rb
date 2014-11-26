@@ -322,11 +322,11 @@ module Yast
             UI.CloseDialog
           end
           if @hosts == [] || @hosts == nil
-            #Translators: 1st part of error message
+            # Translators: 1st part of error message
             error_msg = _("No NFS server has been found on your network.")
 
             if SuSEFirewall.GetStartService
-              #Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
+              # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
               error_msg = Ops.add(
                 error_msg,
                 _(
@@ -416,7 +416,7 @@ module Yast
             ret = :ok
           end
         elsif ret == :help
-          #help text 1/4
+          # help text 1/4
           # change: locally defined -> servers on LAN
           helptext = _(
             "<p>Enter the <b>NFS Server Hostname</b>.  With\n" \
@@ -503,7 +503,6 @@ module Yast
 
     def SettingsTab
       settings_content = VBox(
-        #`VSpacing (1),
         HBox(
           Left(CheckBox(Id(:enable_nfs4), Opt(:notify), _("Enable NFSv4"))),
           Left(InputField(Id(:nfs4_domain), _("NFSv4 Domain Name"))),
@@ -684,8 +683,6 @@ module Yast
         false,
         true
       )
-      #Wizard::HideBackButton();
-      #Wizard::SetAbortButton(`abort, Label::CancelButton());
 
       InitFstabEntries()
 

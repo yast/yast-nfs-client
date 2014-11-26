@@ -157,10 +157,10 @@ module Yast
     def FillEntriesDefaults(entries)
       entries = deep_copy(entries)
       Builtins.maplist(entries) do |e|
-        #Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
-        #thus we need to keep info on nfs version (v3 vs. v4)
-        #But older AY profiles might not contain this element
-        #so let's assume nfsv3 in that case (#395850)
+        # Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
+        # thus we need to keep info on nfs version (v3 vs. v4)
+        # But older AY profiles might not contain this element
+        # so let's assume nfsv3 in that case (#395850)
         Ops.set(e, "vfstype", "nfs") if !Builtins.haskey(e, "vfstype")
         deep_copy(e)
       end
@@ -315,8 +315,8 @@ module Yast
     end
 
     def FindPortmapper
-      #testsuite is dumb - it can't distinguish between the existence
-      #of two services - either both exists or both do not
+      # testsuite is dumb - it can't distinguish between the existence
+      # of two services - either both exists or both do not
       return "portmap" if Mode.testsuite
       Service.Find(["rpcbind", "portmap"])
     end
@@ -326,7 +326,7 @@ module Yast
     # Reads NFS settings from the SCR (.etc.fstab)
     # @return true on success
     def Read
-      #Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
+      # Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
       if !@skip_fstab
         fstab = Convert.convert(
           SCR.Read(path(".etc.fstab")),
@@ -356,9 +356,9 @@ module Yast
       Progress.set(progress_orig)
 
       @portmapper = FindPortmapper()
-      #There is neither rpcbind  nor portmap
+      # There is neither rpcbind  nor portmap
       if @portmapper == ""
-        #so let's install rpcbind (default since #423026)
+        # so let's install rpcbind (default since #423026)
         @required_packages = Builtins.add(@required_packages, "rpcbind")
         @portmapper = "rpcbind"
       end
@@ -405,7 +405,7 @@ module Yast
           Convert.convert(
             Builtins.union(
               entry,
-              { "freq" => 0, "passno" => 0 } #"vfstype": "nfs",
+              { "freq" => 0, "passno" => 0 } # "vfstype": "nfs",
             ),
             :from => "map",
             :to   => "map <string, any>"
@@ -690,11 +690,11 @@ module Yast
     # Uses RPC broadcast to mountd.
     # @return a list of hostnames
     def ProbeServers
-      #newer, shinier, better rpcinfo from rpcbind (#450056)
+      # newer, shinier, better rpcinfo from rpcbind (#450056)
       prog_name = "/sbin/rpcinfo"
       delim = ""
 
-      #fallback from glibc (uses different field separators, grr :( )
+      # fallback from glibc (uses different field separators, grr :( )
       if !FileUtils.Exists(prog_name)
         prog_name = "/usr/sbin/rpcinfo"
         delim = "-d ' ' "
