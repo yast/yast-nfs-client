@@ -71,7 +71,6 @@ module Yast
     # Read settings dialog
     # @return `abort if aborted and `next otherwise
     def ReadDialog
-      ret = nil
       ret = Nfs.Read
       ret ? :next : :abort
     end
@@ -102,7 +101,6 @@ module Yast
         )
       )
       UI.SetFocus(Id(:items))
-      ret = nil
       begin
         ret = UI.UserInput
       end while ret != :cancel && ret != :ok
@@ -310,7 +308,6 @@ module Yast
       UI.ChangeWidget(Id(:serverent), :Value, server)
       UI.SetFocus(Id(:serverent))
 
-      ret = nil
       begin
         ret = UI.UserInput
 
@@ -609,7 +606,6 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
-        count = 0
         entry = GetFstabEntry(
           Ops.get(@nfs_entries, entryno, {}),
           Convert.convert(
@@ -691,9 +687,6 @@ module Yast
       # so it is OK to always set focus to the table
       UI.SetFocus(Id(:fstable))
 
-      event = nil
-      ret = nil
-      entryno = -1
       begin
         event = UI.WaitForEvent
         ret = Ops.get(event, "ID")
