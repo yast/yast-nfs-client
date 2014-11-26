@@ -260,13 +260,15 @@ module Yast
     # @return escaped entries
     def EscapeSpaces(entries)
       entries = deep_copy(entries)
-      Builtins.maplist(entries) { |entry| Builtins.mapmap(entry) do |key, value|
-        {
-          key => Ops.is_string?(value) ?
-            EscapeSpaces1(Convert.to_string(value)) :
-            value
-        }
-      end }
+      Builtins.maplist(entries) do |entry|
+        Builtins.mapmap(entry) do |key, value|
+          {
+            key => Ops.is_string?(value) ?
+              EscapeSpaces1(Convert.to_string(value)) :
+              value
+          }
+        end
+      end
     end
 
     # Un-escape spaces "\\040" -> " "
@@ -283,13 +285,15 @@ module Yast
     # @return escaped entries
     def UnescapeSpaces(entries)
       entries = deep_copy(entries)
-      Builtins.maplist(entries) { |entry| Builtins.mapmap(entry) do |key, value|
-        {
-          key => Ops.is_string?(value) ?
-            UnescapeSpaces1(Convert.to_string(value)) :
-            value
-        }
-      end }
+      Builtins.maplist(entries) do |entry|
+        Builtins.mapmap(entry) do |key, value|
+          {
+            key => Ops.is_string?(value) ?
+              UnescapeSpaces1(Convert.to_string(value)) :
+              value
+          }
+        end
+      end
     end
 
     def FindPortmapper
