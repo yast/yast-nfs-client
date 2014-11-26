@@ -30,9 +30,9 @@ module Yast
     # @return sequence result
     def NfsSequence
       aliases = {
-        "read"  => [lambda { ReadDialog() }, true],
-        "main"  => lambda { MainSequence() },
-        "write" => [lambda { WriteDialog() }, true]
+        "read"  => [->() { ReadDialog() }, true],
+        "main"  => ->() { MainSequence() },
+        "write" => [->() { WriteDialog() }, true]
       }
 
       sequence = {
