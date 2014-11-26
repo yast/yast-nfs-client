@@ -12,10 +12,6 @@ inherit_from:
 Lint/LiteralInCondition:
   Enabled: false
 
-# Offense count: 3
-Lint/Loop:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Lint/UnusedMethodArgument:
@@ -32,7 +28,7 @@ Metrics/ClassLength:
 
 # Offense count: 13
 Metrics/CyclomaticComplexity:
-  Max: 30
+  Max: 31
 
 # Offense count: 56
 # Configuration parameters: AllowURI, URISchemes.
@@ -46,7 +42,7 @@ Metrics/MethodLength:
 
 # Offense count: 13
 Metrics/PerceivedComplexity:
-  Max: 34
+  Max: 35
 
 # Offense count: 2
 # Cop supports --auto-correct.
