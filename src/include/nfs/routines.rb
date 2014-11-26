@@ -22,7 +22,7 @@ module Yast
       serv = ""
 
       # no :/ inside => <server>: or [/]<path>
-      if path_begin == nil
+      if path_begin.nil?
         if spec ==
             Ops.add(
               Builtins.filterchars(spec, Ops.add("-_.", String.CAlnum)),

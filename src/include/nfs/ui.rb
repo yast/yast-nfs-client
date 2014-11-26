@@ -312,13 +312,13 @@ module Yast
         ret = UI.UserInput
 
         if ret == :choose
-          if @hosts == nil
+          if @hosts.nil?
             # label message
             UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
             @hosts = Nfs.ProbeServers
             UI.CloseDialog
           end
-          if @hosts == [] || @hosts == nil
+          if @hosts == [] || @hosts.nil?
             # Translators: 1st part of error message
             error_msg = _("No NFS server has been found on your network.")
 
@@ -363,7 +363,7 @@ module Yast
           UI.ChangeWidget(Id(:pathent), :Value, dir) if dir != nil
         elsif ret == :browse
           dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          dir = "/" if dir == nil || Builtins.size(dir) == 0
+          dir = "/" if dir.nil? || Builtins.size(dir) == 0
 
           # heading for a directory selection dialog
           dir = UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
