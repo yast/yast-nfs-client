@@ -7,12 +7,8 @@ module Yast
     def main
       Yast.import "UI"
 
-      #**
-      # <h3>Configuration of NFS</h3>
-
       textdomain "nfs"
 
-      # The main ()
       Builtins.y2milestone("----------------------------------------")
       Builtins.y2milestone("NFS module started")
 
