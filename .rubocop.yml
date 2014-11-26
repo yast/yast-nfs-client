@@ -44,11 +44,6 @@ Style/Documentation:
 Style/FileName:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/InfiniteLoop:
-  Enabled: false
-
 Style/MethodName:
   EnforcedStyle: snake_case
   Exclude:
