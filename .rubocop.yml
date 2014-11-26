@@ -9,10 +9,6 @@ inherit_from:
   .rubocop_yast_style.yml
 
 # Offense count: 1
-Lint/LiteralInCondition:
-  Enabled: false
-
-# Offense count: 1
 # Cop supports --auto-correct.
 Lint/UnusedMethodArgument:
   Enabled: false
