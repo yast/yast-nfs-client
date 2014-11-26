@@ -101,9 +101,10 @@ module Yast
         )
       )
       UI.SetFocus(Id(:items))
-      begin
+      loop do
         ret = UI.UserInput
-      end while ret != :cancel && ret != :ok
+        break if ret == :ok || ret == :cancel
+      end
 
       if ret == :ok
         item = Convert.to_string(UI.QueryWidget(Id(:items), :CurrentItem))
@@ -308,7 +309,7 @@ module Yast
       UI.ChangeWidget(Id(:serverent), :Value, server)
       UI.SetFocus(Id(:serverent))
 
-      begin
+      loop do
         ret = UI.UserInput
 
         if ret == :choose
@@ -452,7 +453,8 @@ module Yast
           # popup heading
           Popup.LongText(_("Help"), RichText(helptext), 50, 18)
         end
-      end while ret != :ok && ret != :cancel
+        break if ret == :ok || ret == :cancel
+      end
 
       UI.CloseDialog
       Wizard.RestoreScreenShotName
@@ -687,7 +689,7 @@ module Yast
       # so it is OK to always set focus to the table
       UI.SetFocus(Id(:fstable))
 
-      begin
+      loop do
         event = UI.WaitForEvent
         ret = Ops.get(event, "ID")
         if ret == :ok
@@ -699,7 +701,8 @@ module Yast
         else
           HandleEvent(ret)
         end
-      end while ret != :back && ret != :next && ret != :abort
+        break if [:back, :next, :abort].include? ret
+      end
 
       if ret == :next
         # grab current settings, store them to SuSEFirewall::
