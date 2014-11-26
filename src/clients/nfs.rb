@@ -34,7 +34,7 @@ module Yast
         "finish"     => fun_ref(Nfs.method(:Write), "boolean ()"),
         "actions"    => {
           "list"   => {
-            # TODO summary is probably better...
+            # TODO: summary is probably better...
             "handler" => fun_ref(
               method(:NfsListHandler),
               "boolean (map)"
@@ -61,7 +61,7 @@ module Yast
           }
         },
         "options"    => {
-          # TODO adjust names? create comaptibility aliases?
+          # TODO: adjust names? create comaptibility aliases?
           "spec"   => {
             "type" => "string",
             # host:path
