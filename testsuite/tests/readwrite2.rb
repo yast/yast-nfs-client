@@ -172,7 +172,7 @@ module Yast
       TEST(->() { Nfs.Read }, [@EMPTY3, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, leave services stopped
       DUMP("\nWrite - nfs not used; leave services stopped\n")
-      TEST(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil) 
+      TEST(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil)
 
       # // nfs and portmap are running
       #     DUMP ("\nRead  - services are running\n");
