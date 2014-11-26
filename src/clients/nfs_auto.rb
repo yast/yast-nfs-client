@@ -54,7 +54,8 @@ module Yast
         if Ops.greater_than(Builtins.size(WFM.Args), 1) &&
             Ops.is_list?(WFM.Args(1))
           Builtins.y2warning(
-            "Old-style configuration detected (got list, expected map). <nfs> section needs to be converted to match up-to-date schema"
+            "Old-style configuration detected (got list, expected map). " \
+              "<nfs> section needs to be converted to match up-to-date schema"
           )
         end
       end
