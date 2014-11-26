@@ -56,10 +56,6 @@ Style/MethodName:
     - src/include/nfs/wizards.rb
     - src/modules/Nfs.rb
 
-# Offense count: 4
-Style/MultilineTernaryOperator:
-  Enabled: false
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Style/NegatedIf:

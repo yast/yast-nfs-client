@@ -247,9 +247,8 @@ module Yast
     # @param [String] s a string or nil
     # @return escaped string or nil
     def EscapeSpaces1(s)
-      s == nil ?
-        nil :
-        Builtins.mergestring(Builtins.splitstring(s, " "), "\\040")
+      return nil if s.nil?
+      s.gsub(/ /) { "\\040" } # block prevents interpreting \ as backreference
     end
 
     # Escape spaces " " -> "\\040" in all values of all entries
@@ -260,9 +259,11 @@ module Yast
       Builtins.maplist(entries) do |entry|
         Builtins.mapmap(entry) do |key, value|
           {
-            key => Ops.is_string?(value) ?
-              EscapeSpaces1(Convert.to_string(value)) :
-              value
+            key => if Ops.is_string?(value)
+                     EscapeSpaces1(Convert.to_string(value))
+                   else
+                     value
+                   end
           }
         end
       end
@@ -285,9 +286,11 @@ module Yast
       Builtins.maplist(entries) do |entry|
         Builtins.mapmap(entry) do |key, value|
           {
-            key => Ops.is_string?(value) ?
-              UnescapeSpaces1(Convert.to_string(value)) :
-              value
+            key => if Ops.is_string?(value)
+                     UnescapeSpaces1(Convert.to_string(value))
+                   else
+                     value
+                   end
           }
         end
       end
@@ -600,10 +603,8 @@ module Yast
       # build mount command
       command = Builtins.sformat(
         "/bin/mount %1 %2 %3:%4 %5",
-        Ops.greater_than(Builtins.size(options), 0) ?
-          Ops.add("-o ", options) :
-          "",
-        Ops.add("-t ", Ops.greater_than(Builtins.size(type), 0) ? type : "nfs"),
+        options.to_s == "" ? "" : "-o #{options}",
+        "-t #{type.to_s == "" ? "nfs" : type}",
         server,
         share,
         mpoint
