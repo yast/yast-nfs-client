@@ -40,7 +40,6 @@ module Yast
       # see how it works when applied multiple times
       TEST(->() { Nfs.EscapeSpaces1(Nfs.EscapeSpaces1(" ")) }, [], nil)
 
-
       DUMP("Nfs::UnescapeSpaces1 normative")
       TEST(->() { Nfs.UnescapeSpaces1(nil) }, [], nil)
       TEST(->() { Nfs.UnescapeSpaces1("") }, [], nil)

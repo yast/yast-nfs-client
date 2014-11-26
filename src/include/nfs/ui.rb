@@ -56,7 +56,6 @@ module Yast
             "share with <B>Delete</B>.</p>\n"
         )
 
-
       @help_text2 = Ops.add(
         _(
           "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
