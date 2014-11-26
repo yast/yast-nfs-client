@@ -567,7 +567,8 @@ module Yast
     # Mount NFS directory
     # @param [String] server remote server name
     # @param [String] share name of the exported directory
-    # @param [String] mpoint mount point (can be empty or nil, in this case it will be mounted in temporary directory)
+    # @param [String] mpoint mount point (can be empty or nil,
+    #                 in this case it will be mounted in a temporary directory)
     # @param [String] options mount options - e.g. "ro,hard,intr", see man nfs
     # @param [String] type nfs type (nfs vs. nfsv4) - if empty, 'nfs' is used
     # @return [String] directory where volume was mounted or nil if mount failed

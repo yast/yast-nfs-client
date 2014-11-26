@@ -55,7 +55,8 @@ module Yast
 
       # Help, part 1 of 3
       @help_text1 = _(
-        "<p>The table contains all directories \nexported from remote servers and mounted locally via NFS (NFS shares).</p>"
+        "<p>The table contains all directories \n" \
+          "exported from remote servers and mounted locally via NFS (NFS shares).</p>"
       ) +
         # Help, part 2 of 3
         _(
@@ -454,7 +455,8 @@ module Yast
             helptext,
             _(
               "<p>\t\t\n" +
-                "For <b>Mount Point</b>, enter the path in the local file system where the directory should be mounted. With\n" +
+                "For <b>Mount Point</b>, enter the path in the local " \
+                "file system where the directory should be mounted. With\n" +
                 "<b>Browse</b>, select your mount point\n" +
                 "interactively.</p>"
             )
