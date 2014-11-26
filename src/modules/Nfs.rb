@@ -632,7 +632,7 @@ module Yast
         type = Ops.get_string(m, "vfstype")
         file = Ops.get_string(m, "file")
         found = true if (type == "nfs" || type == "nfs4") && file == mpoint
-      end 
+      end
 
       if found
         command = Builtins.sformat("/bin/umount %1", mpoint)
