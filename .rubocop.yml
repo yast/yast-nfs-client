@@ -5,6 +5,9 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+inherit_from:
+  .rubocop_yast_style.yml
+
 # Offense count: 1
 Lint/LiteralInCondition:
   Enabled: false
@@ -172,12 +175,6 @@ Style/SpaceAfterNot:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/SpaceBeforeBlockBraces:
-  Enabled: false
-
-# Offense count: 1269
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/StringLiterals:
   Enabled: false
 
 # Offense count: 4
