@@ -16,10 +16,6 @@ Lint/LiteralInCondition:
 Lint/Loop:
   Enabled: false
 
-# Offense count: 3
-Lint/UnderscorePrefixedVariableName:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Lint/UnusedMethodArgument:
@@ -189,10 +185,10 @@ Style/TrailingWhitespace:
 Style/TrivialAccessors:
   Enabled: false
 
-# Offense count: 40
-# Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/VariableName:
-  Enabled: false
+  EnforcedStyle: snake_case
+  Exclude:
+    - testsuite/tests/*.rb
 
 # Offense count: 16
 # Cop supports --auto-correct.

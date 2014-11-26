@@ -175,8 +175,8 @@ module Yast
     def get_nfs41(options)
       option_list = from_string(options)
 
-      _ENABLED = "minorversion=1"
-      Builtins.contains(option_list, _ENABLED)
+      enabled = "minorversion=1"
+      Builtins.contains(option_list, enabled)
     end
 
     # Add or remove minorversion=1 according to nfs41.
@@ -188,14 +188,14 @@ module Yast
       # don't mutate the string unnecessarily
       return options if get_nfs41(options) == nfs41
 
-      _ENABLED = "minorversion=1"
-      _DISABLED = "minorversion=0"
+      enabled  = "minorversion=1"
+      disabled = "minorversion=0"
 
       option_list = from_string(options)
-      option_list = Builtins.filter(option_list) { |opt| opt != _ENABLED }
-      option_list = Builtins.filter(option_list) { |opt| opt != _DISABLED }
+      option_list = Builtins.filter(option_list) { |opt| opt != enabled }
+      option_list = Builtins.filter(option_list) { |opt| opt != disabled }
 
-      option_list = Builtins.add(option_list, _ENABLED) if nfs41
+      option_list = Builtins.add(option_list, enabled) if nfs41
 
       to_string(option_list)
     end
