@@ -179,8 +179,3 @@ Style/VariableName:
   EnforcedStyle: snake_case
   Exclude:
     - testsuite/tests/*.rb
-
-# Offense count: 16
-# Cop supports --auto-correct.
-Style/WordArray:
-  MinSize: 29
