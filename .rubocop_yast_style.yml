@@ -11,3 +11,6 @@ Style/StringLiterals:
 Style/HashSyntax:
   EnforcedStyle: hash_rockets
 
+# https://github.com/SUSE/style-guides/blob/master/Ruby.md#arrays
+Style/WordArray:
+  Enabled: false
