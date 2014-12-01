@@ -387,7 +387,7 @@ module Yast
           Convert.convert(
             Builtins.union(
               entry,
-              "freq" => 0, "passno" => 0 # "vfstype": "nfs",
+              "freq" => 0, "passno" => 0
             ),
             :from => "map",
             :to   => "map <string, any>"
