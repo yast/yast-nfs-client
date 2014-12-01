@@ -111,7 +111,7 @@ module Yast
     # Parse to an internal representation:
     # Simply split by commas, but "defaults" is represented by the empty list
     # @param [String] options a fstab option string
-    # @return [Array] of individual options
+    # @return [Array<String>] of individual options
     def from_string(options)
       return [] if options == "defaults"
 
@@ -120,7 +120,7 @@ module Yast
 
     # Convert list of individual options to a fstab option string
     # @param [Array<String>] option_list list of individual options
-    # @return a fstab option string
+    # @return [String] a fstab option string
     def to_string(option_list)
       return "defaults" if option_list.empty?
 
@@ -134,7 +134,7 @@ module Yast
     # Checks the nfs options for /etc/fstab:
     # nonempty, comma separated list of foo,nofoo,bar=baz (see nfs(5))
     # @param [String] options   options
-    # @return         a translated string with error message, emtpy string if ok
+    # @return [String] a translated string with an error message, emtpy if OK
     def validate(options)
       # To translators: error popup
       return _("Empty option strings are not allowed.") if options.empty?
@@ -170,8 +170,8 @@ module Yast
     end
 
     # FIXME: factor out get_nfs4(vfstype, options) (depending on n::o)!
-    #  * @param options fstab option string
-    #  * @return is version >= 4.1 enabled
+    # @param options [String] fstab option string
+    # @return [Boolean] is version >= 4.1 enabled
     def get_nfs41(options)
       option_list = from_string(options)
 
@@ -183,7 +183,7 @@ module Yast
     # FIXME: vfstype=nfs4 is deprecated in favor of nfsvers=4 (aka vers=4)
     # @param [String] options fstab option string
     # @param [Boolean] nfs41   is version >= 4.1 enabled
-    # @return        new fstab option string
+    # @return [String] new fstab option string
     def set_nfs41(options, nfs41)
       # don't mutate the string unnecessarily
       return options if get_nfs41(options) == nfs41
