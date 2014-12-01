@@ -147,7 +147,7 @@ module Yast
       ret = ""
       cur_domain = Hostname.CurrentDomain
 
-      ret = Ops.add("nfs.", cur_domain) if cur_domain || cur_domain != ""
+      ret = "nfs.#{cur_domain}" if cur_domain && cur_domain != ""
       ret
     end
 
