@@ -28,7 +28,7 @@ module Yast
         "nfs_options" => "defaults"
       }
 
-      TEST(lambda { Nfs.ImportAny([@entry1]) }, [@READ, {}, {}], nil)
+      TEST(->() { Nfs.ImportAny([@entry1]) }, [@READ, {}, {}], nil)
       Assert.Equal(1, Builtins.size(Nfs.nfs_entries))
       Assert.Equal(
         "data.example.com:/mirror",
@@ -50,7 +50,7 @@ module Yast
 
       # ---------
       DUMP("- empty")
-      TEST(lambda { Nfs.ImportAny([]) }, [@READ, {}, {}], nil)
+      TEST(->() { Nfs.ImportAny([]) }, [@READ, {}, {}], nil)
       Assert.Equal(0, Builtins.size(Nfs.nfs_entries))
 
       # ---------
@@ -66,7 +66,7 @@ module Yast
         "enable_nfs4"   => true,
         "idmapd_domain" => "example.com"
       }
-      TEST(lambda { Nfs.ImportAny([@global_options, @entry1]) }, [@READ, {}, {}], nil)
+      TEST(->() { Nfs.ImportAny([@global_options, @entry1]) }, [@READ, {}, {}], nil)
       Assert.Equal(true, Nfs.nfs4_enabled)
       Assert.Equal("example.com", Nfs.idmapd_domain)
       Assert.Equal(1, Builtins.size(Nfs.nfs_entries))
@@ -98,7 +98,7 @@ module Yast
         "vfstype"     => "nfs4"
       }
 
-      TEST(lambda { Nfs.ImportAny([@global_options2, @entry2]) }, [@READ, {}, {}], nil)
+      TEST(->() { Nfs.ImportAny([@global_options2, @entry2]) }, [@READ, {}, {}], nil)
 
       Assert.Equal(true, Nfs.nfs4_enabled)
       Assert.Equal("example.com", Nfs.idmapd_domain)
@@ -128,7 +128,7 @@ module Yast
         "enable_nfs_gss" => true,
         "idmapd_domain"  => "example.com"
       }
-      TEST(lambda { Nfs.ImportAny([@global_options, @entry1]) }, [@READ, {}, {}], nil)
+      TEST(->() { Nfs.ImportAny([@global_options, @entry1]) }, [@READ, {}, {}], nil)
       # assertions shortened
       Assert.Equal(true, Nfs.nfs_gss_enabled)
       Assert.Equal(1, Builtins.size(Nfs.nfs_entries))

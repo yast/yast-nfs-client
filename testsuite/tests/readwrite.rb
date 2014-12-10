@@ -118,11 +118,11 @@ module Yast
       }
 
       DUMP("Read")
-      TEST(lambda { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Write OK")
-      TEST(lambda { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Write KO")
-      TEST(lambda { Nfs.Write }, [@READ, @WRITE_KO, @EXECUTE], nil)
+      TEST(->() { Nfs.Write }, [@READ, @WRITE_KO, @EXECUTE], nil)
 
       nil
     end

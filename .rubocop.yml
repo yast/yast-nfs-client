@@ -1,0 +1,63 @@
+inherit_from:
+  .rubocop_yast_style.yml
+
+# Offense count: 34
+Metrics/AbcSize:
+  Max: 220
+
+# Offense count: 5
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Max: 513
+
+# Offense count: 13
+Metrics/CyclomaticComplexity:
+  Max: 31
+
+# Offense count: 49
+# Configuration parameters: AllowURI, URISchemes.
+Metrics/LineLength:
+  Max: 116
+
+# Offense count: 47
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Max: 223
+
+# Offense count: 13
+Metrics/PerceivedComplexity:
+  Max: 35
+
+Style/Documentation:
+  Exclude:
+    - testsuite/tests/*.rb
+
+Style/FileName:
+  Exclude:
+    - src/clients/nfs-client.rb
+    - src/clients/nfs-client4part.rb
+    - src/modules/Nfs.rb
+    - src/modules/NfsOptions.rb
+
+# YCP Killer used rockets
+Style/HashSyntax:
+  Exclude:
+    - src/clients/nfs.rb
+    - src/clients/nfs_auto.rb
+    - src/include/nfs/ui.rb
+    - src/include/nfs/wizards.rb
+    - src/modules/Nfs.rb
+    - src/modules/NfsOptions.rb
+
+Style/MethodName:
+  Exclude:
+    - src/clients/nfs-client4part.rb
+    - src/clients/nfs.rb
+    - src/include/nfs/routines.rb
+    - src/include/nfs/ui.rb
+    - src/include/nfs/wizards.rb
+    - src/modules/Nfs.rb
+
+Style/VariableName:
+  Exclude:
+    - testsuite/tests/*.rb

@@ -1,27 +1,14 @@
 # encoding: utf-8
 
-# File:	clients/nfs.ycp
-# Package:	Configuration of NFS
-# Summary:	Main file
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
-#
-# Main file for nfs configuration. Uses all other files.
+# YaST namespace
 module Yast
+  # Main file
   class NfsClient < Client
     def main
       Yast.import "UI"
 
-      #**
-      # <h3>Configuration of NFS</h3>
-
       textdomain "nfs"
 
-      # The main ()
       Builtins.y2milestone("----------------------------------------")
       Builtins.y2milestone("NFS module started")
 
@@ -47,7 +34,7 @@ module Yast
         "finish"     => fun_ref(Nfs.method(:Write), "boolean ()"),
         "actions"    => {
           "list"   => {
-            # TODO summary is probably better...
+            # TODO: summary is probably better...
             "handler" => fun_ref(
               method(:NfsListHandler),
               "boolean (map)"
@@ -74,7 +61,7 @@ module Yast
           }
         },
         "options"    => {
-          # TODO adjust names? create comaptibility aliases?
+          # TODO: adjust names? create comaptibility aliases?
           "spec"   => {
             "type" => "string",
             # host:path
@@ -138,7 +125,7 @@ module Yast
       Builtins.y2milestone("NFS module finished")
       Builtins.y2milestone("----------------------------------------")
 
-      deep_copy(@ret) 
+      deep_copy(@ret)
 
       # EOF
     end
@@ -147,8 +134,7 @@ module Yast
     # Print summary in command line
     # @param [Hash] options command options
     # @return false so that Write is not called in non-interactive mode
-    def NfsListHandler(options)
-      options = deep_copy(options)
+    def NfsListHandler(_options)
       nfs_entries = deep_copy(Nfs.nfs_entries)
       if Ops.less_than(Builtins.size(nfs_entries), 1)
         CommandLine.Print(Summary.NotConfigured)

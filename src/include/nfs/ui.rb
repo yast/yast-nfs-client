@@ -1,24 +1,8 @@
 # encoding: utf-8
 
-# File:
-#   ui.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   Network NFS client dialogs
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
-#
-# Network NFS client dialogs
-#
+# YaST namespace
 module Yast
+  # NFS client dialogs
   module NfsUiInclude
     def initialize_nfs_ui(include_target)
       Yast.import "UI"
@@ -55,28 +39,28 @@ module Yast
 
       # Help, part 1 of 3
       @help_text1 = _(
-        "<p>The table contains all directories \nexported from remote servers and mounted locally via NFS (NFS shares).</p>"
+        "<p>The table contains all directories \n" \
+          "exported from remote servers and mounted locally via NFS (NFS shares).</p>"
       ) +
         # Help, part 2 of 3
         _(
-          "<p>Each NFS share is identified by remote NFS server address and\n" +
-            "exported directory, local directory where the remote directory is mounted, \n" +
-            "NFS type (either plain nfs or nfsv4) and mount options. For further information \n" +
+          "<p>Each NFS share is identified by remote NFS server address and\n" \
+            "exported directory, local directory where the remote directory is mounted, \n" \
+            "NFS type (either plain nfs or nfsv4) and mount options. For further information \n" \
             "about mounting NFS and mount options, refer to <tt>man nfs.</tt></p>"
         ) +
         # Help, part 3 of 3
         _(
-          "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" +
-            "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" +
+          "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" \
+            "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" \
             "share with <B>Delete</B>.</p>\n"
         )
 
-
       @help_text2 = Ops.add(
         _(
-          "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" +
-            "protocol), check the <b>Enable NFSv4</b> option. In that case, you might need\n" +
-            "to supply specific a <b>NFSv4 Domain Name</b> required for the correct setting\n" +
+          "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
+            "protocol), check the <b>Enable NFSv4</b> option. In that case, you might need\n" \
+            "to supply specific a <b>NFSv4 Domain Name</b> required for the correct setting\n" \
             "of file/directory access rights.</p>\n"
         ),
         Ops.get_string(@fw_cwm_widget, "help", "")
@@ -86,7 +70,6 @@ module Yast
     # Read settings dialog
     # @return `abort if aborted and `next otherwise
     def ReadDialog
-      ret = nil
       ret = Nfs.Read
       ret ? :next : :abort
     end
@@ -117,10 +100,10 @@ module Yast
         )
       )
       UI.SetFocus(Id(:items))
-      ret = nil
-      begin
+      loop do
         ret = UI.UserInput
-      end while ret != :cancel && ret != :ok
+        break if ret == :ok || ret == :cancel
+      end
 
       if ret == :ok
         item = Convert.to_string(UI.QueryWidget(Id(:items), :CurrentItem))
@@ -164,7 +147,7 @@ module Yast
       ret = ""
       cur_domain = Hostname.CurrentDomain
 
-      ret = Ops.add("nfs.", cur_domain) if cur_domain != nil || cur_domain != ""
+      ret = "nfs.#{cur_domain}" if cur_domain && cur_domain != ""
       ret
     end
 
@@ -222,7 +205,7 @@ module Yast
       servers = []
       old = ""
 
-      if fstab_ent != nil
+      if fstab_ent
         couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
         server = Ops.get_string(couple, 0, "")
         pth = Ops.get_string(couple, 1, "")
@@ -325,28 +308,27 @@ module Yast
       UI.ChangeWidget(Id(:serverent), :Value, server)
       UI.SetFocus(Id(:serverent))
 
-      ret = nil
-      begin
+      loop do
         ret = UI.UserInput
 
         if ret == :choose
-          if @hosts == nil
+          if @hosts.nil?
             # label message
             UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
             @hosts = Nfs.ProbeServers
             UI.CloseDialog
           end
-          if @hosts == [] || @hosts == nil
-            #Translators: 1st part of error message
+          if @hosts == [] || @hosts.nil?
+            # Translators: 1st part of error message
             error_msg = _("No NFS server has been found on your network.")
 
             if SuSEFirewall.GetStartService
-              #Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
+              # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
               error_msg = Ops.add(
                 error_msg,
                 _(
-                  "\n" +
-                    "This could be caused by a running SuSEfirewall2,\n" +
+                  "\n" \
+                    "This could be caused by a running SuSEfirewall2,\n" \
                     "which probably blocks the network scanning."
                 )
               )
@@ -354,7 +336,7 @@ module Yast
             Report.Error(error_msg)
           else
             host = ChooseHostName(@hosts)
-            UI.ChangeWidget(Id(:serverent), :Value, host) if host != nil
+            UI.ChangeWidget(Id(:serverent), :Value, host) if host
           end
         elsif ret == :pathent_list
           server2 = Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
@@ -378,15 +360,15 @@ module Yast
           UI.CloseDialog
 
           dir = ChooseExport(dirs)
-          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir != nil
+          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
         elsif ret == :browse
           dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          dir = "/" if dir == nil || Builtins.size(dir) == 0
+          dir = "/" if dir.nil? || Builtins.size(dir) == 0
 
           # heading for a directory selection dialog
           dir = UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
 
-          if dir != nil && Ops.greater_than(Builtins.size(dir), 0)
+          if dir && Ops.greater_than(Builtins.size(dir), 0)
             UI.ChangeWidget(Id(:mountent), :Value, dir)
           end
         elsif ret == :ok
@@ -431,11 +413,11 @@ module Yast
             ret = :ok
           end
         elsif ret == :help
-          #help text 1/4
+          # help text 1/4
           # change: locally defined -> servers on LAN
           helptext = _(
-            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" +
-              "<b>Choose</b>, browse through a list of\n" +
+            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" \
+              "<b>Choose</b>, browse through a list of\n" \
               "NFS servers on the local network.</p>\n"
           )
           # help text 2/4
@@ -443,9 +425,9 @@ module Yast
           helptext = Ops.add(
             helptext,
             _(
-              "<p>In <b>Remote File System</b>,\n" +
-                "enter the path to the directory on the NFS server.  Use\n" +
-                "<b>Select</b> to select one from those exported by the server.\n" +
+              "<p>In <b>Remote File System</b>,\n" \
+                "enter the path to the directory on the NFS server.  Use\n" \
+                "<b>Select</b> to select one from those exported by the server.\n" \
                 "</p>"
             )
           )
@@ -453,9 +435,10 @@ module Yast
           helptext = Ops.add(
             helptext,
             _(
-              "<p>\t\t\n" +
-                "For <b>Mount Point</b>, enter the path in the local file system where the directory should be mounted. With\n" +
-                "<b>Browse</b>, select your mount point\n" +
+              "<p>\t\t\n" \
+                "For <b>Mount Point</b>, enter the path in the local " \
+                "file system where the directory should be mounted. With\n" \
+                "<b>Browse</b>, select your mount point\n" \
                 "interactively.</p>"
             )
           )
@@ -469,7 +452,8 @@ module Yast
           # popup heading
           Popup.LongText(_("Help"), RichText(helptext), 50, 18)
         end
-      end while ret != :ok && ret != :cancel
+        break if ret == :ok || ret == :cancel
+      end
 
       UI.CloseDialog
       Wizard.RestoreScreenShotName
@@ -517,7 +501,6 @@ module Yast
 
     def SettingsTab
       settings_content = VBox(
-        #`VSpacing (1),
         HBox(
           Left(CheckBox(Id(:enable_nfs4), Opt(:notify), _("Enable NFSv4"))),
           Left(InputField(Id(:nfs4_domain), _("NFSv4 Domain Name"))),
@@ -597,7 +580,7 @@ module Yast
         CWMFirewallInterfaces.OpenFirewallHandle(
           @fw_cwm_widget,
           "",
-          { "ID" => widget }
+          "ID" => widget
         )
       end
       if UI.WidgetExists(Id(:fstable))
@@ -614,7 +597,7 @@ module Yast
           )
         )
 
-        if entry != nil
+        if entry
           @nfs_entries = Builtins.add(@nfs_entries, entry)
           @modify_line = deep_copy(entry)
           EnableDisableButtons()
@@ -624,7 +607,6 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
-        count = 0
         entry = GetFstabEntry(
           Ops.get(@nfs_entries, entryno, {}),
           Convert.convert(
@@ -636,7 +618,7 @@ module Yast
             :to   => "list <map>"
           ) # Default values
         )
-        if entry != nil
+        if entry
           count2 = 0
           @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
             count2 = Ops.add(count2, 1)
@@ -674,7 +656,7 @@ module Yast
         InitSettings()
         Wizard.SetHelpText(@help_text2)
       elsif widget == :overview
-        SaveSettings({ "ID" => widget })
+        SaveSettings("ID" => widget)
         UI.ReplaceWidget(Id(:rp), FstabTab())
         InitFstabEntries()
         Wizard.SetHelpText(@help_text1)
@@ -698,8 +680,6 @@ module Yast
         false,
         true
       )
-      #Wizard::HideBackButton();
-      #Wizard::SetAbortButton(`abort, Label::CancelButton());
 
       InitFstabEntries()
 
@@ -708,10 +688,7 @@ module Yast
       # so it is OK to always set focus to the table
       UI.SetFocus(Id(:fstable))
 
-      event = nil
-      ret = nil
-      entryno = -1
-      begin
+      loop do
         event = UI.WaitForEvent
         ret = Ops.get(event, "ID")
         if ret == :ok
@@ -723,7 +700,8 @@ module Yast
         else
           HandleEvent(ret)
         end
-      end while ret != :back && ret != :next && ret != :abort
+        break if [:back, :next, :abort].include? ret
+      end
 
       if ret == :next
         # grab current settings, store them to SuSEFirewall::
