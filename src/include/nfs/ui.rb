@@ -435,9 +435,9 @@ module Yast
           helptext = Ops.add(
             helptext,
             _(
-              "<p>\t\t\n" +
+              "<p>\t\t\n" \
                 "For <b>Mount Point</b>, enter the path in the local " \
-                "file system where the directory should be mounted. With\n" +
+                "file system where the directory should be mounted. With\n" \
                 "<b>Browse</b>, select your mount point\n" \
                 "interactively.</p>"
             )
