@@ -58,10 +58,6 @@ Style/MethodName:
     - src/include/nfs/wizards.rb
     - src/modules/Nfs.rb
 
-# "unless" has a different connotation than "if not"
-Style/NegatedIf:
-  Enabled: false
-
 Style/VariableName:
   Exclude:
     - testsuite/tests/*.rb
