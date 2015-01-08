@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jan  8 08:58:15 UTC 2015 - mvidner@suse.com
+
+- Used Rubocop to enforce a consistent coding style.
+- 3.1.9.2
+
+-------------------------------------------------------------------
 Tue Nov 18 07:32:59 UTC 2014 - lslezak@suse.cz
 
 - fixed string substitution in a translated message
