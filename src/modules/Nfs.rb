@@ -1,26 +1,12 @@
 # encoding: utf-8
 
-# File:
-#   Nfs.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   NFS client configuration data, I/O functions.
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#   Martin Vidner <mvidner@suse.cz>
-#
-# $Id$
 require "yast"
 
+# YaST namespace
 module Yast
+  # NFS client configuration data, I/O functions.
   class NfsClass < Module
     def main
-
       textdomain "nfs"
 
       Yast.import "FileUtils"
@@ -37,7 +23,6 @@ module Yast
       Yast.import "Message"
 
       Yast.include self, "nfs/routines.rb"
-
 
       # default value of settings modified
       @modified = false
@@ -77,7 +62,7 @@ module Yast
 
     # Functions which returns if the settings were modified
     # @return [Boolean]  settings were modified
-    def GetModified
+    def GetModified             # rubocop:disable Style/TrivialAccessors
       @modified
     end
 
@@ -121,7 +106,6 @@ module Yast
 
       nil
     end
-
 
     def GetOptionsAndEntriesMap(settings, global_options, entries)
       settings = deep_copy(settings)
@@ -170,10 +154,10 @@ module Yast
     def FillEntriesDefaults(entries)
       entries = deep_copy(entries)
       Builtins.maplist(entries) do |e|
-        #Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
-        #thus we need to keep info on nfs version (v3 vs. v4)
-        #But older AY profiles might not contain this element
-        #so let's assume nfsv3 in that case (#395850)
+        # Backwards compatibility: with FaTE#302031, we support nfsv4 mounts
+        # thus we need to keep info on nfs version (v3 vs. v4)
+        # But older AY profiles might not contain this element
+        # so let's assume nfsv3 in that case (#395850)
         Ops.set(e, "vfstype", "nfs") if !Builtins.haskey(e, "vfstype")
         deep_copy(e)
       end
@@ -193,7 +177,7 @@ module Yast
       global_options = global_options_ref.value
       entries = entries_ref.value
 
-      return false if Builtins.find(entries) { |e| !ValidateAyNfsEntry(e) } != nil
+      return false if Builtins.find(entries) { |e| !ValidateAyNfsEntry(e) }
 
       entries = FillEntriesDefaults(entries)
 
@@ -210,7 +194,7 @@ module Yast
       # vfstype can override a missing enable_nfs4
       @nfs4_enabled = true if Builtins.find(entries) do |entry|
         Ops.get_string(entry, "vfstype", "") == "nfs4"
-      end != nil
+      end
 
       @nfs_entries = Builtins.maplist(entries) do |entry|
         {
@@ -263,9 +247,8 @@ module Yast
     # @param [String] s a string or nil
     # @return escaped string or nil
     def EscapeSpaces1(s)
-      s == nil ?
-        nil :
-        Builtins.mergestring(Builtins.splitstring(s, " "), "\\040")
+      return nil if s.nil?
+      s.gsub(/ /) { "\\040" } # block prevents interpreting \ as backreference
     end
 
     # Escape spaces " " -> "\\040" in all values of all entries
@@ -273,44 +256,26 @@ module Yast
     # @return escaped entries
     def EscapeSpaces(entries)
       entries = deep_copy(entries)
-      Builtins.maplist(entries) { |entry| Builtins.mapmap(entry) do |key, value|
-        {
-          key => Ops.is_string?(value) ?
-            EscapeSpaces1(Convert.to_string(value)) :
-            value
-        }
-      end }
-    end
-
-    # (like awk gsub, but return the result, not number of replacements)
-    # replaces from back!
-    # @param [String] regex regular expression to replace
-    # @param [String] replacement the replacement string
-    # @param [String] s where to replace
-    # @return the changed string
-    def gsub(regex, replacement, s)
-      temp = nil
-      while true
-        # argh, regexpsub logs an error if it cannot sub
-        break if !Builtins.regexpmatch(s, Ops.add(Ops.add(".*", regex), ".*"))
-        temp = Builtins.regexpsub(
-          s,
-          Ops.add(Ops.add("(.*)", regex), "(.*)"),
-          Ops.add(Ops.add("\\1", replacement), "\\2")
-        )
-        break if temp == nil
-        s = temp
+      Builtins.maplist(entries) do |entry|
+        Builtins.mapmap(entry) do |key, value|
+          {
+            key => if Ops.is_string?(value)
+                     EscapeSpaces1(Convert.to_string(value))
+                   else
+                     value
+                   end
+          }
+        end
       end
-      s
     end
 
     # Un-escape spaces "\\040" -> " "
     # @param [String] s string or nil
     # @return escaped string or nil
     def UnescapeSpaces1(s)
+      return nil if s.nil?
       # escaped space, \040, is /\\040/
-      # which is "\\\\040"
-      s == nil ? nil : gsub("\\\\040", " ", s)
+      s.gsub(/\\040/, " ")
     end
 
     # Un-escape spaces "\\040" -> " " in all values of all entries
@@ -318,18 +283,22 @@ module Yast
     # @return escaped entries
     def UnescapeSpaces(entries)
       entries = deep_copy(entries)
-      Builtins.maplist(entries) { |entry| Builtins.mapmap(entry) do |key, value|
-        {
-          key => Ops.is_string?(value) ?
-            UnescapeSpaces1(Convert.to_string(value)) :
-            value
-        }
-      end }
+      Builtins.maplist(entries) do |entry|
+        Builtins.mapmap(entry) do |key, value|
+          {
+            key => if Ops.is_string?(value)
+                     UnescapeSpaces1(Convert.to_string(value))
+                   else
+                     value
+                   end
+          }
+        end
+      end
     end
 
     def FindPortmapper
-      #testsuite is dumb - it can't distinguish between the existence
-      #of two services - either both exists or both do not
+      # testsuite is dumb - it can't distinguish between the existence
+      # of two services - either both exists or both do not
       return "portmap" if Mode.testsuite
       Service.Find(["rpcbind", "portmap"])
     end
@@ -339,7 +308,7 @@ module Yast
     # Reads NFS settings from the SCR (.etc.fstab)
     # @return true on success
     def Read
-      #Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
+      # Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
       if !@skip_fstab
         fstab = Convert.convert(
           SCR.Read(path(".etc.fstab")),
@@ -369,9 +338,9 @@ module Yast
       Progress.set(progress_orig)
 
       @portmapper = FindPortmapper()
-      #There is neither rpcbind  nor portmap
+      # There is neither rpcbind  nor portmap
       if @portmapper == ""
-        #so let's install rpcbind (default since #423026)
+        # so let's install rpcbind (default since #423026)
         @required_packages = Builtins.add(@required_packages, "rpcbind")
         @portmapper = "rpcbind"
       end
@@ -418,7 +387,7 @@ module Yast
           Convert.convert(
             Builtins.union(
               entry,
-              { "freq" => 0, "passno" => 0 } #"vfstype": "nfs",
+              "freq" => 0, "passno" => 0
             ),
             :from => "map",
             :to   => "map <string, any>"
@@ -439,7 +408,7 @@ module Yast
       SCR.Execute(
         path(".target.bash"),
         "/bin/cp $ORIG $BACKUP",
-        { "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save" }
+        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
       )
 
       fstab = EscapeSpaces(fstab)
@@ -447,8 +416,8 @@ module Yast
         # error popup message
         Report.Error(
           _(
-            "Unable to write to /etc/fstab.\n" +
-              "No changes will be made to the\n" +
+            "Unable to write to /etc/fstab.\n" \
+              "No changes will be made to the\n" \
               "the NFS client configuration.\n"
           )
         )
@@ -563,11 +532,11 @@ module Yast
       summary
     end
 
-
     # Mount NFS directory
     # @param [String] server remote server name
     # @param [String] share name of the exported directory
-    # @param [String] mpoint mount point (can be empty or nil, in this case it will be mounted in temporary directory)
+    # @param [String] mpoint mount point (can be empty or nil,
+    #                 in this case it will be mounted in a temporary directory)
     # @param [String] options mount options - e.g. "ro,hard,intr", see man nfs
     # @param [String] type nfs type (nfs vs. nfsv4) - if empty, 'nfs' is used
     # @return [String] directory where volume was mounted or nil if mount failed
@@ -584,10 +553,10 @@ module Yast
       end
 
       # mount to temporary directory if mpoint is nil
-      if mpoint == nil
+      if mpoint.nil?
         tmpdir = Convert.to_string(SCR.Read(path(".target.tmpdir")))
 
-        if tmpdir == nil || tmpdir == ""
+        if tmpdir.nil? || tmpdir == ""
           Builtins.y2security("Warning: using /tmp directory!")
           tmpdir = "/tmp"
         end
@@ -612,7 +581,6 @@ module Yast
         return nil
       end
 
-
       # start portmapper if it isn't running
       unless Service.active?(portmapper)
         unless Service.Start(portmapper)
@@ -622,7 +590,7 @@ module Yast
       end
 
       # create mount point if it doesn't exist
-      if SCR.Read(path(".target.dir"), mpoint) == nil
+      if SCR.Read(path(".target.dir"), mpoint).nil?
         if !Convert.to_boolean(SCR.Execute(path(".target.mkdir"), mpoint))
           Builtins.y2warning("cannot create mount point %1", mpoint)
           return nil
@@ -635,10 +603,8 @@ module Yast
       # build mount command
       command = Builtins.sformat(
         "/bin/mount %1 %2 %3:%4 %5",
-        Ops.greater_than(Builtins.size(options), 0) ?
-          Ops.add("-o ", options) :
-          "",
-        Ops.add("-t ", Ops.greater_than(Builtins.size(type), 0) ? type : "nfs"),
+        options.to_s == "" ? "" : "-o #{options}",
+        "-t #{type.to_s == "" ? "nfs" : type}",
         server,
         share,
         mpoint
@@ -666,8 +632,7 @@ module Yast
         type = Ops.get_string(m, "vfstype")
         file = Ops.get_string(m, "file")
         found = true if (type == "nfs" || type == "nfs4") && file == mpoint
-      end 
-
+      end
 
       if found
         command = Builtins.sformat("/bin/umount %1", mpoint)
@@ -702,11 +667,11 @@ module Yast
     # Uses RPC broadcast to mountd.
     # @return a list of hostnames
     def ProbeServers
-      #newer, shinier, better rpcinfo from rpcbind (#450056)
+      # newer, shinier, better rpcinfo from rpcbind (#450056)
       prog_name = "/sbin/rpcinfo"
       delim = ""
 
-      #fallback from glibc (uses different field separators, grr :( )
+      # fallback from glibc (uses different field separators, grr :( )
       if !FileUtils.Exists(prog_name)
         prog_name = "/usr/sbin/rpcinfo"
         delim = "-d ' ' "
@@ -756,7 +721,7 @@ module Yast
         )
       end
 
-      dirs = ["internal error"] if dirs == nil
+      dirs = ["internal error"] if dirs.nil?
       deep_copy(dirs)
     end
 

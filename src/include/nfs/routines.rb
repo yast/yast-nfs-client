@@ -1,25 +1,10 @@
 # encoding: utf-8
 
-# File:
-#   routines.ycp
-#
-# Module:
-#   Configuration of nfs
-#
-# Summary:
-#   Network NFS routines
-#
-# Authors:
-#   Jan Holesovsky <kendy@suse.cz>
-#   Dan Vesely <dan@suse.cz>
-#
-# $Id$
-#
-# Network NFS routines
-#
+# YaST namespace
 module Yast
+  # Miscellaneous
   module NfsRoutinesInclude
-    def initialize_nfs_routines(include_target)
+    def initialize_nfs_routines(_include_target)
       textdomain "nfs"
 
       Yast.import "Package"
@@ -37,7 +22,7 @@ module Yast
       serv = ""
 
       # no :/ inside => <server>: or [/]<path>
-      if path_begin == nil
+      if path_begin.nil?
         if spec ==
             Ops.add(
               Builtins.filterchars(spec, Ops.add("-_.", String.CAlnum)),
@@ -48,13 +33,12 @@ module Yast
         end
       end
 
-      if path_begin != nil
+      if path_begin
         serv = Builtins.substring(spec, 0, path_begin)
         spec = Builtins.substring(spec, Ops.add(path_begin, 1))
       end
       term(:couple, serv, spec)
     end
-
 
     # Creates a list of ui table items for nfs fstab entries
     # @param [Array<Hash>] fstab     list of nfs fstab entries
@@ -97,11 +81,11 @@ module Yast
       Report.Error(
         Builtins.sformat(
           _(
-            "The hostname entered is invalid. It must be\n" +
-              "shorter than 50 characters and only use\n" +
-              "valid IPv4, IPv6 or domain name.\n" +
-              "Valid IPv4: %1\n" +
-              "Valid IPv6: %2\n" +
+            "The hostname entered is invalid. It must be\n" \
+              "shorter than 50 characters and only use\n" \
+              "valid IPv4, IPv6 or domain name.\n" \
+              "Valid IPv4: %1\n" \
+              "Valid IPv6: %2\n" \
               "Valid domain: %3"
           ),
           IP.Valid4,
@@ -153,15 +137,14 @@ module Yast
       Report.Error(
         Builtins.sformat(
           _(
-            "The path entered is invalid.\n" +
-              "It must be shorter than 70 characters\n" +
+            "The path entered is invalid.\n" \
+              "It must be shorter than 70 characters\n" \
               "and it must begin with a slash (/)."
           )
         )
       )
       false
     end
-
 
     # Strips a superfluous slash off the end of a pathname.
     # @param [String] p       pathname

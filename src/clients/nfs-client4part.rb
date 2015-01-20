@@ -1,10 +1,8 @@
 # encoding: utf-8
 
-# File:	clients/
-# Summary:	nfs-client stuff made accesible from
-# Author:	Bubli <kmachalkova@suse.cz>
-#
+# YaST namespace
 module Yast
+  # nfs-client stuff made accesible from the partitioner
   class NfsClient4partClient < Client
     def main
       Yast.import "UI"
@@ -76,7 +74,7 @@ module Yast
       entry = deep_copy(entry)
       ret = {}
 
-      if entry != nil && entry != {}
+      if entry && entry != {}
         ret = {
           "device"  => Ops.get_string(entry, "spec", ""),
           "mount"   => Ops.get_string(entry, "file", ""),
