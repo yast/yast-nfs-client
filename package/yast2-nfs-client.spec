@@ -26,7 +26,7 @@ Source0:        %{name}-%{version}.tar.bz2
 
 BuildRequires:  perl-XML-Writer
 BuildRequires:  update-desktop-files
-BuildRequires:  yast2-devtools >= 3.1.10
+BuildRequires:  yast2-devtools >= 3.1.27
 BuildRequires:  yast2-testsuite
 # Don't use Info function to check enable state (bnc#807507)
 BuildRequires:  yast2 >= 2.23.23

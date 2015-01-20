@@ -1,5 +1,5 @@
 inherit_from:
-  .rubocop_yast_style.yml
+  /usr/share/YaST2/data/devtools/data/rubocop_yast_style.yml
 
 # Offense count: 34
 Metrics/AbcSize:
