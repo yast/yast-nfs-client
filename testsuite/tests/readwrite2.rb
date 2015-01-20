@@ -148,31 +148,31 @@ module Yast
 
       # fstab contains nfs mounts & services are running
       DUMP("\nRead  - nfs is in use & running\n")
-      TEST(lambda { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
       # fstab unchanged
       DUMP("\nWrite - nfs is in use - start services\n")
-      TEST(lambda { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
 
       # fstab contains nfs mounts & services are stopped:-(
       DUMP("\nRead  - nfs is in use & stopped\n")
-      TEST(lambda { Nfs.Read }, [@READ3, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Read }, [@READ3, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, start services
       DUMP("\nWrite - nfs is in use - so, start services\n")
-      TEST(lambda { Nfs.Write }, [@READ3, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Write }, [@READ3, @WRITE, @EXECUTE], nil)
 
       # fstab contains no nfs mounts, services are running
       DUMP("\nRead  - nfs not used & running\n")
-      TEST(lambda { Nfs.Read }, [@EMPTY, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Read }, [@EMPTY, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, STOP services
       DUMP("\nWrite - nfs not used - so, stopping services\n")
-      TEST(lambda { Nfs.Write }, [@EMPTY, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Write }, [@EMPTY, @WRITE, @EXECUTE], nil)
 
       # fstab contains no nfs mount, serives are stopped
       DUMP("\nRead  - nfs not used & services are stopped\n")
-      TEST(lambda { Nfs.Read }, [@EMPTY3, @WRITE, @EXECUTE], nil)
+      TEST(->() { Nfs.Read }, [@EMPTY3, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, leave services stopped
       DUMP("\nWrite - nfs not used; leave services stopped\n")
-      TEST(lambda { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil) 
+      TEST(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil)
 
       # // nfs and portmap are running
       #     DUMP ("\nRead  - services are running\n");
