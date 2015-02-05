@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Feb 05 10:34:20 CET 2015 - aschnell@suse.de
+
+- allow mount option bsize (bsc#915755)
+- 2.17.18
+
+-------------------------------------------------------------------
 Wed May 22 12:21:21 UTC 2013 - mvidner@suse.cz
 
 - refactored the last change following a late review

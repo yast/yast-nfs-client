@@ -66,7 +66,7 @@ global define string validate (string options) {
     		   "remount", "bind", "rbind", "_netdev", ];
     const list<string> OPTIONS_WITH_VALUE  = ["rsize", "wsize",
                     "timeo", "retrans", "acregmin", "acregmax",
-    		    "acdirmin", "acdirmin", "acdirmax", "actimeo", "retry", "namlen",
+		    "acdirmin", "acdirmin", "acdirmax", "actimeo", "bsize", "retry", "namlen",
     		    "port", "proto", "clientaddr", "mountport", "mounthost",
     		    "mountprog", "mountvers", "nfsprog", "nfsvers", "vers", "minorversion",
                         "sec" ];
