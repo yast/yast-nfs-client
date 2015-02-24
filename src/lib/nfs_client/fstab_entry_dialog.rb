@@ -33,7 +33,6 @@ Yast.import "FileUtils"
 module NfsClient
   # Dialog to ask the user for an entry in /etc/fstab
   class FstabEntryDialog < UI::Dialog
-
     # @param fstab_ent [Hash{String => Object}] $["spec": "file": "mntops":] or nil
     # @param existing [Array<Hash>] list of fstab entries for duplicate mount-point checking
     # @param nfs_entries [Array<Hash>] list of already defined nfs mount points
@@ -70,8 +69,8 @@ module NfsClient
         @nfs41 = @nfs4 && Yast::NfsOptions.get_nfs41(@options)
         @old = @fstab_ent.fetch("spec", "")
       else
-        proposed_server = ProposeHostname()
-        @servers = [proposed_server] if HostnameExists(proposed_server)
+        proposed_server = propose_hostname
+        @servers = [proposed_server] if hostname_exists?(proposed_server)
       end
 
       # append already defined servers - bug #547983
@@ -91,7 +90,7 @@ module NfsClient
         VBox(
           VSpacing(0.2),
           HBox(
-            TextAndButton(
+            text_and_button(
               ComboBox(
                 Id(:serverent),
                 Opt(:editable),
@@ -105,7 +104,7 @@ module NfsClient
               PushButton(Id(:choose), _("Choo&se"))
             ),
             HSpacing(0.5),
-            TextAndButton(
+            text_and_button(
               InputField(
                 Id(:pathent),
                 Opt(:hstretch),
@@ -129,7 +128,7 @@ module NfsClient
             )
           ),
           Left(
-            TextAndButton(
+            text_and_button(
               InputField(
                 Id(:mountent),
                 Opt(:hstretch),
@@ -185,7 +184,7 @@ module NfsClient
         end
         Yast::Report.Error(error_msg)
       else
-        host = ChooseHostName(@hosts)
+        host = choose_hostname(@hosts)
         Yast::UI.ChangeWidget(Id(:serverent), :Value, host) if host
       end
     end
@@ -211,20 +210,18 @@ module NfsClient
       dirs = Yast::Nfs.ProbeExports(server2, v4)
       Yast::UI.CloseDialog
 
-      dir = ChooseExport(dirs)
+      dir = choose_export(dirs)
       Yast::UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
     end
 
     def browse_handler
       dir = Yast::UI.QueryWidget(Id(:mountent), :Value)
       dir = "/" if dir.nil? || dir.empty?
-
       # heading for a directory selection dialog
       dir = Yast::UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
 
-      if dir && !dir.empty?
-        Yast::UI.ChangeWidget(Id(:mountent), :Value, dir)
-      end
+      return if !dir || dir.empty?
+      Yast::UI.ChangeWidget(Id(:mountent), :Value, dir)
     end
 
     def ok_handler
@@ -237,8 +234,8 @@ module NfsClient
       @mount = StripExtraSlash(
         Yast::UI.QueryWidget(Id(:mountent), :Value)
       )
-      @nfs4 = !!Yast::UI.QueryWidget(Id(:nfs4), :Value)
-      @nfs41 = !!Yast::UI.QueryWidget(Id(:nfs41), :Value)
+      @nfs4 = Yast::UI.QueryWidget(Id(:nfs4), :Value)
+      @nfs41 = Yast::UI.QueryWidget(Id(:nfs41), :Value)
       @options = Yast::UI.QueryWidget(Id(:optionsent), :Value).tr(" ", "")
       @options = Yast::NfsOptions.set_nfs41(@options, @nfs41)
 
@@ -259,9 +256,7 @@ module NfsClient
           "vfstype" => @nfs4 ? "nfs4" : "nfs",
           "mntops"  => @options
         }
-        if @old != "#{server}:#{@pth}"
-          @fstab_ent["old"] = @old
-        end
+        @fstab_ent["old"] = @old unless @old == @fstab_ent["spec"]
         Yast::Wizard.RestoreScreenShotName
         log.info "FstabEntryDialog returns #{@fstab_ent}"
         finish_dialog(@fstab_ent)
@@ -313,7 +308,7 @@ module NfsClient
     # Return convenient hostname (FaTE #302863) to be proposed
     # i.e. nfs + current domain (nfs. + suse.cz)
     # @return string	proposed hostname
-    def ProposeHostname
+    def propose_hostname
       ret = ""
       cur_domain = Yast::Hostname.CurrentDomain
 
@@ -325,7 +320,7 @@ module NfsClient
     # @param [String] title	selectionbox title
     # @param [Array<String>] items	a list of items
     # @return		one item or nil
-    def ChooseItem(title, items)
+    def choose_item(title, items)
       item = nil
       ret = nil
 
@@ -345,9 +340,7 @@ module NfsClient
         break if ret == :ok || ret == :cancel
       end
 
-      if ret == :ok
-        item = Yast::UI.QueryWidget(Id(:items), :CurrentItem).to_s
-      end
+      item = Yast::UI.QueryWidget(Id(:items), :CurrentItem) if ret == :ok
       Yast::UI.CloseDialog
 
       item
@@ -356,12 +349,12 @@ module NfsClient
     # Give me one name from the list of hosts
     # @param [Array<String>] hosts	a list of hostnames
     # @return		a hostname
-    def ChooseHostName(hosts)
+    def choose_hostname(hosts)
       Yast::Wizard.SetScreenShotName("nfs-client-1aa-hosts")
       # selection box label
       # changed from "Remote hosts" because now it shows
       # NFS servers only
-      ret = ChooseItem(_("&NFS Servers"), hosts)
+      ret = choose_item(_("&NFS Servers"), hosts)
       Yast::Wizard.RestoreScreenShotName
       ret
     end
@@ -369,10 +362,10 @@ module NfsClient
     # Give me one name from the list of exports
     # @param [Array<String>] exports	a list of exports
     # @return		an export
-    def ChooseExport(exports)
+    def choose_export(exports)
       Yast::Wizard.SetScreenShotName("nfs-client-1ab-exports")
       # selection box label
-      ret = ChooseItem(_("&Exported Directories"), exports)
+      ret = choose_item(_("&Exported Directories"), exports)
       Yast::Wizard.RestoreScreenShotName
       ret
     end
@@ -380,7 +373,7 @@ module NfsClient
     # Find out whether this nfs host really exists
     # @param [String] hname	hostname
     # @return true if it exists, false otherwise
-    def HostnameExists(hname)
+    def hostname_exists?(hname)
       prog_name = "/usr/bin/host"
       ret = false
 
@@ -403,7 +396,7 @@ module NfsClient
     # @param [Yast::Term] text   textentry widget
     # @param [Yast::Term] button pushbutton widget
     # @return a HBox
-    def TextAndButton(text, button)
+    def text_and_button(text, button)
       HBox(Bottom(text), HSpacing(0.5), Bottom(button))
     end
   end
