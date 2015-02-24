@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Feb 24 16:30:00 UTC 2015 - kmroz@suse.com
+
+- Fix crash when accessing certain variables outside their block
+  local scope. (bnc#919061)
+
+-------------------------------------------------------------------
 Thu Jan  8 08:58:15 UTC 2015 - mvidner@suse.com
 
 - Used Rubocop to enforce a consistent coding style.
