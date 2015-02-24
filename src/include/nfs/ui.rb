@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "nfs_client/fstab_entry_dialog"
+
 # YaST namespace
 module Yast
   # NFS client dialogs
@@ -18,10 +20,6 @@ module Yast
       Yast.import "SuSEFirewall"
       Yast.import "Wizard"
       Yast.include include_target, "nfs/routines.rb"
-
-      # Caches names of nfs servers for GetFstabEntry
-
-      @hosts = nil
 
       # List of already defined nfs mount points
       @nfs_entries = deep_copy(Nfs.nfs_entries)
@@ -79,387 +77,6 @@ module Yast
     def WriteDialog
       ret = Nfs.Write
       ret ? :next : :abort
-    end
-
-    # Let the user choose one of a list of items
-    # @param [String] title	selectionbox title
-    # @param [Array<String>] items	a list of items
-    # @return		one item or nil
-    def ChooseItem(title, items)
-      items = deep_copy(items)
-      item = nil
-
-      UI.OpenDialog(
-        VBox(
-          HSpacing(40),
-          HBox(SelectionBox(Id(:items), title, items), VSpacing(10)),
-          ButtonBox(
-            PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton),
-            PushButton(Id(:cancel), Opt(:key_F9), Label.CancelButton)
-          )
-        )
-      )
-      UI.SetFocus(Id(:items))
-      loop do
-        ret = UI.UserInput
-        break if ret == :ok || ret == :cancel
-      end
-
-      if ret == :ok
-        item = Convert.to_string(UI.QueryWidget(Id(:items), :CurrentItem))
-      end
-      UI.CloseDialog
-
-      item
-    end
-
-    # Find out whether this nfs host really exists
-    # @param [String] hname	hostname
-    # @return true if it exists, false otherwise
-    def HostnameExists(hname)
-      prog_name = "/usr/bin/host"
-      ret = false
-
-      if FileUtils.Exists(prog_name)
-        out = Convert.to_map(
-          SCR.Execute(
-            path(".target.bash_output"),
-            Builtins.sformat("%1 %2", prog_name, hname)
-          )
-        )
-
-        ret = Ops.get_integer(out, "exit", -1) == 0
-        Builtins.y2debug("DNS lookup of %1 returned %2", hname, ret)
-      else
-        Builtins.y2warning(
-          "Cannot DNS lookup %1, will not propose default hostname",
-          hname
-        )
-      end
-
-      ret
-    end
-
-    # Return convenient hostname (FaTE #302863) to be proposed
-    # i.e. nfs + current domain (nfs. + suse.cz)
-    # @return string	proposed hostname
-    def ProposeHostname
-      ret = ""
-      cur_domain = Hostname.CurrentDomain
-
-      ret = "nfs.#{cur_domain}" if cur_domain && cur_domain != ""
-      ret
-    end
-
-    # Give me one name from the list of hosts
-    # @param [Array<String>] hosts	a list of hostnames
-    # @return		a hostname
-    def ChooseHostName(hosts)
-      hosts = deep_copy(hosts)
-      Wizard.SetScreenShotName("nfs-client-1aa-hosts")
-      # selection box label
-      # changed from "Remote hosts" because now it shows
-      # NFS servers only
-      ret = ChooseItem(_("&NFS Servers"), hosts)
-      Wizard.RestoreScreenShotName
-      ret
-    end
-
-    # Give me one name from the list of exports
-    # @param [Array<String>] exports	a list of exports
-    # @return		an export
-    def ChooseExport(exports)
-      exports = deep_copy(exports)
-      Wizard.SetScreenShotName("nfs-client-1ab-exports")
-      # selection box label
-      ret = ChooseItem(_("&Exported Directories"), exports)
-      Wizard.RestoreScreenShotName
-      ret
-    end
-
-    # Nicely put a `TextEntry and its helper `PushButton together
-    # @param [Yast::Term] text   textentry widget
-    # @param [Yast::Term] button pushbutton widget
-    # @return a HBox
-    def TextAndButton(text, button)
-      text = deep_copy(text)
-      button = deep_copy(button)
-      HBox(Bottom(text), HSpacing(0.5), Bottom(button))
-    end
-
-    # Ask user for an entry.
-    # @param [Hash{String => Object}] fstab_ent	$["spec": "file": "mntops":] or nil
-    # @param [Array<Hash>] existing	list of fstab entries for duplicate mount-point checking
-    # @return		a nfs_entry or nil
-    def GetFstabEntry(fstab_ent, existing)
-      fstab_ent = deep_copy(fstab_ent)
-      existing = deep_copy(existing)
-      Wizard.SetScreenShotName("nfs-client-1a-edit")
-
-      server = ""
-      pth = ""
-      mount = ""
-      nfs4 = false
-      nfs41 = false
-      options = "defaults"
-      servers = []
-      old = ""
-
-      if fstab_ent
-        couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
-        server = Ops.get_string(couple, 0, "")
-        pth = Ops.get_string(couple, 1, "")
-        mount = Ops.get_string(fstab_ent, "file", "")
-        nfs4 = Ops.get_string(fstab_ent, "vfstype", "") == "nfs4"
-        options = Ops.get_string(fstab_ent, "mntops", "")
-        nfs41 = nfs4 && NfsOptions.get_nfs41(options)
-        servers = [server]
-        old = Ops.get_string(fstab_ent, "spec", "")
-      else
-        proposed_server = ProposeHostname()
-        servers = [proposed_server] if HostnameExists(proposed_server)
-      end
-
-      # append already defined servers - bug #547983
-      Builtins.foreach(@nfs_entries) do |nfs_entry|
-        couple = SpecToServPath(Ops.get_string(nfs_entry, "spec", ""))
-        known_server = Ops.get_string(couple, 0, "")
-        if !Builtins.contains(servers, known_server)
-          servers = Builtins.add(servers, known_server)
-        end
-      end
-
-      servers = Builtins.sort(servers)
-      #
-
-      UI.OpenDialog(
-        Opt(:decorated),
-        HBox(
-          HSpacing(1),
-          VBox(
-            VSpacing(0.2),
-            HBox(
-              TextAndButton(
-                ComboBox(
-                  Id(:serverent),
-                  Opt(:editable),
-                  # text entry label
-                  _("&NFS Server Hostname"),
-                  servers
-                ),
-                # pushbutton label
-                # choose a host from a list
-                # appears in help text too
-                PushButton(Id(:choose), _("Choo&se"))
-              ),
-              HSpacing(0.5),
-              TextAndButton(
-                InputField(
-                  Id(:pathent),
-                  Opt(:hstretch),
-                  # textentry label
-                  _("&Remote Directory"),
-                  pth
-                ),
-                # pushbutton label,
-                # select from a list of remote filesystems
-                # make it short
-                # appears in help text too
-                PushButton(Id(:pathent_list), _("&Select"))
-              )
-            ),
-            Left(
-              HBox(
-                CheckBox(Id(:nfs4), _("NFS&v4 Share"), nfs4),
-                HSpacing(2),
-                # parallel NFS, protocol version 4.1
-                CheckBox(Id(:nfs41), _("pNFS (v4.1)"), nfs41)
-              )
-            ),
-            Left(
-              TextAndButton(
-                InputField(
-                  Id(:mountent),
-                  Opt(:hstretch),
-                  # textentry label
-                  _("&Mount Point (local)"),
-                  mount
-                ),
-                # button label
-                # browse directories to select a mount point
-                # appears in help text too
-                PushButton(Id(:browse), _("&Browse"))
-              )
-            ),
-            # textentry label
-            VSpacing(0.2),
-            InputField(Id(:optionsent), Opt(:hstretch), _("O&ptions"), options),
-            VSpacing(0.2),
-            ButtonBox(
-              PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton),
-              PushButton(Id(:cancel), Opt(:key_F9), Label.CancelButton),
-              PushButton(Id(:help), Opt(:key_F1), Label.HelpButton)
-            ),
-            VSpacing(0.2)
-          ),
-          HSpacing(1)
-        )
-      )
-      UI.ChangeWidget(Id(:serverent), :Value, server)
-      UI.SetFocus(Id(:serverent))
-
-      loop do
-        ret = UI.UserInput
-
-        if ret == :choose
-          if @hosts.nil?
-            # label message
-            UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
-            @hosts = Nfs.ProbeServers
-            UI.CloseDialog
-          end
-          if @hosts == [] || @hosts.nil?
-            # Translators: 1st part of error message
-            error_msg = _("No NFS server has been found on your network.")
-
-            if SuSEFirewall.GetStartService
-              # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
-              error_msg = Ops.add(
-                error_msg,
-                _(
-                  "\n" \
-                    "This could be caused by a running SuSEfirewall2,\n" \
-                    "which probably blocks the network scanning."
-                )
-              )
-            end
-            Report.Error(error_msg)
-          else
-            host = ChooseHostName(@hosts)
-            UI.ChangeWidget(Id(:serverent), :Value, host) if host
-          end
-        elsif ret == :pathent_list
-          server2 = Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
-          v4 = Convert.to_boolean(UI.QueryWidget(Id(:nfs4), :Value))
-
-          if !CheckHostName(server2)
-            UI.SetFocus(Id(:serverent))
-            next
-          end
-
-          UI.OpenDialog(
-            Label(
-              # Popup dialog, %1 is a host name
-              Builtins.sformat(
-                _("Getting directory list for \"%1\"..."),
-                server2
-              )
-            )
-          )
-          dirs = Nfs.ProbeExports(server2, v4)
-          UI.CloseDialog
-
-          dir = ChooseExport(dirs)
-          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
-        elsif ret == :browse
-          dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          dir = "/" if dir.nil? || Builtins.size(dir) == 0
-
-          # heading for a directory selection dialog
-          dir = UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
-
-          if dir && Ops.greater_than(Builtins.size(dir), 0)
-            UI.ChangeWidget(Id(:mountent), :Value, dir)
-          end
-        elsif ret == :ok
-          server = FormatHostnameForFstab(
-            Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
-          )
-          pth = StripExtraSlash(
-            Convert.to_string(UI.QueryWidget(Id(:pathent), :Value))
-          )
-          mount = StripExtraSlash(
-            Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          )
-          nfs4 = Convert.to_boolean(UI.QueryWidget(Id(:nfs4), :Value))
-          nfs41 = Convert.to_boolean(UI.QueryWidget(Id(:nfs41), :Value))
-          options = Builtins.deletechars(
-            Convert.to_string(UI.QueryWidget(Id(:optionsent), :Value)),
-            " "
-          )
-          options = NfsOptions.set_nfs41(options, nfs41)
-
-          ret = nil
-          options_error = NfsOptions.validate(options)
-          if !CheckHostName(server)
-            UI.SetFocus(Id(:serverent))
-          elsif !CheckPath(pth)
-            UI.SetFocus(Id(:pathent))
-          elsif !CheckPath(mount) || IsMpInFstab(existing, mount)
-            UI.SetFocus(Id(:mountent))
-          elsif Ops.greater_than(Builtins.size(options_error), 0)
-            Popup.Error(options_error)
-            UI.SetFocus(Id(:optionsent))
-          else
-            fstab_ent = {
-              "spec"    => Ops.add(Ops.add(server, ":"), pth),
-              "file"    => mount,
-              "vfstype" => nfs4 ? "nfs4" : "nfs",
-              "mntops"  => options
-            }
-            if old != Ops.add(Ops.add(server, ":"), pth)
-              fstab_ent = Builtins.add(fstab_ent, "old", old)
-            end
-            ret = :ok
-          end
-        elsif ret == :help
-          # help text 1/4
-          # change: locally defined -> servers on LAN
-          helptext = _(
-            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" \
-              "<b>Choose</b>, browse through a list of\n" \
-              "NFS servers on the local network.</p>\n"
-          )
-          # help text 2/4
-          # added "Select" button
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>In <b>Remote File System</b>,\n" \
-                "enter the path to the directory on the NFS server.  Use\n" \
-                "<b>Select</b> to select one from those exported by the server.\n" \
-                "</p>"
-            )
-          )
-          # help text 3/4
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>\t\t\n" \
-                "For <b>Mount Point</b>, enter the path in the local " \
-                "file system where the directory should be mounted. With\n" \
-                "<b>Browse</b>, select your mount point\n" \
-                "interactively.</p>"
-            )
-          )
-          # help text 4/4
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>For a list of <b>Options</b>,\nread the man page mount(8).</p>"
-            )
-          )
-          # popup heading
-          Popup.LongText(_("Help"), RichText(helptext), 50, 18)
-        end
-        break if ret == :ok || ret == :cancel
-      end
-
-      UI.CloseDialog
-      Wizard.RestoreScreenShotName
-
-      return deep_copy(fstab_ent) if ret == :ok
-      nil
     end
 
     def EnableDisableButtons
@@ -588,14 +205,15 @@ module Yast
       end
 
       if widget == :newbut
-        entry = GetFstabEntry(
+        entry = ::NfsClient::FstabEntryDialog.new(
           nil,
           Convert.convert(
             Builtins.union(Nfs.non_nfs_entries, @nfs_entries),
             :from => "list",
             :to   => "list <map>"
-          )
-        )
+          ),
+          @nfs_entries
+        ).run
 
         if entry
           @nfs_entries = Builtins.add(@nfs_entries, entry)
@@ -607,7 +225,7 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
-        entry = GetFstabEntry(
+        entry = ::NfsClient::FstabEntryDialog.new(
           Ops.get(@nfs_entries, entryno, {}),
           Convert.convert(
             Builtins.union(
@@ -616,8 +234,9 @@ module Yast
             ),
             :from => "list",
             :to   => "list <map>"
-          ) # Default values
-        )
+          ), # Default values
+          @nfs_entries
+        ).run
         if entry
           count2 = 0
           @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
@@ -668,6 +287,8 @@ module Yast
     # NFS client dialog itselfs
     # @return `back, `abort or `next
     def FstabDialog
+      ret = nil
+      event = nil
       Wizard.SetScreenShotName("nfs-client-1-fstab")
 
       @nfs_entries = deep_copy(Nfs.nfs_entries)

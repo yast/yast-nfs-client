@@ -37,7 +37,7 @@ module Yast
         serv = Builtins.substring(spec, 0, path_begin)
         spec = Builtins.substring(spec, Ops.add(path_begin, 1))
       end
-      term(:couple, serv, spec)
+      Term.new(:couple, serv, spec)
     end
 
     # Creates a list of ui table items for nfs fstab entries
@@ -45,7 +45,6 @@ module Yast
     # @return          itemized table entries
     # @example UI::ChangeWidget(`id(`fstable), `Items, FstabTableItems(nfs_entries));
     def FstabTableItems(fstab)
-      fstab = deep_copy(fstab)
       count = 0
       Builtins.maplist(fstab) do |entry|
         sp = SpecToServPath(Ops.get_string(entry, "spec", ""))
@@ -58,7 +57,7 @@ module Yast
           Ops.add(Ops.get_string(entry, "mntops", ""), " ")
         )
         count = Ops.add(count, 1)
-        deep_copy(it)
+        it
       end
     end
 
@@ -102,7 +101,6 @@ module Yast
     # @param [String] mpoint    mount point
     # @return          is it there?
     def IsMpInFstab(fstab, mpoint)
-      fstab = deep_copy(fstab)
       tmp = Builtins.filter(fstab) do |fse|
         Ops.get_string(fse, "file", "") == mpoint
       end

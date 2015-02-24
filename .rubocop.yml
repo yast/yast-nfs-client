@@ -3,7 +3,7 @@ inherit_from:
 
 # Offense count: 34
 Metrics/AbcSize:
-  Max: 220
+  Max: 123
 
 # Offense count: 5
 # Configuration parameters: CountComments.
@@ -12,7 +12,7 @@ Metrics/ClassLength:
 
 # Offense count: 13
 Metrics/CyclomaticComplexity:
-  Max: 31
+  Max: 17
 
 # Offense count: 49
 # Configuration parameters: AllowURI, URISchemes.
@@ -22,11 +22,11 @@ Metrics/LineLength:
 # Offense count: 47
 # Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 223
+  Max: 131
 
 # Offense count: 13
 Metrics/PerceivedComplexity:
-  Max: 35
+  Max: 18
 
 Style/Documentation:
   Exclude:
