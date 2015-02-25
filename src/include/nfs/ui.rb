@@ -88,6 +88,7 @@ module Yast
     def ChooseItem(title, items)
       items = deep_copy(items)
       item = nil
+      ret = nil
 
       UI.OpenDialog(
         VBox(
@@ -204,6 +205,7 @@ module Yast
       options = "defaults"
       servers = []
       old = ""
+      ret = nil
 
       if fstab_ent
         couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
@@ -668,6 +670,8 @@ module Yast
     # NFS client dialog itselfs
     # @return `back, `abort or `next
     def FstabDialog
+      ret = nil
+      event = nil
       Wizard.SetScreenShotName("nfs-client-1-fstab")
 
       @nfs_entries = deep_copy(Nfs.nfs_entries)
