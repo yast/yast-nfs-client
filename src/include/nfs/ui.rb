@@ -636,10 +636,10 @@ module Yast
           Ops.greater_than(Builtins.size(@nfs_entries), 0)
         share = Ops.get(@nfs_entries, entryno, {})
         if Popup.YesNo(
-            Builtins.sformat(
-              _("Really delete %1?"),
-              Ops.get_string(share, "spec", "")
-            )
+          Builtins.sformat(
+            _("Really delete %1?"),
+            Ops.get_string(share, "spec", "")
+          )
           )
           @modify_line = deep_copy(share)
           @nfs_entries = Builtins.remove(@nfs_entries, entryno)
