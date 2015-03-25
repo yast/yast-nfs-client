@@ -352,6 +352,17 @@
 	return true;
     }
 
+
+    /**
+     * Merge two partial fstabs so that they are properly ordered.
+     * For example / must go before anything else,
+     * /foo/bar must go before /foo/bar/baz
+     */
+    list<map<string, any> > MergeFstabs(list<map<string, any> > a,
+                                        list<map<string, any> > b) {
+      return a + b;             // not implemented yet
+    }
+
     /**
      * Writes the NFS client configuration without
      * starting/stopping the service.

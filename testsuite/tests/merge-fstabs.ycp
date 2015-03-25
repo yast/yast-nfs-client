@@ -1,0 +1,72 @@
+/*
+Unit test for Nfs::MergeFstabs
+ */
+{
+    import "Testsuite";
+    import "Assert";
+
+    // Stub a constructor in some required library
+    map I_READ = $[
+	"target" : $[
+	    "tmpdir" : "/tmp",
+	],
+    ];
+    map I_WRITE = $[];
+    map I_EXEC = $[];
+    Testsuite::Init([I_READ, I_WRITE, I_EXEC], nil);
+
+    import "Nfs";
+
+    typedef map<string, any> entry_t;
+
+    list<entry_t > entries = [
+	$[
+	    "spec":    "/dev/sda1",
+	    "file":    "/",
+	    "vfstype": "ext3",
+	    "mntops":  "defaults"
+	 ],
+	$[
+	    "spec":    "/dev/sda2",
+	    "file":    "/foof",
+	    "vfstype": "ext3",
+	    "mntops":  "defaults"
+	 ],
+	$[
+	    "spec":    "nfs.example.com:/foo",
+	    "file":    "/foo",
+	    "vfstype": "nfs",
+	    "mntops":  "defaults"
+	 ],
+	$[
+	    "spec":    "/dev/sda3",
+	    "file":    "/foo/bar",
+	    "vfstype": "ext3",
+	    "mntops":  "defaults"
+	 ],
+	$[
+	    "spec":    "nfs.example.com:/baz",
+	    "file":    "/foo/bar/baz",
+	    "vfstype": "nfs",
+	    "mntops":  "defaults"
+	 ]
+    ];
+
+    boolean is_nfs(entry_t e) {
+      return e["vfstype"]:"" == "nfs";
+    }
+
+    list<string> mount_points(list<entry_t> fstab) {
+      return maplist(entry_t e, fstab, ``( e["file"]:"" ));
+    }
+
+    list<entry_t> nfs_entries = filter(entry_t e, entries, ``( is_nfs(e) ));
+
+    list<entry_t> non_nfs_entries = filter(entry_t e, entries, ``( !is_nfs(e) ));
+
+    list<entry_t> merged_entries = Nfs::MergeFstabs(non_nfs_entries, nfs_entries);
+
+    // Compare the mount points only first, for the simpler bugs
+    Assert::Equal(mount_points(entries), mount_points(merged_entries));
+    Assert::Equal(             entries,               merged_entries );
+}
