@@ -34,6 +34,7 @@
     import "Wizard";
 
     include "nfs/routines.ycp";
+    include "nfs/toposort.ycp";
 
 
     /* default value of settings modified */
@@ -353,6 +354,45 @@
     }
 
 
+    /*
+     * DependsOn(a, b) is true if a must be mounted before b.
+     * That is, "/any" DependsOn "/", "/foo/bar" DependsOn "/foo",
+     * but "/foof" not DependsOn "/foo"
+     */
+    boolean DependsOn(string a, string b) {
+      if (a == b) return false;
+
+      boolean StartsWith(string s, string head) {
+        return substring(s, 0, size(head)) == head;
+      }
+
+      boolean EndsWith(string s, string tail) {
+        return substring(s, size(s) - size(tail), size(tail)) == tail;
+      }
+
+      if (! EndsWith(a, "/")) {
+        a = a + "/";
+      }
+      if (! EndsWith(b, "/")) {
+        b = b + "/";
+      }
+      return StartsWith(a, b);
+    }
+
+    map<string, list<string> > DependencyGraph(list<map<string, any> > fstab) {
+      typedef map<string, any> entry_t;
+
+      list<string> vertices = maplist(entry_t e, fstab, ``( e["file"]:"" ));
+
+      // the edges are in the "supports" direction, /foo -> /foo/bar
+      return listmap(entry_t e, fstab, {
+          string vertex = e["file"]:"";
+          list<string> targets = filter(string t, vertices,
+                                        ``( DependsOn(t, vertex) ));
+          return $[vertex : targets];
+        });
+    }
+
     /**
      * Merge two partial fstabs so that they are properly ordered.
      * For example / must go before anything else,
@@ -360,7 +400,22 @@
      */
     list<map<string, any> > MergeFstabs(list<map<string, any> > a,
                                         list<map<string, any> > b) {
-      return a + b;             // not implemented yet
+      typedef map<string, any> entry_t;
+
+      list<entry_t> all = a + b;
+
+      map<string, list<string> > supports = DependencyGraph(all);
+      list<list<string> > ordered = TopologicalSort(supports);
+      if (ordered[1]:[] != []) {
+        y2error("Oops, a cycle in fstab? %1", ordered[1]:[]);
+        //FIXME: bail out? use a plain all
+        return all;
+      }
+
+      map<string, entry_t> by_mountpoint = listmap(entry_t e, all,
+                                                   ``( $[ e["file"]:"" : e] ));
+
+      return maplist(string v, ordered[0]:[], ``( by_mountpoint[v]:$[] ));
     }
 
     /**
