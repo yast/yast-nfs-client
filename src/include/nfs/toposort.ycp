@@ -1,0 +1,125 @@
+/**
+ * File:
+ *   toposort.ycp
+ *
+ * Module:
+ *   System Services (Runlevel) (formerly known as Runlevel Editor)
+ *
+ * Summary:
+ *   Topological sorting for script dependencies
+ *
+ * Authors:
+ *   Martin Vidner <mvidner@suse.cz>
+ *
+ * $Id$
+ */
+
+{
+    /**
+     * Topologically sort a directed acyclic graph, ie. linearize a
+     * partial ordering.
+     * (what if the graph is a multigraph??)
+     * @param g A DAG as a map:
+     *  nodes are keys, values are lists of nodes that are reached
+     *  by an edge from the respective key.
+     * @return [out, rest]<br>
+     *  out: a list containing the keys of the map in topological order<br>
+     *  rest: a list, empty if the graph was acyclic, otherwise it is
+     *   a superset of the nodes forming the cycle
+     *   and "out" is a partial result
+     */
+    define list< list<string> > TopologicalSort (map<string, list<string> > g) ``{
+	list<string> out = [];
+	map<string, integer> in_degree = (map<string, integer>) mapmap (string vertex, list<string> targets, g, ``($[vertex: 0]));
+        foreach (string vertex, list<string> targets, g, ``{
+	    foreach (string target, targets, ``{
+		in_degree[target] = in_degree[target]:0 + 1;
+	    });
+	});
+
+	// cycle
+	while (size (in_degree) > 0)
+	{
+	    // get the vertices that can go next because they have zero in degree
+	    map<string, integer> next_m = (map<string, integer>) filter (string vertex, integer d, in_degree, ``(d == 0));
+	    if (size (next_m) == 0)
+	    {
+		// the graph is cyclic!
+		break;
+	    }
+	    foreach (string vertex, integer dummy, next_m, ``{
+		out[size(out)] = vertex;
+	    });
+	    // remove the vertices
+	    in_degree = (map<string, integer>) filter (string vertex, integer d, in_degree, ``(d != 0));
+	    // remove the edges that were leading from them
+	    foreach (string vertex, integer dummy, next_m, ``{
+		foreach (string target, g[vertex]:[], ``{
+		    in_degree[target] = in_degree[target]:0 - 1;
+		});
+	    });
+	}
+
+	list<string> rest = (list<string>) maplist (string k, integer v, in_degree, ``( k )); //mapkeys
+	if (size (rest) > 0)
+	{
+	    y2error ("Cyclic subgraph found, remainder has %1 nodes: %2",
+		     size (rest), rest);
+	}
+	return [out, rest];
+    }
+
+    /**
+     * Make a subgraph of g, starting at start
+     * @param g A directed acyclic graph as a map:
+     *  nodes are keys, values are lists of nodes that are reached
+     *  by an edge from the respective key.
+     * @param start starting node
+     * @return the reachable subgraph
+     */
+    define map<string, list<string> > ReachableSubgraph (map<string, list<string> > g, string start) ``{
+	// a breadth-first search
+	map<string, list<string> >  result = $[];
+	// seen and next_layer are sets, realized as maps with dummy values
+	map seen = $[];
+	map<string, boolean> next_layer = $[start: true];
+	do
+	{
+	    map<string, boolean> current_layer = next_layer;
+	    next_layer = $[];
+	    foreach (string node, boolean dummy, current_layer, ``{
+		// action: add the node and edges
+		result[node] = g[node]:[];
+
+		// next
+		seen[node] = true;
+		// targets from this node.
+		// filter the ones already seen (including itself)
+		list<string> targets = filter (string target, g[node]:[],
+				       ``( !haskey (seen, target)));
+		foreach (string target, targets, ``{
+		    next_layer[target] = true;
+		});
+	    });
+	}
+	while (size (next_layer) > 0);
+	return result;
+    }
+
+    /**
+     * Reverse edges of an oriented graph
+     * @param g a graph
+     * @return reversed graph
+     */
+    define map<string, list<string> > ReverseGraph (map<string, list<string> > g) ``{
+	list<string> elist = [];
+	// initialize, otherwise we miss nodes with zero in-degree
+	map<string, list<string> > rev = (map<string, list<string> >) mapmap (string node, list<string> dummy, g, ``( $[node: []] ));
+	foreach (string source, list<string> targets, g, ``{
+	    foreach (string target, targets, ``{
+		rev[target] = add (rev[target]:elist, source);
+	    });
+	});
+	return rev;
+    }
+}
