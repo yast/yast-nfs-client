@@ -381,8 +381,6 @@
 	fstab = UnescapeSpaces (fstab);
 
 	foreach (map<string,any> entry, nfs_entries, ``{
-	    fstab = add (fstab, (map<string,any>)union (entry, $[/*"vfstype": "nfs",*/ "freq": 0, "passno": 0]));
-
 	    // create mount points
 	    string file = entry["file"]:"";
 	    if (!(boolean) SCR::Execute (.target.mkdir, file))
@@ -391,6 +389,11 @@
 		Report::Warning (sformat (_("Unable to create directory '%1'."), file));
 	    }
 	});
+
+        list<map<string, any> > fstab_nfs_entries = maplist(map<string, any> e, nfs_entries, ``(
+                                                                                                (map<string, any>) union (e, $["freq": 0, "passno": 0])
+        ));
+        fstab = MergeFstabs (fstab, fstab_nfs_entries);
 
 	y2milestone ("fstab: %1", fstab);
 
