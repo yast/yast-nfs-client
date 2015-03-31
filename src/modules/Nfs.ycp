@@ -26,7 +26,6 @@
     import "Nfs::Options";
     import "Report";
     import "Service";
-    import "String";
     import "Summary";
     import "SuSEFirewall";
     import "Progress";
@@ -354,24 +353,18 @@
 	return true;
     }
 
-    typedef string vertex_t;
-
-    vertex_t VertexFromEntry(map<string, any> e) {
-      return String::PadZeros(tostring(e["i"]:0), 6) + e["file"]:"";
-    }
-
-    string PathFromVertex(vertex_t v) {
-      return substring(v, 6);
-    }
-
     /*
-     * DependsOn(a, b) is true if a must be mounted before b.
-     * That is, "/any" DependsOn "/", "/foo/bar" DependsOn "/foo",
-     * but "/foof" not DependsOn "/foo"
+     * Supports(a, b) is true if a must be mounted before b.
+     * That is, "/" Supports "/any", "/foo" Supports "/foo/bar",
+     * but "/foo" does not Support "/foof"
      */
-    boolean DependsOn(vertex_t a, vertex_t b) {
-      a = PathFromVertex(a);
-      b = PathFromVertex(b);
+    boolean Supports(any entry_a, any entry_b) {
+      if (! is(entry_a, map)) return false;
+      if (! is(entry_b, map)) return false;
+      map map_a = (map) entry_a;
+      map map_b = (map) entry_b;
+      string a = map_a["file"]:"";
+      string b = map_b["file"]:"";
 
       if (a == b) return false;
 
@@ -389,22 +382,7 @@
       if (! EndsWith(b, "/")) {
         b = b + "/";
       }
-      return StartsWith(a, b);
-    }
-
-    map<vertex_t, list<vertex_t> > DependencyGraph(list<map<string, any> > fstab) {
-      typedef map<string, any> entry_t;
-
-      list<vertex_t> vertices = maplist(entry_t e, fstab,
-                                        ``( VertexFromEntry(e) ));
-
-      // the edges are in the "supports" direction, /foo -> /foo/bar
-      return listmap(entry_t e, fstab, {
-          vertex_t vertex = VertexFromEntry(e);
-          list<vertex_t> targets = filter(vertex_t t, vertices,
-                                          ``( DependsOn(t, vertex) ));
-          return $[vertex : targets];
-        });
+      return StartsWith(b, a);
     }
 
     /**
@@ -416,25 +394,17 @@
                                         list<map<string, any> > b) {
       typedef map<string, any> entry_t;
 
-      integer i = 0;
-      list<entry_t> all = maplist(entry_t e, a + b, {
-          i = i + 1;
-          e = add(e, "i", i);
-          return e;
-      });
+      list<entry_t> all = a + b;
 
-      map<vertex_t, list<vertex_t> > supports = DependencyGraph(all);
-      list<list<vertex_t> > ordered = TopologicalSort(supports);
+      list<list<entry_t> > ordered =
+        (list<list<entry_t> >) StableTopologicalSort(all, Supports);
+
       if (ordered[1]:[] != []) {
         y2error("Oops, a cycle in fstab? %1", ordered[1]:[]);
-        //FIXME: bail out? use a plain all
         return all;
       }
 
-      map<vertex_t, entry_t> by_vertex = listmap(entry_t e, all,
-                                                 ``( $[ VertexFromEntry(e) : remove(e, "i")] ));
-
-      return maplist(string v, ordered[0]:[], ``( by_vertex[v]:$[] ));
+      return ordered[0]:[];
     }
 
     /**

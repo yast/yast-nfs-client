@@ -15,6 +15,9 @@
  */
 
 {
+    import "Map";
+    import "String";
+
     /**
      * Topologically sort a directed acyclic graph, ie. linearize a
      * partial ordering.
@@ -74,5 +77,61 @@
                      size (rest), rest);
         }
         return [out, rest];
+    }
+
+    /**
+     * TopologicalSort as implemented above only works on graphs
+     * with string vertices.
+     * Now we will
+     * 1. generalize it to arbitrary data ("things")
+     * 2. exploit the order of keys in map<string, ...> to produce a *stable*
+     *    topological sort (one that preserves the order of unrelated vertices)
+     */
+    typedef any thing_t;
+    typedef string vertex_t;
+
+    /**
+     * @param things a list of things
+     * @param edge   a function determining whether
+     *               a directed edge exists between two things
+     * @return [out, rest]<br>
+     *  out: a list of things in topological order
+     *       (starting with things that have no *incoming* edge)<br>
+     *  rest: a list, empty if the graph was acyclic, otherwise it is
+     *   a superset of the things forming the cycle
+     *   and "out" is a partial result
+     *
+     */
+    list<list<thing_t> > StableTopologicalSort(list<thing_t> things,
+                                               boolean(thing_t, thing_t) edge) {
+      // The stability of the sort is achieved
+      // by using zero-padded numeric strings as graph vertices.
+      // For 31337 things we will need 5-character vertices
+      integer num_things = size(things);
+      integer vertex_size = size(tostring(num_things));
+
+      integer i = 0;
+      map<vertex_t, thing_t> by_vertex = listmap(thing_t th, things, {
+          i = i + 1;
+          string vertex = String::PadZeros(tostring(i), vertex_size);
+          return $[vertex : th];
+      });
+      list<vertex_t> vertices = (list<vertex_t>) Map::Keys(by_vertex);
+
+      map<vertex_t, list<vertex_t> > vertex_graph = mapmap(vertex_t v, thing_t th,
+                                                           by_vertex, {
+          list<vertex_t> targets = filter(vertex_t target, vertices,
+                                          ``( edge(th, by_vertex[target]:nil) ));
+          return $[v : targets];
+      });
+
+      list<list<vertex_t> > ordered_vertices = TopologicalSort(vertex_graph);
+
+      list<list<thing_t> > ordered_things = maplist(list<vertex_t> vertices,
+                                                    ordered_vertices, {
+          return maplist(vertex_t v, vertices, ``(by_vertex[v]:nil));
+      });
+
+      return ordered_things;
     }
 }
