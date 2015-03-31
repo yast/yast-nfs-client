@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Mar 31 09:08:32 UTC 2015 - mvidner@suse.com
+
+- Consider path dependencies between mount points, allowing eg.
+  a local mount on top of an NFS mount point (bsc#922307).
+- 2.17.19
+
+-------------------------------------------------------------------
 Thu Feb 05 10:34:20 CET 2015 - aschnell@suse.de
 
 - allow mount option bsize (bsc#915755)
