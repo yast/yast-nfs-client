@@ -29,50 +29,50 @@
      *   and "out" is a partial result
      */
     define list< list<string> > TopologicalSort (map<string, list<string> > dag) {
-	list<string> out = [];
-	map<string, integer> in_degree =
+        list<string> out = [];
+        map<string, integer> in_degree =
             (map<string, integer>) mapmap (string vertex, list<string> targets,
                                            dag,
                                            ``($[vertex: 0]));
         foreach (string vertex, list<string> targets, dag, ``{
-	    foreach (string target, targets, ``{
-		in_degree[target] = in_degree[target]:0 + 1;
-	    });
-	});
+            foreach (string target, targets, ``{
+                in_degree[target] = in_degree[target]:0 + 1;
+            });
+        });
 
-	while (size (in_degree) > 0)
-	{
-	    // get the vertices that can go next because they have zero in degree
-	    map<string, integer> next_m =
+        while (size (in_degree) > 0)
+        {
+            // get the vertices that can go next because they have zero in degree
+            map<string, integer> next_m =
                 (map<string, integer>) filter (string vertex, integer d,
                                                in_degree,
                                                ``(d == 0));
-	    if (size (next_m) == 0)
-	    {
-		// the graph is cyclic!
-		break;
-	    }
-	    foreach (string vertex, integer dummy, next_m, ``{
-		out = add(out, vertex);
-	    });
-	    // remove the vertices
-	    in_degree = (map<string, integer>) filter (string vertex, integer d,
+            if (size (next_m) == 0)
+            {
+                // the graph is cyclic!
+                break;
+            }
+            foreach (string vertex, integer dummy, next_m, ``{
+                out = add(out, vertex);
+            });
+            // remove the vertices
+            in_degree = (map<string, integer>) filter (string vertex, integer d,
                                                        in_degree,
                                                        ``(d != 0));
-	    // remove the edges that were leading from them
-	    foreach (string vertex, integer dummy, next_m, ``{
-		foreach (string target, dag[vertex]:[], ``{
-		    in_degree[target] = in_degree[target]:0 - 1;
-		});
-	    });
-	}
+            // remove the edges that were leading from them
+            foreach (string vertex, integer dummy, next_m, ``{
+                foreach (string target, dag[vertex]:[], ``{
+                    in_degree[target] = in_degree[target]:0 - 1;
+                });
+            });
+        }
 
-	list<string> rest = (list<string>) maplist (string k, integer v, in_degree, ``( k )); //mapkeys
-	if (size (rest) > 0)
-	{
-	    y2error ("Cyclic subgraph found, remainder has %1 nodes: %2",
-		     size (rest), rest);
-	}
-	return [out, rest];
+        list<string> rest = (list<string>) maplist (string k, integer v, in_degree, ``( k )); //mapkeys
+        if (size (rest) > 0)
+        {
+            y2error ("Cyclic subgraph found, remainder has %1 nodes: %2",
+                     size (rest), rest);
+        }
+        return [out, rest];
     }
 }
