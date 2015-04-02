@@ -357,14 +357,17 @@
      * Supports(a, b) is true if a must be mounted before b.
      * That is, "/" Supports "/any", "/foo" Supports "/foo/bar",
      * but "/foo" does not Support "/foof"
+     * @param entry_a entry_t (map<string, any>)
+     * @param entry_b entry_t (map<string, any>)
+     * (The formal argument types are `any` to match the generic toposort API)
      */
     boolean Supports(any entry_a, any entry_b) {
-      if (! is(entry_a, map)) return false;
-      if (! is(entry_b, map)) return false;
-      map map_a = (map) entry_a;
-      map map_b = (map) entry_b;
-      string a = map_a["file"]:"";
-      string b = map_b["file"]:"";
+      if (! is(entry_a, map) || ! is(entry_b, map)) {
+        y2internal("Expected maps as arguments, got %1, %2", entry_a, entry_b);
+        return false;
+      }
+      string a = ((map) entry_a)["file"]:"";
+      string b = ((map) entry_b)["file"]:"";
 
       if (a == b) return false;
 
@@ -434,14 +437,18 @@
 	    }
 	});
 
-        list<map<string, any> > fstab_nfs_entries = maplist(map<string, any> e, nfs_entries, ``(
-                                                                                                (map<string, any>) union (e, $["freq": 0, "passno": 0])
-        ));
+        // autoyast data does not provide freq and passno
+        list<map<string, any> > fstab_nfs_entries = maplist(map<string, any> e, nfs_entries, {
+            return (map<string, any>) union (e, $["freq": 0, "passno": 0]);
+        });
+
         fstab = MergeFstabs (fstab, fstab_nfs_entries);
 
 	y2milestone ("fstab: %1", fstab);
 
-	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
+	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP",
+                      $["ORIG"   : "/etc/fstab",
+                        "BACKUP" : "/etc/fstab.YaST2.save"]);
 
 	fstab = EscapeSpaces (fstab);
 	if (!SCR::Write(.etc.fstab, fstab))

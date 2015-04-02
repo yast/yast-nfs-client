@@ -106,7 +106,7 @@
                                                boolean(thing_t, thing_t) edge) {
       // The stability of the sort is achieved
       // by using zero-padded numeric strings as graph vertices.
-      // For 31337 things we will need 5-character vertices
+      // For example, for 31337 things we will need 5-character vertices.
       integer num_things = size(things);
       integer vertex_size = size(tostring(num_things));
 
