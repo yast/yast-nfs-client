@@ -34,6 +34,7 @@
     import "Wizard";
 
     include "nfs/routines.ycp";
+    include "nfs/toposort.ycp";
 
 
     /* default value of settings modified */
@@ -352,6 +353,63 @@
 	return true;
     }
 
+    /*
+     * Supports(a, b) is true if a must be mounted before b.
+     * That is, "/" Supports "/any", "/foo" Supports "/foo/bar",
+     * but "/foo" does not Support "/foof"
+     * @param entry_a entry_t (map<string, any>)
+     * @param entry_b entry_t (map<string, any>)
+     * (The formal argument types are `any` to match the generic toposort API)
+     */
+    boolean Supports(any entry_a, any entry_b) {
+      if (! is(entry_a, map) || ! is(entry_b, map)) {
+        y2internal("Expected maps as arguments, got %1, %2", entry_a, entry_b);
+        return false;
+      }
+      string a = ((map) entry_a)["file"]:"";
+      string b = ((map) entry_b)["file"]:"";
+
+      if (a == b) return false;
+
+      boolean StartsWith(string s, string head) {
+        return substring(s, 0, size(head)) == head;
+      }
+
+      boolean EndsWith(string s, string tail) {
+        return substring(s, size(s) - size(tail), size(tail)) == tail;
+      }
+
+      if (! EndsWith(a, "/")) {
+        a = a + "/";
+      }
+      if (! EndsWith(b, "/")) {
+        b = b + "/";
+      }
+      return StartsWith(b, a);
+    }
+
+    /**
+     * Merge two partial fstabs so that they are properly ordered.
+     * For example / must go before anything else,
+     * /foo/bar must go before /foo/bar/baz
+     */
+    list<map<string, any> > MergeFstabs(list<map<string, any> > a,
+                                        list<map<string, any> > b) {
+      typedef map<string, any> entry_t;
+
+      list<entry_t> all = a + b;
+
+      list<list<entry_t> > ordered =
+        (list<list<entry_t> >) StableTopologicalSort(all, Supports);
+
+      if (ordered[1]:[] != []) {
+        y2error("Oops, a cycle in fstab? %1", ordered[1]:[]);
+        return all;
+      }
+
+      return ordered[0]:[];
+    }
+
     /**
      * Writes the NFS client configuration without
      * starting/stopping the service.
@@ -370,8 +428,6 @@
 	fstab = UnescapeSpaces (fstab);
 
 	foreach (map<string,any> entry, nfs_entries, ``{
-	    fstab = add (fstab, (map<string,any>)union (entry, $[/*"vfstype": "nfs",*/ "freq": 0, "passno": 0]));
-
 	    // create mount points
 	    string file = entry["file"]:"";
 	    if (!(boolean) SCR::Execute (.target.mkdir, file))
@@ -381,9 +437,18 @@
 	    }
 	});
 
+        // autoyast data does not provide freq and passno
+        list<map<string, any> > fstab_nfs_entries = maplist(map<string, any> e, nfs_entries, {
+            return (map<string, any>) union (e, $["freq": 0, "passno": 0]);
+        });
+
+        fstab = MergeFstabs (fstab, fstab_nfs_entries);
+
 	y2milestone ("fstab: %1", fstab);
 
-	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP", $["ORIG" : "/etc/fstab", "BACKUP" : "/etc/fstab.YaST2.save"]);
+	SCR::Execute (.target.bash, "/bin/cp $ORIG $BACKUP",
+                      $["ORIG"   : "/etc/fstab",
+                        "BACKUP" : "/etc/fstab.YaST2.save"]);
 
 	fstab = EscapeSpaces (fstab);
 	if (!SCR::Write(.etc.fstab, fstab))

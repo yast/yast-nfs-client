@@ -8,6 +8,7 @@ config.log
 config.status
 config.sub
 configure
+configure.ac
 install-sh
 missing
 # devtools
@@ -15,5 +16,12 @@ missing
 *.ami
 /Makefile.am
 /Makefile.am.common
-configure.in
-doc/autodocs/*.html
+configure.ac
+doc/autodocs
+!doc/autodocs/Makefile.am
+package/*.tar.bz2
+/test-driver
+test/*.log
+test/*.trs
+testsuite/*.bak
+/testsuite/raw.*

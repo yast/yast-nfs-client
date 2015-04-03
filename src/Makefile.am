@@ -12,6 +12,7 @@ client_DATA =			\
 
 myinclude_DATA =			\
 	include/nfs/routines.ycp	\
+	include/nfs/toposort.ycp	\
 	include/nfs/ui.ycp		\
 	include/nfs/wizards.ycp
 
