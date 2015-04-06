@@ -22,7 +22,6 @@ DATA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "data")
 ENV["Y2DIR"] = SRC_PATH
 
 require "yast"
-require "yast/rspec"
 require_relative "path_matching_matcher"
 
 if ENV["COVERAGE"]
