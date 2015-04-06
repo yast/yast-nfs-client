@@ -10,13 +10,19 @@ module RSpec
           @expected = Regexp.new(expected)
         end
 
-        def ===(other)
+        # RSpec 3 uses === while RSpec 2 uses ==
+        # Thus, implementing just == should work with both
+        def ==(other)
           return false unless other.is_a?(Yast::Path)
           other.to_s =~ @expected ? true : false
         end
 
         def description
           "path_matching(#{@expected})"
+        end
+
+        def inspect
+          description
         end
       end
     end
