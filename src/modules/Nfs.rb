@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require "yast"
+require "fstab/tsort"
 
 # YaST namespace
 module Yast
@@ -387,6 +388,8 @@ module Yast
         )
       end
 
+      log.debug("fstab before ordering: #{fstab}")
+      fstab = Fstab::TSort.sort(fstab)
       log.info("fstab: #{fstab}")
 
       SCR.Execute(
