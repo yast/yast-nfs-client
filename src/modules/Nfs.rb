@@ -1,11 +1,14 @@
 # encoding: utf-8
 
 require "yast"
+require "fstab/tsort"
 
 # YaST namespace
 module Yast
   # NFS client configuration data, I/O functions.
   class NfsClass < Module
+    include Yast::Logger
+
     def main
       textdomain "nfs"
 
@@ -369,41 +372,25 @@ module Yast
     # @return true on success
     def WriteOnly
       # Merge with non-nfs entries from fstab:
-      fstab = Convert.convert(
-        SCR.Read(path(".etc.fstab")),
-        :from => "any",
-        :to   => "list <map <string, any>>"
-      )
+      fstab = SCR.Read(path(".etc.fstab"))
       # unescape deferred for optimization
-      fstab = Builtins.filter(fstab) do |entry|
-        Ops.get_string(entry, "vfstype", "") != "nfs" &&
-          Ops.get_string(entry, "vfstype", "") != "nfs4"
-      end
+      fstab.delete_if { |entry| ["nfs", "nfs4"].include?(entry["vfstype"]) }
       fstab = UnescapeSpaces(fstab)
 
-      Builtins.foreach(@nfs_entries) do |entry|
-        fstab = Builtins.add(
-          fstab,
-          Convert.convert(
-            Builtins.union(
-              entry,
-              "freq" => 0, "passno" => 0
-            ),
-            :from => "map",
-            :to   => "map <string, any>"
-          )
-        )
+      @nfs_entries.each do |entry|
+        fstab << entry.merge("freq" => 0, "passno" => 0)
         # create mount points
-        file = Ops.get_string(entry, "file", "")
-        if !Convert.to_boolean(SCR.Execute(path(".target.mkdir"), file))
-          # error popup message
-          Report.Warning(
-            Builtins.sformat(_("Unable to create directory '%1'."), file)
-          )
-        end
+        file = entry["file"] || ""
+        next if SCR.Execute(path(".target.mkdir"), file)
+        # error popup message
+        Report.Warning(
+          Builtins.sformat(_("Unable to create directory '%1'."), file)
+        )
       end
 
-      Builtins.y2milestone("fstab: %1", fstab)
+      log.debug("fstab before ordering: #{fstab}")
+      fstab = Fstab::TSort.sort(fstab)
+      log.info("fstab: #{fstab}")
 
       SCR.Execute(
         path(".target.bash"),
@@ -425,7 +412,7 @@ module Yast
       end
 
       @portmapper = FindPortmapper()
-      if Builtins.size(@nfs_entries) != 0
+      if !@nfs_entries.empty?
         Service.Enable(@portmapper)
         Service.Enable("nfs")
       end

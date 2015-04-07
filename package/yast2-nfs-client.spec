@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.14
+Version:        3.1.15
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -39,6 +39,8 @@ BuildRequires:  yast2 >= 2.23.23
 # - "v4.1" v4.x
 BuildRequires:  nfs-client < 1.3.1
 BuildRequires:  rubygem(rspec)
+# path_matching (RSpec argument matcher)
+BuildRequires:  yast2-ruby-bindings >= 3.1.31
 #ag_showexports moved to yast2 base
 # introduces extended IPv6 support.
 Requires:       yast2 >= 2.23.6
@@ -88,6 +90,7 @@ file system access. It allows access to files on remote machines.
 %dir %{yast_moduledir}
 %{yast_moduledir}/Nfs.rb
 %{yast_moduledir}/NfsOptions.rb
+%{yast_dir}/lib/fstab
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop
 %doc %{yast_docdir}

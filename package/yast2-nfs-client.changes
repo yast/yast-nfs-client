@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Apr  6 11:07:42 UTC 2015 - ancor@suse.com
+
+- Consider path dependencies between mount points, allowing eg.
+  a local mount on top of an NFS mount point (bsc#922307).
+- 3.1.15
+
+-------------------------------------------------------------------
 Tue Feb 24 16:30:00 UTC 2015 - kmroz@suse.com
 
 - Fix crash when accessing certain variables outside their block
