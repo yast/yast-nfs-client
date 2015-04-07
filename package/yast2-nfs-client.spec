@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.14
+Version:        3.1.15
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -88,6 +88,7 @@ file system access. It allows access to files on remote machines.
 %dir %{yast_moduledir}
 %{yast_moduledir}/Nfs.rb
 %{yast_moduledir}/NfsOptions.rb
+%{yast_dir}/lib/fstab
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop
 %doc %{yast_docdir}
