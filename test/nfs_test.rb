@@ -31,9 +31,6 @@ describe Yast::Nfs do
   describe ".WriteOnly" do
     let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
     let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
-    let(:mkdir_path) { Yast::Path.new(".target.mkdir") }
-    let(:bash_path) { Yast::Path.new(".target.bash") }
-    let(:fstab_path) { Yast::Path.new(".etc.fstab") }
 
     before do
       # Set some sane defaults
@@ -46,23 +43,23 @@ describe Yast::Nfs do
       allow(Yast::Progress).to receive(:set)
       allow(Yast::Service).to receive(:Enable)
       allow(Yast::SCR).to receive(:Execute)
-        .with(mkdir_path, anything)
+        .with(path(".target.mkdir"), anything)
       allow(Yast::SCR).to receive(:Write)
         .with(path_matching(/^\.sysconfig\.nfs/), any_args)
       allow(Yast::SCR).to receive(:Write)
         .with(path_matching(/^\.etc\.idmapd_conf/), any_args)
       # Creation of the backup
       allow(Yast::SCR).to receive(:Execute)
-        .with(bash_path, %r{^/bin/cp }, any_args)
+        .with(path(".target.bash"), %r{^/bin/cp }, any_args)
 
       # Load the lists
       subject.nfs_entries = nfs_entries
-      allow(Yast::SCR).to receive(:Read).with(fstab_path)
+      allow(Yast::SCR).to receive(:Read).with(path(".etc.fstab"))
         .and_return fstab_entries
     end
 
     it "creates a properly ordered fstab" do
-      expect(Yast::SCR).to receive(:Write).with(fstab_path, anything) do |_path, fstab|
+      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
         mount_points = fstab.map { |e| e["file"] }
         sorted_mount_points = ["/", "/foof", "/foo", "/foo/bar", "/foo/bar/baz"]
 
@@ -88,7 +85,7 @@ describe Yast::Nfs do
         "/foo/bar/baz" => 0
       }
 
-      expect(Yast::SCR).to receive(:Write).with(fstab_path, anything) do |_path, fstab|
+      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
         passnos = {}
         freqs = {}
         fstab.each do |e|

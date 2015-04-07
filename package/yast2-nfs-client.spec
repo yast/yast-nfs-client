@@ -39,6 +39,8 @@ BuildRequires:  yast2 >= 2.23.23
 # - "v4.1" v4.x
 BuildRequires:  nfs-client < 1.3.1
 BuildRequires:  rubygem(rspec)
+# path_matching (RSpec argument matcher)
+BuildRequires:  yast2-ruby-bindings >= 3.1.31
 #ag_showexports moved to yast2 base
 # introduces extended IPv6 support.
 Requires:       yast2 >= 2.23.6

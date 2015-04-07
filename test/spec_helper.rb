@@ -22,7 +22,7 @@ DATA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "data")
 ENV["Y2DIR"] = SRC_PATH
 
 require "yast"
-require_relative "path_matching_matcher"
+require "yast/rspec"
 
 if ENV["COVERAGE"]
   require "simplecov"
@@ -39,8 +39,4 @@ if ENV["COVERAGE"]
       Coveralls::SimpleCov::Formatter
     ]
   end
-end
-
-def path_matching(match)
-  RSpec::Mocks::ArgumentMatchers::PathMatchingMatcher.new(match)
 end
