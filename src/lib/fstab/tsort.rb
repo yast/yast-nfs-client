@@ -9,7 +9,7 @@ module Fstab
     # Sorts a list of fstab entries by the topological order of the mount points
     def self.sort(list)
       # Define the two iterators required by TSort
-      each_node = ->(&b) { list.reverse.each(&b) }
+      each_node = list.reverse.method(:each)
       each_child = lambda do |n, &b|
         list.select { |e| dependent_mount_point?(e["file"], n["file"]) }.each(&b)
       end
