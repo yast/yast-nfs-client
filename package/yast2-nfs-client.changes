@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul 20 10:10:33 UTC 2015 - mvidner@suse.com
+
+- Do not block an update of nfs-utils (boo#911986)
+- 3.1.16
+
+-------------------------------------------------------------------
 Mon Apr  6 11:07:42 UTC 2015 - ancor@suse.com
 
 - Consider path dependencies between mount points, allowing eg.
