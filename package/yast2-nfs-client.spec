@@ -41,6 +41,13 @@ Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
 Recommends:     nfs-client
 
+# Unfortunately we cannot move this to macros.yast,
+# bcond within macros are ignored by osc/OBS.
+%bcond_with yast_run_ci_tests
+%if %{with yast_run_ci_tests}
+BuildRequires: rubygem(yast-rake-ci)
+%endif
+
 Provides:       yast2-config-nfs
 Provides:       yast2-config-nfs-devel
 Obsoletes:      yast2-config-nfs
