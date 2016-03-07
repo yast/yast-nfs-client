@@ -22,7 +22,7 @@ module Fstab
       end
     end
 
-    private
+  private
 
     # Checks if the first mount point requires the second one to be mounted in
     # advance
