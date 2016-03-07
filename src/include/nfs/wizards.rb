@@ -33,9 +33,9 @@ module Yast
 
       sequence = {
         "ws_start" => "read",
-        "read"     => { :abort => :abort, :next => "main" },
-        "main"     => { :abort => :abort, :next => "write" },
-        "write"    => { :abort => :abort, :next => :next }
+        "read"     => { abort: :abort, next: "main" },
+        "main"     => { abort: :abort, next: "write" },
+        "write"    => { abort: :abort, next: :next }
       }
 
       Wizard.OpenOKDialog

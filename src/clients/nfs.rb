@@ -181,8 +181,8 @@ module Yast
       mount = Ops.get_string(options, "file", "")
       existing = Convert.convert(
         Builtins.union(Nfs.non_nfs_entries, nfs_entries),
-        :from => "list",
-        :to   => "list <map>"
+        from: "list",
+        to:   "list <map>"
       )
 
       if !CheckHostName(server) || !CheckPath(pth) || !CheckPath(mount) ||
@@ -209,7 +209,7 @@ module Yast
 
       nfs_entries = Builtins.add(
         nfs_entries,
-        Convert.convert(options, :from => "map", :to => "map <string, any>")
+        Convert.convert(options, from: "map", to: "map <string, any>")
       )
       Nfs.nfs_entries = deep_copy(nfs_entries)
       true
@@ -295,8 +295,8 @@ module Yast
           Nfs.non_nfs_entries,
           Builtins.remove(nfs_entries, entryno)
         ),
-        :from => "list",
-        :to   => "list <map>"
+        from: "list",
+        to:   "list <map>"
       )
 
       if !CheckHostName(server) || !CheckPath(pth) || !CheckPath(mount) ||
@@ -313,7 +313,7 @@ module Yast
       Ops.set(
         nfs_entries,
         entryno,
-        Convert.convert(entry, :from => "map", :to => "map <string, any>")
+        Convert.convert(entry, from: "map", to: "map <string, any>")
       )
       Nfs.nfs_entries = deep_copy(nfs_entries)
       true

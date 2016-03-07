@@ -594,8 +594,8 @@ module Yast
           nil,
           Convert.convert(
             Builtins.union(Nfs.non_nfs_entries, @nfs_entries),
-            :from => "list",
-            :to   => "list <map>"
+            from: "list",
+            to:   "list <map>"
           )
         )
 
@@ -616,8 +616,8 @@ module Yast
               Nfs.non_nfs_entries,
               Builtins.remove(@nfs_entries, entryno)
             ),
-            :from => "list",
-            :to   => "list <map>"
+            from: "list",
+            to:   "list <map>"
           ) # Default values
         )
         if entry

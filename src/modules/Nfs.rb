@@ -103,8 +103,8 @@ module Yast
 
       entries.value = Convert.convert(
         settings,
-        :from => "list <map>",
-        :to   => "list <map <string, any>>"
+        from: "list <map>",
+        to:   "list <map <string, any>>"
       )
 
       nil
@@ -137,7 +137,7 @@ module Yast
         global_options_ref = arg_ref(global_options.value)
         entries_ref = arg_ref(entries.value)
         GetOptionsAndEntriesSLE11(
-          Convert.convert(any_settings, :from => "any", :to => "list <map>"),
+          Convert.convert(any_settings, from: "any", to: "list <map>"),
           global_options_ref,
           entries_ref
         )
@@ -315,8 +315,8 @@ module Yast
       if !@skip_fstab
         fstab = Convert.convert(
           SCR.Read(path(".etc.fstab")),
-          :from => "any",
-          :to   => "list <map <string, any>>"
+          from: "any",
+          to:   "list <map <string, any>>"
         )
         fstab = UnescapeSpaces(fstab)
         Builtins.y2milestone("fstab: %1", fstab)
@@ -610,8 +610,8 @@ module Yast
       # unmount directory if it's NFS mountpoint
       mounts = Convert.convert(
         SCR.Read(path(".proc.mounts")),
-        :from => "any",
-        :to   => "list <map <string, any>>"
+        from: "any",
+        to:   "list <map <string, any>>"
       )
       found = false
 
@@ -694,8 +694,8 @@ module Yast
         dirs = Builtins.maplist(
           Convert.convert(
             SCR.Read(path(".target.dir"), tmpdir),
-            :from => "any",
-            :to   => "list <string>"
+            from: "any",
+            to:   "list <string>"
           )
         ) { |dirent| Ops.add("/", dirent) }
         dirs = Builtins.prepend(dirs, "/")
@@ -703,8 +703,8 @@ module Yast
       else
         dirs = Convert.convert(
           SCR.Read(path(".net.showexports"), server),
-          :from => "any",
-          :to   => "list <string>"
+          from: "any",
+          to:   "list <string>"
         )
       end
 
@@ -712,28 +712,28 @@ module Yast
       deep_copy(dirs)
     end
 
-    publish :variable => :modified, :type => "boolean"
-    publish :variable => :skip_fstab, :type => "boolean"
-    publish :function => :SetModified, :type => "void ()"
-    publish :function => :GetModified, :type => "boolean ()"
-    publish :variable => :required_packages, :type => "list <string>"
-    publish :variable => :nfs_entries, :type => "list <map <string, any>>"
-    publish :variable => :non_nfs_entries, :type => "list <map>"
-    publish :variable => :nfs4_enabled, :type => "boolean"
-    publish :variable => :nfs_gss_enabled, :type => "boolean"
-    publish :variable => :idmapd_domain, :type => "string"
-    publish :function => :Import, :type => "boolean (map <string, any>)"
-    publish :function => :Export, :type => "map ()"
-    publish :function => :FindPortmapper, :type => "string ()"
-    publish :function => :Read, :type => "boolean ()"
-    publish :function => :WriteOnly, :type => "boolean ()"
-    publish :function => :Write, :type => "boolean ()"
-    publish :function => :Summary, :type => "string ()"
-    publish :function => :Mount, :type => "string (string, string, string, string, string)"
-    publish :function => :Unmount, :type => "boolean (string)"
-    publish :function => :AutoPackages, :type => "map ()"
-    publish :function => :ProbeServers, :type => "list <string> ()"
-    publish :function => :ProbeExports, :type => "list <string> (string, boolean)"
+    publish variable: :modified, type: "boolean"
+    publish variable: :skip_fstab, type: "boolean"
+    publish function: :SetModified, type: "void ()"
+    publish function: :GetModified, type: "boolean ()"
+    publish variable: :required_packages, type: "list <string>"
+    publish variable: :nfs_entries, type: "list <map <string, any>>"
+    publish variable: :non_nfs_entries, type: "list <map>"
+    publish variable: :nfs4_enabled, type: "boolean"
+    publish variable: :nfs_gss_enabled, type: "boolean"
+    publish variable: :idmapd_domain, type: "string"
+    publish function: :Import, type: "boolean (map <string, any>)"
+    publish function: :Export, type: "map ()"
+    publish function: :FindPortmapper, type: "string ()"
+    publish function: :Read, type: "boolean ()"
+    publish function: :WriteOnly, type: "boolean ()"
+    publish function: :Write, type: "boolean ()"
+    publish function: :Summary, type: "string ()"
+    publish function: :Mount, type: "string (string, string, string, string, string)"
+    publish function: :Unmount, type: "boolean (string)"
+    publish function: :AutoPackages, type: "map ()"
+    publish function: :ProbeServers, type: "list <string> ()"
+    publish function: :ProbeExports, type: "list <string> (string, boolean)"
   end
 
   Nfs = NfsClass.new

@@ -39,16 +39,6 @@ Style/FileName:
     - src/modules/Nfs.rb
     - src/modules/NfsOptions.rb
 
-# YCP Killer used rockets
-Style/HashSyntax:
-  Exclude:
-    - src/clients/nfs.rb
-    - src/clients/nfs_auto.rb
-    - src/include/nfs/ui.rb
-    - src/include/nfs/wizards.rb
-    - src/modules/Nfs.rb
-    - src/modules/NfsOptions.rb
-
 Style/MethodName:
   Exclude:
     - src/clients/nfs-client4part.rb

@@ -27,8 +27,8 @@ module Yast
             Ops.is_map?(WFM.Args(1))
           @param = Convert.convert(
             WFM.Args(1),
-            :from => "any",
-            :to   => "map <string, any>"
+            from: "any",
+            to:   "map <string, any>"
           )
         end
         if Ops.greater_than(Builtins.size(WFM.Args), 1) &&
