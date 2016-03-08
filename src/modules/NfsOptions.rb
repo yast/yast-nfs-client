@@ -148,19 +148,19 @@ module Yast
         if non_value_option?(key)
           next if value.nil?
           # To translators: error popup
-          error_message = _("Unexpected value '%{value}' for option '%{key}'") % { :value => value, :key => key }
+          error_message = _("Unexpected value '%{value}' for option '%{key}'") % { value: value, key: key }
         # All unknown options
         elsif !OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
-          error_message = _("Unknown option: '%{key}'") % { :key => key }
+          error_message = _("Unknown option: '%{key}'") % { key: key }
         # All known ones with badly specified values
         elsif !rest.empty?
           # To translators: error popup
-          error_message = _("Invalid option: '%{opt}'") % { :opt => opt }
+          error_message = _("Invalid option: '%{opt}'") % { opt: opt }
         # All options missing a value
         elsif value.nil?
           # To translators: error popup
-          error_message = _("Empty value for option: '%{key}'") % { :key => key }
+          error_message = _("Empty value for option: '%{key}'") % { key: key }
         end
 
         break unless error_message.empty?
@@ -200,9 +200,9 @@ module Yast
       to_string(option_list)
     end
 
-    publish :function => :validate, :type => "string (string)"
-    publish :function => :get_nfs41, :type => "boolean (string)"
-    publish :function => :set_nfs41, :type => "string (string, boolean)"
+    publish function: :validate, type: "string (string)"
+    publish function: :get_nfs41, type: "boolean (string)"
+    publish function: :set_nfs41, type: "string (string, boolean)"
   end
 
   NfsOptions = NfsOptionsClass.new
