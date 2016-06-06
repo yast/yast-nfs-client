@@ -2,6 +2,8 @@
 Mon Jun  6 07:39:33 UTC 2016 - igonzalezsosa@suse.com
 
 - Stop generating autodocs (fate#320356)
+- Add a conditional BuildRequires to allow using Jenkins for
+  continuous integration (lslezak@suse.cz)
 - 3.1.17
 
 -------------------------------------------------------------------
