@@ -640,7 +640,7 @@ module Yast
             _("Really delete %1?"),
             Ops.get_string(share, "spec", "")
           )
-          )
+        )
           @modify_line = deep_copy(share)
           @nfs_entries = Builtins.remove(@nfs_entries, entryno)
           UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))

@@ -65,7 +65,7 @@ module Yast
 
     # Functions which returns if the settings were modified
     # @return [Boolean]  settings were modified
-    def GetModified             # rubocop:disable Style/TrivialAccessors
+    def GetModified
       @modified
     end
 
@@ -355,10 +355,8 @@ module Yast
         Builtins.foreach(@required_packages) do |p|
           PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
         end
-      else
-        if !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
-          return false
-        end
+      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
+        return false
       end
 
       true
@@ -441,64 +439,62 @@ module Yast
     # (No parameters because it is too short to abort)
     # @return true on success
     def Write
-      if WriteOnly()
-        # dialog label
-        Progress.New(
-          _("Writing NFS Configuration"),
-          " ",
-          2,
-          [
-            # progress stage label
-            _("Stop services"),
-            # progress stage label
-            _("Start services")
-          ],
-          [
-            # progress step label
-            _("Stopping services..."),
-            # progress step label
-            _("Starting services..."),
-            # final progress step label
-            _("Finished")
-          ],
-          ""
-        )
+      return false unless WriteOnly()
 
-        # help text
-        Wizard.RestoreHelp(_("Writing NFS client settings. Please wait..."))
+      # dialog label
+      Progress.New(
+        _("Writing NFS Configuration"),
+        " ",
+        2,
+        [
+          # progress stage label
+          _("Stop services"),
+          # progress stage label
+          _("Start services")
+        ],
+        [
+          # progress step label
+          _("Stopping services..."),
+          # progress step label
+          _("Starting services..."),
+          # final progress step label
+          _("Finished")
+        ],
+        ""
+      )
 
-        Progress.NextStage
+      # help text
+      Wizard.RestoreHelp(_("Writing NFS client settings. Please wait..."))
 
-        Service.Stop("nfs")
+      Progress.NextStage
 
-        Progress.NextStage
-        if Ops.greater_than(Builtins.size(@nfs_entries), 0)
-          # portmap must not be started if it is running already (see bug # 9999)
-          Service.Start(@portmapper) unless Service.active?(@portmapper)
+      Service.Stop("nfs")
 
-          unless Service.active?(@portmapper)
-            Report.Error(Message.CannotStartService(@portmapper))
-            return false
-          end
+      Progress.NextStage
+      if Ops.greater_than(Builtins.size(@nfs_entries), 0)
+        # portmap must not be started if it is running already (see bug # 9999)
+        Service.Start(@portmapper) unless Service.active?(@portmapper)
 
-          Service.Start("nfs")
-
-          unless Service.active?("nfs")
-            # error popup message
-            Report.Error(_("Unable to mount the NFS entries from /etc/fstab."))
-            return false
-          end
+        unless Service.active?(@portmapper)
+          Report.Error(Message.CannotStartService(@portmapper))
+          return false
         end
 
-        progress_orig = Progress.set(false)
-        SuSEFirewall.ActivateConfiguration
-        Progress.set(progress_orig)
+        Service.Start("nfs")
 
-        Progress.NextStage
-        return true
-      else
-        return false
+        unless Service.active?("nfs")
+          # error popup message
+          Report.Error(_("Unable to mount the NFS entries from /etc/fstab."))
+          return false
+        end
       end
+
+      progress_orig = Progress.set(false)
+      SuSEFirewall.ActivateConfiguration
+      Progress.set(progress_orig)
+
+      Progress.NextStage
+      true
     end
 
     # Summary()
