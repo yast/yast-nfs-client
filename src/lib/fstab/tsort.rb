@@ -32,6 +32,6 @@ module Fstab
       dependent.start_with?(root)
     end
 
-    private_class_method :dependent_mount_point
+    private_class_method :dependent_mount_point?
   end
 end
