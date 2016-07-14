@@ -62,8 +62,6 @@ module Yast
 
         if Builtins.contains(@w_ids, Convert.to_symbol(@widget_id))
           return ToStorage(@modify_line)
-        else
-          return nil
         end
       end
 

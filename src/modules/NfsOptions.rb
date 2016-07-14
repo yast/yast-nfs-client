@@ -49,7 +49,7 @@ module Yast
       "udp",
       "user",
       "users"
-    ]
+    ].freeze
 
     NEGATED_OPTIONS = NEGATABLE_OPTIONS.map { |o| "no#{o}" }
 
@@ -70,7 +70,7 @@ module Yast
       "rw",
       "silent",
       "sync"
-    ]
+    ].freeze
 
     OPTIONS_WITH_VALUE = [
       "acdirmax",
@@ -102,7 +102,7 @@ module Yast
       "timeo",
       "vers",
       "wsize"
-    ]
+    ].freeze
 
     def main
       textdomain "nfs"

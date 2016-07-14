@@ -107,17 +107,15 @@ module Yast
         Ops.get_string(fse, "file", "") == mpoint
       end
 
-      if Builtins.size(tmp) == 0
-        return false
-      else
-        # error popup message
-        Report.Error(
-          Builtins.sformat(
-            _("fstab already contains an entry\nwith mount point '%1'."),
-            mpoint
-          )
+      return false if Builtins.size(tmp) == 0
+
+      # error popup message
+      Report.Error(
+        Builtins.sformat(
+          _("fstab already contains an entry\nwith mount point '%1'."),
+          mpoint
         )
-      end
+      )
       true
     end
 
@@ -150,11 +148,7 @@ module Yast
     # @param [String] p       pathname
     # @return          stripped pathname
     def StripExtraSlash(p)
-      if Builtins.regexpmatch(p, "^.+/$")
-        return Builtins.regexpsub(p, "^(.+)/$", "\\1")
-      else
-        return p
-      end
+      Builtins.regexpmatch(p, "^.+/$") ? Builtins.regexpsub(p, "^(.+)/$", "\\1") : p
     end
 
     # Formats hostname into form suitable for fstab.

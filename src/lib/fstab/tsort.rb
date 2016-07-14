@@ -22,8 +22,6 @@ module Fstab
       end
     end
 
-  private
-
     # Checks if the first mount point requires the second one to be mounted in
     # advance
     def self.dependent_mount_point?(dependent, root)
@@ -33,5 +31,7 @@ module Fstab
       dependent += "/" unless dependent.end_with?("/")
       dependent.start_with?(root)
     end
+
+    private_class_method :dependent_mount_point?
   end
 end
