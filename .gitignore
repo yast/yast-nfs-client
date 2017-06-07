@@ -25,3 +25,7 @@ test/*.log
 test/*.trs
 testsuite/*.bak
 /testsuite/raw.*
+/.yardoc
+/coverage
+/doc/autodocs
+*.pot
