@@ -1,4 +1,5 @@
 Read	.target.tmpdir "/tmp"
+Execute	.target.bash "rpm -q --whatprovides firewalld" 1
 Dump	Nfs::Import
 Dump	- basic, SLE11-SP2
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
