@@ -313,34 +313,6 @@ module Yast
     # @return true on success
     def Read
       read_etc_fstab
-
-      ### FIXME obsolete
-      ### FIXME obsolete
-      ### FIXME obsolete
-      if false
-        fstab = Convert.convert(
-          SCR.Read(path(".etc.fstab")),
-          from: "any",
-          to:   "list <map <string, any>>"
-        )
-        fstab = UnescapeSpaces(fstab)
-        Builtins.y2milestone("fstab: %1", fstab)
-
-        # For simplicity, this leaves also the unused fileds in the maps.
-        @nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") == "nfs" ||
-            Ops.get_string(entry, "vfstype", "") == "nfs4"
-        end
-        @non_nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") != "nfs" &&
-            Ops.get_string(entry, "vfstype", "") != "nfs4"
-        end
-      end
-
-      # END_FIXME
-      # END_FIXME
-      # END_FIXME
-
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
       @idmapd_domain = ReadIdmapd()
@@ -385,7 +357,7 @@ module Yast
       fstab = EtcFstab.new("/etc/fstab")
       nfs_entries = fstab.entries.select { |e| e.fs_type.start_with?("nfs") }
       @nfs_entries = nfs_entries.map do |entry|
-        share = Hash.new
+        share = {}
         share["spec"]    = entry.device
         share["file"]    = entry.mount_point
         share["vfstype"] = entry.fs_type
@@ -433,7 +405,7 @@ module Yast
     # @param fstab [EtcFstab]
     #
     def remove_unknown_shares(fstab)
-      shares = @nfs_entries.map { |s| share["spec"] }
+      shares = @nfs_entries.map { |share| share["spec"] }
       fstab.entries.delete_if do |entry|
         entry.fs_type.start_with("nfs") && !shares.include?(entry.device)
       end
@@ -498,54 +470,6 @@ module Yast
         return false
       end
 
-      # FIXME obsolete
-      # FIXME obsolete
-      # FIXME obsolete
-      if false
-      # Merge with non-nfs entries from fstab:
-      fstab = SCR.Read(path(".etc.fstab"))
-      # unescape deferred for optimization
-      fstab.delete_if { |entry| ["nfs", "nfs4"].include?(entry["vfstype"]) }
-      fstab = UnescapeSpaces(fstab)
-
-      @nfs_entries.each do |entry|
-        fstab << entry.merge("freq" => 0, "passno" => 0)
-        # create mount points
-        file = entry["file"] || ""
-        next if SCR.Execute(path(".target.mkdir"), file)
-        # error popup message
-        Report.Warning(
-          Builtins.sformat(_("Unable to create directory '%1'."), file)
-        )
-      end
-
-      log.debug("fstab before ordering: #{fstab}")
-      fstab = Fstab::TSort.sort(fstab)
-      log.info("fstab: #{fstab}")
-
-      SCR.Execute(
-        path(".target.bash"),
-        "/bin/cp $ORIG $BACKUP",
-        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
-      )
-      # END_FIXME
-      # END_FIXME
-      # END_FIXME
-
-      fstab = EscapeSpaces(fstab)
-      if !SCR.Write(path(".etc.fstab"), fstab)
-        # error popup message
-        Report.Error(
-          _(
-            "Unable to write to /etc/fstab.\n" \
-              "No changes will be made to the\n" \
-              "the NFS client configuration.\n"
-          )
-        )
-        return false
-      end
-      end
-
       @portmapper = FindPortmapper()
       if !@nfs_entries.empty?
         Service.Enable(@portmapper)
@@ -608,7 +532,7 @@ module Yast
       Service.Stop("nfs")
 
       Progress.NextStage
-      if Ops.greater_than(Builtins.size(@nfs_entries), 0)
+      if !@nfs_entries.empty?
         # portmap must not be started if it is running already (see bug # 9999)
         Service.Start(@portmapper) unless Service.active?(@portmapper)
 
