@@ -2,6 +2,7 @@
 
 require "yast"
 require "fstab/tsort"
+require "etc_fstab"
 
 # YaST namespace
 module Yast
@@ -311,8 +312,12 @@ module Yast
     # Reads NFS settings from the SCR (.etc.fstab)
     # @return true on success
     def Read
-      # Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
-      if !@skip_fstab
+      read_etc_fstab
+
+      ### FIXME obsolete
+      ### FIXME obsolete
+      ### FIXME obsolete
+      if false
         fstab = Convert.convert(
           SCR.Read(path(".etc.fstab")),
           from: "any",
@@ -331,6 +336,10 @@ module Yast
             Ops.get_string(entry, "vfstype", "") != "nfs4"
         end
       end
+
+      # END_FIXME
+      # END_FIXME
+      # END_FIXME
 
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
@@ -362,6 +371,110 @@ module Yast
       true
     end
 
+    # Read /etc/fstab if this is running as a standalone YaST module.
+    #
+    # If it runs embedded into the expert partitioner, libstorage takes care of
+    # /etc/fstab, so this function does nothing.
+    #
+    def read_etc_fstab
+      # Skip if not running standalone, but in the expert partitioner:
+      # Then libstorage takes care of /etc/fstab.
+      return if @skip_fstab
+
+      # TO DO: Prepend $target to path (maybe running in the inst-sys?)
+      fstab = EtcFstab.new("/etc/fstab")
+      nfs_entries = fstab.entries.select { |e| e.fs_type.start_with?("nfs") }
+      @nfs_entries = nfs_entries.map do |entry|
+        share = Hash.new
+        share["spec"]    = entry.device
+        share["file"]    = entry.mount_point
+        share["vfstype"] = entry.fs_type
+        share["mntops"]  = entry.format_mount_opts
+        share
+      end
+    end
+
+    # Write /etc/fstab if this is running as a standalone YaST module.
+    #
+    def write_etc_fstab
+      return if @skip_fstab
+      backup_etc_fstab
+
+      # TO DO: Prepend $target to path (maybe running in the inst-sys?)
+      fstab = EtcFstab.new("/etc/fstab")
+      merge_entries(fstab)
+      remove_unknown_shares(fstab)
+      fstab.fix_mount_order
+      fstab.write
+    end
+
+    # Merge or add all @nfs_entries to an EtcFstab object.
+    #
+    # @param fstab [EtcFstab]
+    #
+    def merge_entries(fstab)
+      @nfs_entries.each do |share|
+        device = share["spec"]
+        entry = fstab.find_device(device)
+        if entry
+          fill_from_nfs_entry(entry, share)
+        else
+          entry = fstab.create_entry
+          entry.device = device
+          fill_from_nfs_entry(entry, share)
+          fstab.add_entry(entry)
+        end
+      end
+    end
+
+    # Remove all NFS entries from fstab that don't have a counterpart in
+    # @nfs_entries
+    #
+    # @param fstab [EtcFstab]
+    #
+    def remove_unknown_shares(fstab)
+      shares = @nfs_entries.map { |s| share["spec"] }
+      fstab.entries.delete_if do |entry|
+        entry.fs_type.start_with("nfs") && !shares.include?(entry.device)
+      end
+    end
+
+    # Fill an EtcFstab entry from an @nfs_entry hash.
+    #
+    # @param entry [EtcFstab::Entry]
+    # @param share [Hash]
+    #
+    def fill_from_nfs_entry(entry, share)
+      entry.mount_point = share["file"] || "/unknown_nfs"
+      entry.fs_type     = share["fs_type"] || "nfs"
+      mount_opts        = share["mntops"] || ""
+      entry.parse_mount_opts(mount_opts)
+    end
+
+    # Back up /etc/fstab to /etc/fstab.YaST2.save
+    #
+    def backup_etc_fstab
+      SCR.Execute(
+        path(".target.bash"),
+        "/bin/cp $ORIG $BACKUP",
+        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
+      )
+    end
+
+    # Create all required mount points from @nfs_entries.
+    #
+    def create_mount_points
+      @nfs_entries.each do |entry|
+        # create mount points
+        file = entry["file"] || ""
+        next if SCR.Execute(path(".target.mkdir"), file)
+        # error popup message
+        Report.Warning(
+          Builtins.sformat(_("Unable to create directory '%1'."), file)
+        )
+      end
+    end
+
     # Writes the NFS client configuration without
     # starting/stopping the service.
     # Autoinstallation uses this and then calls SuSEconfig only once
@@ -369,6 +482,26 @@ module Yast
     # (No parameters because it is too short to abort)
     # @return true on success
     def WriteOnly
+      create_mount_points
+      begin
+        write_etc_fstab
+      rescue SystemCallError => err
+        log.error("Error writing /etc/fstab: #{err}")
+        # error popup message
+        Report.Error(
+          _(
+            "Unable to write to /etc/fstab.\n" \
+            "No changes will be made to\n" \
+            "the NFS client configuration.\n"
+          )
+        )
+        return false
+      end
+
+      # FIXME obsolete
+      # FIXME obsolete
+      # FIXME obsolete
+      if false
       # Merge with non-nfs entries from fstab:
       fstab = SCR.Read(path(".etc.fstab"))
       # unescape deferred for optimization
@@ -395,6 +528,9 @@ module Yast
         "/bin/cp $ORIG $BACKUP",
         "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
       )
+      # END_FIXME
+      # END_FIXME
+      # END_FIXME
 
       fstab = EscapeSpaces(fstab)
       if !SCR.Write(path(".etc.fstab"), fstab)
@@ -407,6 +543,7 @@ module Yast
           )
         )
         return false
+      end
       end
 
       @portmapper = FindPortmapper()
