@@ -504,17 +504,15 @@ module Yast
     # Summary()
     # @return Html formatted configuration summary
     def Summary
+      log.info("Entries: #{@nfs_entries}")
       summary = ""
-      nc = Summary.NotConfigured
       # summary header
       summary = Summary.AddHeader(summary, _("NFS Entries"))
-      entries = Builtins.size(@nfs_entries)
-      Builtins.y2milestone("Entries: %1", @nfs_entries)
       # summary item, %1 is a number
-      configured = Builtins.sformat(_("%1 entries configured"), entries)
+      configured = Builtins.sformat(_("%1 entries configured"), @nfs_entries.size)
       summary = Summary.AddLine(
         summary,
-        Ops.greater_than(entries, 0) ? configured : nc
+        @nfs_entries.empty? ? Summary.NotConfigured : configured
       )
       summary
     end
