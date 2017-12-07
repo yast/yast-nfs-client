@@ -243,63 +243,6 @@ module Yast
       deep_copy(settings)
     end
 
-    # ------------------------------------------------------------
-    # Space escaping.
-    # This should be done by the agent, but any-agent sucks.
-
-    # Escape spaces " " -> "\\040".
-    # @param [String] s a string or nil
-    # @return escaped string or nil
-    def EscapeSpaces1(s)
-      return nil if s.nil?
-      s.gsub(/ /) { "\\040" } # block prevents interpreting \ as backreference
-    end
-
-    # Escape spaces " " -> "\\040" in all values of all entries
-    # @param [Array<Hash{String => Object>}] entries a list of maps, such as nfs_entries
-    # @return escaped entries
-    def EscapeSpaces(entries)
-      entries = deep_copy(entries)
-      Builtins.maplist(entries) do |entry|
-        Builtins.mapmap(entry) do |key, value|
-          {
-            key => if Ops.is_string?(value)
-                     EscapeSpaces1(Convert.to_string(value))
-                   else
-                     value
-                   end
-          }
-        end
-      end
-    end
-
-    # Un-escape spaces "\\040" -> " "
-    # @param [String] s string or nil
-    # @return escaped string or nil
-    def UnescapeSpaces1(s)
-      return nil if s.nil?
-      # escaped space, \040, is /\\040/
-      s.gsub(/\\040/, " ")
-    end
-
-    # Un-escape spaces "\\040" -> " " in all values of all entries
-    # @param [Array<Hash{String => Object>}] entries a list of maps, such as nfs_entries
-    # @return escaped entries
-    def UnescapeSpaces(entries)
-      entries = deep_copy(entries)
-      Builtins.maplist(entries) do |entry|
-        Builtins.mapmap(entry) do |key, value|
-          {
-            key => if Ops.is_string?(value)
-                     UnescapeSpaces1(Convert.to_string(value))
-                   else
-                     value
-                   end
-          }
-        end
-      end
-    end
-
     def FindPortmapper
       # testsuite is dumb - it can't distinguish between the existence
       # of two services - either both exists or both do not
