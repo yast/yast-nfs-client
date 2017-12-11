@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        3.1.17
+Version:        3.1.18
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -29,7 +29,7 @@ BuildRequires:  update-desktop-files
 BuildRequires:  yast2-devtools >= 3.1.27
 BuildRequires:  yast2-testsuite
 # Don't use Info function to check enable state (bnc#807507)
-BuildRequires:  yast2 >= 2.23.23
+BuildRequires:  yast2 >= 3.2.40
 BuildRequires:  rubygem(rspec)
 # path_matching (RSpec argument matcher)
 BuildRequires:  yast2-ruby-bindings >= 3.1.31
