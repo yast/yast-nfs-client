@@ -1,8 +1,7 @@
 # encoding: utf-8
 
 require "yast"
-require "fstab/tsort"
-require "etc_fstab"
+require "yast2/etc_fstab"
 
 # YaST namespace
 module Yast
@@ -350,7 +349,7 @@ module Yast
     def remove_unknown_shares(fstab)
       shares = @nfs_entries.map { |share| share["spec"] }
       fstab.entries.delete_if do |entry|
-        entry.fs_type.start_with("nfs") && !shares.include?(entry.device)
+        entry.fs_type.start_with?("nfs") && !shares.include?(entry.device)
       end
     end
 
