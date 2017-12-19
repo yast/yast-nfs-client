@@ -173,8 +173,8 @@ module Yast
       settings = deep_copy(settings)
       # ($) since oS-1x.x, settings was changed to be a map,
       # which is incompatible with the sle profiles;
-      # it owuld be nice to make it compatible again
-      # whjich this code is readyu to, but the Autoyast engine isn't.
+      # it would be nice to make it compatible again
+      # which this code is ready to, but the Autoyast engine isn't.
       global_options = {}
       entries = []
       global_options_ref = arg_ref(global_options)
