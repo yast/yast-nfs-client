@@ -7,6 +7,7 @@ site.exp
 # * are test cases
 tmp.out*
 tmp.err*
+tmp.fstab
 # harness
 config/
 run/

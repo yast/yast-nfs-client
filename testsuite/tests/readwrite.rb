@@ -9,9 +9,13 @@
 # Authors:
 #   Martin Vidner <mvidner@suse.cz>
 #
-# $Id$
+
+require_relative "test_helper.rb"
+
 module Yast
   class ReadwriteClient < Client
+    include TestHelper
+
     def main
       # testedfiles: Nfs.ycp Service.ycp Report.ycp Testsuite.ycp
 
@@ -117,12 +121,19 @@ module Yast
         }
       }
 
+      # Change fstab name for test environment
+      Nfs.etc_fstab_name = FSTAB_NAME
+
+      # Using run_test from test_helper.rb to set up a temporary fstab before
+      # and dump it after each test
       DUMP("Read")
-      TEST(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
+
       DUMP("Write OK")
-      TEST(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
+
       DUMP("Write KO")
-      TEST(->() { Nfs.Write }, [@READ, @WRITE_KO, @EXECUTE], nil)
+      run_test(->() { Nfs.Write }, [@READ, @WRITE_KO, @EXECUTE], nil)
 
       nil
     end

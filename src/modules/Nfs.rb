@@ -298,7 +298,6 @@ module Yast
       # Then libstorage takes care of /etc/fstab.
       return if @skip_fstab
 
-      # TO DO: Prepend $target to path (maybe running in the inst-sys?)
       fstab = EtcFstab.new(@etc_fstab_name)
       nfs_entries = fstab.select { |e| e.fs_type.start_with?("nfs") }
       @nfs_entries = nfs_entries.map do |entry|
@@ -316,8 +315,6 @@ module Yast
     def write_etc_fstab
       return if @skip_fstab
       backup_etc_fstab
-
-      # TO DO: Prepend $target to path (maybe running in the inst-sys?)
       fstab = EtcFstab.new(@etc_fstab_name)
       merge_entries(fstab)
       remove_unknown_shares(fstab)
