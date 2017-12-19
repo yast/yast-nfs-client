@@ -300,7 +300,7 @@ module Yast
 
       # TO DO: Prepend $target to path (maybe running in the inst-sys?)
       fstab = EtcFstab.new(@etc_fstab_name)
-      nfs_entries = fstab.entries.select { |e| e.fs_type.start_with?("nfs") }
+      nfs_entries = fstab.select { |e| e.fs_type.start_with?("nfs") }
       @nfs_entries = nfs_entries.map do |entry|
         share = {}
         share["spec"]    = entry.device
@@ -351,7 +351,7 @@ module Yast
     #
     def remove_unknown_shares(fstab)
       shares = @nfs_entries.map { |share| share["spec"] }
-      fstab.entries.delete_if do |entry|
+      fstab.delete_if do |entry|
         entry.fs_type.start_with?("nfs") && !shares.include?(entry.device)
       end
     end
