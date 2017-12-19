@@ -34,19 +34,19 @@ describe Yast::Nfs do
     let(:yaml_fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
     let(:nfs_entries) do
       entry_in_fstab =
-      {
-        "spec"    => "nfs.example.com:/baz",
-        "file"    => "/foo/bar/baz",
-        "vfstype" => "nfs",
-        "mntops"  => "defaults"
-      }
+        {
+          "spec"    => "nfs.example.com:/baz",
+          "file"    => "/foo/bar/baz",
+          "vfstype" => "nfs",
+          "mntops"  => "defaults"
+        }
       entry_not_in_fstab =
-      {
-        "spec"    => "nfs.example.com:/foo",
-        "file"    => "/foo",
-        "vfstype" => "nfs",
-        "mntops"  => "defaults"
-      }
+        {
+          "spec"    => "nfs.example.com:/foo",
+          "file"    => "/foo",
+          "vfstype" => "nfs",
+          "mntops"  => "defaults"
+        }
       [entry_in_fstab, entry_not_in_fstab]
     end
 
@@ -98,12 +98,13 @@ describe Yast::Nfs do
     end
 
     after do
+      # Comment this out to debug unexpected behaviour
       File.delete(fstab_name)
     end
 
     it "creates a properly ordered fstab" do
       subject.WriteOnly
-      
+
       ordered_mount_points = ["/", "/foo", "/foof", "/foo/bar", "/foo/bar/baz"]
 
       fstab = EtcFstab.new(fstab_name)
@@ -113,9 +114,8 @@ describe Yast::Nfs do
     it "ensures zero for 'passno' and 'freq' fields, only in nfs entries" do
       subject.WriteOnly
       fstab = EtcFstab.new(fstab_name)
-      shares = fstab.select { |e| e.fs_type.start_with?("nfs") }
-      other_entries = fstab.reject { |e| e.fs_type.start_with?("nfs") }
-      
+      shares, other_entries = fstab.partition { |e| e.fs_type.start_with?("nfs") }
+
       expect(shares.size).to be == 2
       expect(shares.map(&:fsck_pass)).to eq [0, 0]
       expect(shares.map(&:dump_pass)).to eq [0, 0]
