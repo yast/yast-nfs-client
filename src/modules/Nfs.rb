@@ -53,6 +53,9 @@ module Yast
 
       # list of created directories
       @created_dirs = []
+
+      # Filename with path of the fstab file. Configurable mostly for the test suite.
+      @etc_fstab_name = "/etc/fstab"
     end
 
     # Function sets internal variable, which indicates, that any
@@ -296,7 +299,7 @@ module Yast
       return if @skip_fstab
 
       # TO DO: Prepend $target to path (maybe running in the inst-sys?)
-      fstab = EtcFstab.new("/etc/fstab")
+      fstab = EtcFstab.new(@etc_fstab_name)
       nfs_entries = fstab.entries.select { |e| e.fs_type.start_with?("nfs") }
       @nfs_entries = nfs_entries.map do |entry|
         share = {}
@@ -315,7 +318,7 @@ module Yast
       backup_etc_fstab
 
       # TO DO: Prepend $target to path (maybe running in the inst-sys?)
-      fstab = EtcFstab.new("/etc/fstab")
+      fstab = EtcFstab.new(@etc_fstab_name)
       merge_entries(fstab)
       remove_unknown_shares(fstab)
       fstab.fix_mount_order
@@ -719,6 +722,7 @@ module Yast
     publish variable: :nfs4_enabled, type: "boolean"
     publish variable: :nfs_gss_enabled, type: "boolean"
     publish variable: :idmapd_domain, type: "string"
+    publish variable: :etc_fstab_name, type: "string"
     publish function: :Import, type: "boolean (map <string, any>)"
     publish function: :Export, type: "map ()"
     publish function: :FindPortmapper, type: "string ()"
