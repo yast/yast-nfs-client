@@ -3,7 +3,7 @@
 require "yast2/etc_fstab"
 
 module TestHelper
-  FSTAB_NAME = "tmp.fstab"
+  FSTAB_NAME = "tmp.fstab".freeze
 
   # Map hash target-map-like keys for an fstab entry to the keys the EtcFstab
   # class expects
@@ -15,7 +15,7 @@ module TestHelper
       "mntops"  => :mount_opts,
       "freq"    => :dump_pass,
       "passno"  => :fsck_pass
-    }
+    }.freeze
 
   # Wrapper around TEST from include/testsuite.rb to create the correct fstab
   # before the test and dump it afterwards.
