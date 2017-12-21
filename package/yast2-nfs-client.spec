@@ -29,13 +29,12 @@ BuildRequires:  update-desktop-files
 BuildRequires:  yast2-devtools >= 3.1.27
 BuildRequires:  yast2-testsuite
 # Don't use Info function to check enable state (bnc#807507)
-BuildRequires:  yast2 >= 3.2.40
+BuildRequires:  yast2 >= 3.2.41
 BuildRequires:  rubygem(rspec)
 # path_matching (RSpec argument matcher)
 BuildRequires:  yast2-ruby-bindings >= 3.1.31
-#ag_showexports moved to yast2 base
-# introduces extended IPv6 support.
-Requires:       yast2 >= 2.23.6
+# introduces EtcFstab, CommentedConfigFile, ColumnConfigFile
+Requires:       yast2 >= 3.2.41
 #idmapd_conf agent
 Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
