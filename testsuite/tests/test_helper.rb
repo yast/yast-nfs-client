@@ -21,7 +21,7 @@ module TestHelper
   # before the test and dump it afterwards.
   #
   def run_test(function, input, default)
-    File.delete(FSTAB_NAME)
+    File.delete(FSTAB_NAME) if File.exist?(FSTAB_NAME)
     fstab_desc = input[0]["etc"]["fstab"]
     create_fstab(FSTAB_NAME, fstab_desc)
 
