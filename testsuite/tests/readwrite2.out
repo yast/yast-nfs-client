@@ -1,76 +1,128 @@
 Dump	
 Dump	Read  - nfs is in use & running
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
+Dump	tmp.fstab before:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf.value.General.Domain "localhost"
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Dump	
 Dump	Write - nfs is in use - start services
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
+Dump	tmp.fstab before:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Execute	.target.mkdir "/home" true
 Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
-Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Log	Cannot start 'portmap' service
 Return	false
+Dump	tmp.fstab after:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Dump	
 Dump	Read  - nfs is in use & stopped
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
+Dump	tmp.fstab before:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf.value.General.Domain "localhost"
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Dump	
 Dump	Write - nfs is in use - so, start services
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]]
+Dump	tmp.fstab before:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Execute	.target.mkdir "/home" true
 Execute	.target.mkdir "/var/spool/mail" true
 Execute	.target.mkdir "/b space" true
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
-Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"reiserfs"], $["file":"/a\\040space", "freq":1, "mntops":"defaults", "passno":3, "spec":"/dev/hda7", "vfstype":"reiserfs"], $["file":"/home", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/home", "vfstype":"nfs"], $["file":"/var/spool/mail", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/var/spool/mail", "vfstype":"nfs"], $["file":"/b\\040space", "freq":0, "mntops":"defaults", "passno":0, "spec":"foo.bar.com:/space\\040dir", "vfstype":"nfs"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Log	Cannot start 'portmap' service
 Return	false
+Dump	tmp.fstab after:
+File	/dev/hda6                    /                reiserfs  defaults  1  2
+File	foo.bar.com:/home            /home            nfs       defaults  0  0
+File	foo.bar.com:/var/spool/mail  /var/spool/mail  nfs       defaults  0  0
+File	/dev/hda7                    /a\040space      reiserfs  defaults  1  3
+File	foo.bar.com:/space\040dir    /b\040space      nfs       defaults  0  0
 Dump	
 Dump	Read  - nfs not used & running
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
+Dump	tmp.fstab before:
+File	/dev/hda6  /  ext3  defaults  1  2
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf.value.General.Domain "localhost"
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6  /  ext3  defaults  1  2
 Dump	
 Dump	Write - nfs not used - so, stopping services
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
+Dump	tmp.fstab before:
+File	/dev/hda6  /  ext3  defaults  1  2
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
-Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6  /  ext3  defaults  1  2
 Dump	
 Dump	Read  - nfs not used & services are stopped
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
+Dump	tmp.fstab before:
+File	/dev/hda6  /  ext3  defaults  1  2
 Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Read	.etc.idmapd_conf.value.General.Domain "localhost"
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6  /  ext3  defaults  1  2
 Dump	
 Dump	Write - nfs not used; leave services stopped
 Dump	
-Read	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]]
+Dump	tmp.fstab before:
+File	/dev/hda6  /  ext3  defaults  1  2
 Execute	.target.bash "/bin/cp $ORIG $BACKUP" $["BACKUP":"/etc/fstab.YaST2.save", "ORIG":"/etc/fstab"] 0
-Write	.etc.fstab [$["file":"/", "freq":1, "mntops":"defaults", "passno":2, "spec":"/dev/hda6", "vfstype":"ext3"]] true
 Write	.sysconfig.nfs.NFS4_SUPPORT "no" true
 Write	.sysconfig.nfs.NFS_SECURITY_GSS "no" true
 Return	true
+Dump	tmp.fstab after:
+File	/dev/hda6  /  ext3  defaults  1  2

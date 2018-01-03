@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 require "yast"
-require "fstab/tsort"
+require "yast2/etc_fstab"
 
 # YaST namespace
 module Yast
@@ -53,6 +53,9 @@ module Yast
 
       # list of created directories
       @created_dirs = []
+
+      # Filename with path of the fstab file. Configurable mostly for the test suite.
+      @etc_fstab_name = "/etc/fstab"
     end
 
     # Function sets internal variable, which indicates, that any
@@ -170,8 +173,8 @@ module Yast
       settings = deep_copy(settings)
       # ($) since oS-1x.x, settings was changed to be a map,
       # which is incompatible with the sle profiles;
-      # it owuld be nice to make it compatible again
-      # whjich this code is readyu to, but the Autoyast engine isn't.
+      # it would be nice to make it compatible again
+      # which this code is ready to, but the Autoyast engine isn't.
       global_options = {}
       entries = []
       global_options_ref = arg_ref(global_options)
@@ -242,63 +245,6 @@ module Yast
       deep_copy(settings)
     end
 
-    # ------------------------------------------------------------
-    # Space escaping.
-    # This should be done by the agent, but any-agent sucks.
-
-    # Escape spaces " " -> "\\040".
-    # @param [String] s a string or nil
-    # @return escaped string or nil
-    def EscapeSpaces1(s)
-      return nil if s.nil?
-      s.gsub(/ /) { "\\040" } # block prevents interpreting \ as backreference
-    end
-
-    # Escape spaces " " -> "\\040" in all values of all entries
-    # @param [Array<Hash{String => Object>}] entries a list of maps, such as nfs_entries
-    # @return escaped entries
-    def EscapeSpaces(entries)
-      entries = deep_copy(entries)
-      Builtins.maplist(entries) do |entry|
-        Builtins.mapmap(entry) do |key, value|
-          {
-            key => if Ops.is_string?(value)
-                     EscapeSpaces1(Convert.to_string(value))
-                   else
-                     value
-                   end
-          }
-        end
-      end
-    end
-
-    # Un-escape spaces "\\040" -> " "
-    # @param [String] s string or nil
-    # @return escaped string or nil
-    def UnescapeSpaces1(s)
-      return nil if s.nil?
-      # escaped space, \040, is /\\040/
-      s.gsub(/\\040/, " ")
-    end
-
-    # Un-escape spaces "\\040" -> " " in all values of all entries
-    # @param [Array<Hash{String => Object>}] entries a list of maps, such as nfs_entries
-    # @return escaped entries
-    def UnescapeSpaces(entries)
-      entries = deep_copy(entries)
-      Builtins.maplist(entries) do |entry|
-        Builtins.mapmap(entry) do |key, value|
-          {
-            key => if Ops.is_string?(value)
-                     UnescapeSpaces1(Convert.to_string(value))
-                   else
-                     value
-                   end
-          }
-        end
-      end
-    end
-
     def FindPortmapper
       # testsuite is dumb - it can't distinguish between the existence
       # of two services - either both exists or both do not
@@ -311,27 +257,7 @@ module Yast
     # Reads NFS settings from the SCR (.etc.fstab)
     # @return true on success
     def Read
-      # Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
-      if !@skip_fstab
-        fstab = Convert.convert(
-          SCR.Read(path(".etc.fstab")),
-          from: "any",
-          to:   "list <map <string, any>>"
-        )
-        fstab = UnescapeSpaces(fstab)
-        Builtins.y2milestone("fstab: %1", fstab)
-
-        # For simplicity, this leaves also the unused fileds in the maps.
-        @nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") == "nfs" ||
-            Ops.get_string(entry, "vfstype", "") == "nfs4"
-        end
-        @non_nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") != "nfs" &&
-            Ops.get_string(entry, "vfstype", "") != "nfs4"
-        end
-      end
-
+      read_etc_fstab
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
       @idmapd_domain = ReadIdmapd()
@@ -362,21 +288,97 @@ module Yast
       true
     end
 
-    # Writes the NFS client configuration without
-    # starting/stopping the service.
-    # Autoinstallation uses this and then calls SuSEconfig only once
-    # and starts the services together.
-    # (No parameters because it is too short to abort)
-    # @return true on success
-    def WriteOnly
-      # Merge with non-nfs entries from fstab:
-      fstab = SCR.Read(path(".etc.fstab"))
-      # unescape deferred for optimization
-      fstab.delete_if { |entry| ["nfs", "nfs4"].include?(entry["vfstype"]) }
-      fstab = UnescapeSpaces(fstab)
+    # Read /etc/fstab if this is running as a standalone YaST module.
+    #
+    # If it runs embedded into the expert partitioner, libstorage takes care of
+    # /etc/fstab, so this function does nothing.
+    #
+    def read_etc_fstab
+      # Skip if not running standalone, but in the expert partitioner:
+      # Then libstorage takes care of /etc/fstab.
+      return if @skip_fstab
 
+      fstab = EtcFstab.new(@etc_fstab_name)
+      nfs_entries = fstab.select { |e| e.fs_type.start_with?("nfs") }
+      @nfs_entries = nfs_entries.map do |entry|
+        share = {}
+        share["spec"]    = entry.device
+        share["file"]    = entry.mount_point
+        share["vfstype"] = entry.fs_type
+        share["mntops"]  = entry.format_mount_opts
+        share
+      end
+    end
+
+    # Write /etc/fstab if this is running as a standalone YaST module.
+    #
+    def write_etc_fstab
+      return if @skip_fstab
+      backup_etc_fstab
+      fstab = EtcFstab.new(@etc_fstab_name)
+      merge_entries(fstab)
+      remove_unknown_shares(fstab)
+      fstab.fix_mount_order
+      fstab.write
+    end
+
+    # Merge or add all @nfs_entries to an EtcFstab object.
+    #
+    # @param fstab [EtcFstab]
+    #
+    def merge_entries(fstab)
+      @nfs_entries.each do |share|
+        device = share["spec"]
+        entry = fstab.find_device(device)
+        if entry
+          fill_from_nfs_entry(entry, share)
+        else
+          entry = fstab.create_entry
+          entry.device = device
+          fill_from_nfs_entry(entry, share)
+          fstab.add_entry(entry)
+        end
+      end
+    end
+
+    # Remove all NFS entries from fstab that don't have a counterpart in
+    # @nfs_entries
+    #
+    # @param fstab [EtcFstab]
+    #
+    def remove_unknown_shares(fstab)
+      shares = @nfs_entries.map { |share| share["spec"] }
+      fstab.delete_if do |entry|
+        entry.fs_type.start_with?("nfs") && !shares.include?(entry.device)
+      end
+    end
+
+    # Fill an EtcFstab entry from an @nfs_entry hash.
+    #
+    # @param entry [EtcFstab::Entry]
+    # @param share [Hash]
+    #
+    def fill_from_nfs_entry(entry, share)
+      entry.mount_point = share["file"] || "/unknown_nfs"
+      entry.fs_type     = share["fs_type"] || "nfs"
+      mount_opts        = share["mntops"] || ""
+      entry.parse_mount_opts(mount_opts)
+    end
+
+    # Back up /etc/fstab to /etc/fstab.YaST2.save
+    #
+    def backup_etc_fstab
+      SCR.Execute(
+        path(".target.bash"),
+        "/bin/cp $ORIG $BACKUP",
+        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
+      )
+    end
+
+    # Create all required mount points from @nfs_entries.
+    #
+    def create_mount_points
       @nfs_entries.each do |entry|
-        fstab << entry.merge("freq" => 0, "passno" => 0)
         # create mount points
         file = entry["file"] || ""
         next if SCR.Execute(path(".target.mkdir"), file)
@@ -385,25 +387,26 @@ module Yast
           Builtins.sformat(_("Unable to create directory '%1'."), file)
         )
       end
+    end
 
-      log.debug("fstab before ordering: #{fstab}")
-      fstab = Fstab::TSort.sort(fstab)
-      log.info("fstab: #{fstab}")
-
-      SCR.Execute(
-        path(".target.bash"),
-        "/bin/cp $ORIG $BACKUP",
-        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
-      )
-
-      fstab = EscapeSpaces(fstab)
-      if !SCR.Write(path(".etc.fstab"), fstab)
+    # Writes the NFS client configuration without
+    # starting/stopping the service.
+    # Autoinstallation uses this and then calls SuSEconfig only once
+    # and starts the services together.
+    # (No parameters because it is too short to abort)
+    # @return true on success
+    def WriteOnly
+      create_mount_points
+      begin
+        write_etc_fstab
+      rescue SystemCallError => err
+        log.error("Error writing /etc/fstab: #{err}")
         # error popup message
         Report.Error(
           _(
             "Unable to write to /etc/fstab.\n" \
-              "No changes will be made to the\n" \
-              "the NFS client configuration.\n"
+            "No changes will be made to\n" \
+            "the NFS client configuration.\n"
           )
         )
         return false
@@ -471,7 +474,7 @@ module Yast
       Service.Stop("nfs")
 
       Progress.NextStage
-      if Ops.greater_than(Builtins.size(@nfs_entries), 0)
+      if !@nfs_entries.empty?
         # portmap must not be started if it is running already (see bug # 9999)
         Service.Start(@portmapper) unless Service.active?(@portmapper)
 
@@ -501,16 +504,13 @@ module Yast
     # @return Html formatted configuration summary
     def Summary
       summary = ""
-      nc = Summary.NotConfigured
       # summary header
       summary = Summary.AddHeader(summary, _("NFS Entries"))
-      entries = Builtins.size(@nfs_entries)
-      Builtins.y2milestone("Entries: %1", @nfs_entries)
       # summary item, %1 is a number
-      configured = Builtins.sformat(_("%1 entries configured"), entries)
+      configured = Builtins.sformat(_("%1 entries configured"), @nfs_entries.size)
       summary = Summary.AddLine(
         summary,
-        Ops.greater_than(entries, 0) ? configured : nc
+        @nfs_entries.empty? ? Summary.NotConfigured : configured
       )
       summary
     end
@@ -718,6 +718,7 @@ module Yast
     publish variable: :nfs4_enabled, type: "boolean"
     publish variable: :nfs_gss_enabled, type: "boolean"
     publish variable: :idmapd_domain, type: "string"
+    publish variable: :etc_fstab_name, type: "string"
     publish function: :Import, type: "boolean (map <string, any>)"
     publish function: :Export, type: "map ()"
     publish function: :FindPortmapper, type: "string ()"

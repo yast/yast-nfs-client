@@ -19,6 +19,7 @@
 
 require_relative "spec_helper"
 require "yaml"
+require "yast2/etc_fstab"
 
 Yast.import "Nfs"
 Yast.import "Progress"
@@ -29,10 +30,50 @@ describe Yast::Nfs do
   subject { Yast::Nfs }
 
   describe ".WriteOnly" do
-    let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
-    let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
+    let(:fstab_name) { File.join(DATA_PATH, "generated_fstab") }
+    let(:yaml_fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
+    let(:nfs_entries) do
+      entry_in_fstab =
+        {
+          "spec"    => "nfs.example.com:/baz",
+          "file"    => "/foo/bar/baz",
+          "vfstype" => "nfs",
+          "mntops"  => "defaults"
+        }
+      entry_not_in_fstab =
+        {
+          "spec"    => "nfs.example.com:/foo",
+          "file"    => "/foo",
+          "vfstype" => "nfs",
+          "mntops"  => "defaults"
+        }
+      [entry_in_fstab, entry_not_in_fstab]
+    end
+
+    # Create a hash with symbol keys from a hash with string keys
+    # This is available in Rails, but not in plain Ruby.
+    def symbolize_keys(str_hash)
+      sym_hash = {}
+      str_hash.each { |k, v| sym_hash[k.to_sym] = v }
+      sym_hash
+    end
+
+    def create_fstab(filename, yaml_entries)
+      fstab = EtcFstab.new
+      yaml_entries.each do |yaml_entry|
+        entry = fstab.create_entry(symbolize_keys(yaml_entry))
+        fstab.add_entry(entry)
+      end
+      fstab.write(filename)
+    end
 
     before do
+      # Creating an fstab without any NFS entries in data/generated_fstab
+      create_fstab(fstab_name, yaml_fstab_entries)
+
+      # Use the test environment's fstab
+      subject.etc_fstab_name = fstab_name
+
       # Set some sane defaults
       subject.nfs4_enabled = true
       subject.nfs_gss_enabled = true
@@ -54,49 +95,34 @@ describe Yast::Nfs do
 
       # Load the lists
       subject.nfs_entries = nfs_entries
-      allow(Yast::SCR).to receive(:Read).with(path(".etc.fstab"))
-        .and_return fstab_entries
+    end
+
+    after do
+      # Comment this out to debug unexpected behaviour
+      File.delete(fstab_name)
     end
 
     it "creates a properly ordered fstab" do
-      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
-        mount_points = fstab.map { |e| e["file"] }
-        sorted_mount_points = ["/", "/foof", "/foo", "/foo/bar", "/foo/bar/baz"]
-
-        expect(mount_points).to eq sorted_mount_points
-      end
-
       subject.WriteOnly
+
+      ordered_mount_points = ["/", "/foo", "/foof", "/foo/bar", "/foo/bar/baz"]
+
+      fstab = EtcFstab.new(fstab_name)
+      expect(fstab.mount_points).to eq ordered_mount_points
     end
 
     it "ensures zero for 'passno' and 'freq' fields, only in nfs entries" do
-      expected_passnos = {
-        "/"            => 1,
-        "/foof"        => nil,
-        "/foo"         => 0,
-        "/foo/bar"     => 0,
-        "/foo/bar/baz" => 0
-      }
-      expected_freqs = {
-        "/"            => nil,
-        "/foof"        => 1,
-        "/foo"         => 0,
-        "/foo/bar"     => 2,
-        "/foo/bar/baz" => 0
-      }
-
-      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
-        passnos = {}
-        freqs = {}
-        fstab.each do |e|
-          passnos[e["file"]] = e["passno"]
-          freqs[e["file"]] = e["freq"]
-        end
-        expect(passnos).to eq expected_passnos
-        expect(freqs).to eq expected_freqs
-      end
-
       subject.WriteOnly
+      fstab = EtcFstab.new(fstab_name)
+      shares, other_entries = fstab.partition { |e| e.fs_type.start_with?("nfs") }
+
+      expect(shares.size).to be == 2
+      expect(shares.map(&:fsck_pass)).to eq [0, 0]
+      expect(shares.map(&:dump_pass)).to eq [0, 0]
+
+      expect(other_entries.size).to be == 3
+      expect(other_entries.map(&:fsck_pass)).to eq [1, 1, 2]
+      expect(other_entries.map(&:dump_pass)).to eq [1, 0, 0]
     end
   end
 end

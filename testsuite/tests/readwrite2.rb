@@ -9,9 +9,13 @@
 # Authors:
 #   Martin Vidner <mvidner@suse.cz>
 #
-# $Id$
+
+require_relative "test_helper.rb"
+
 module Yast
   class Readwrite2Client < Client
+    include TestHelper
+
     def main
       # testedfiles: Nfs.ycp Service.ycp Report.ycp Testsuite.ycp
 
@@ -146,73 +150,39 @@ module Yast
         }
       }
 
+      # Change fstab name for test environment
+      Nfs.etc_fstab_name = FSTAB_NAME
+
+      # Using run_test from test_helper.rb to set up a temporary fstab before
+      # and dump it after each test
+      #
       # fstab contains nfs mounts & services are running
       DUMP("\nRead  - nfs is in use & running\n")
-      TEST(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Read }, [@READ, @WRITE, @EXECUTE], nil)
       # fstab unchanged
       DUMP("\nWrite - nfs is in use - start services\n")
-      TEST(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Write }, [@READ, @WRITE, @EXECUTE], nil)
 
       # fstab contains nfs mounts & services are stopped:-(
       DUMP("\nRead  - nfs is in use & stopped\n")
-      TEST(->() { Nfs.Read }, [@READ3, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Read }, [@READ3, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, start services
       DUMP("\nWrite - nfs is in use - so, start services\n")
-      TEST(->() { Nfs.Write }, [@READ3, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Write }, [@READ3, @WRITE, @EXECUTE], nil)
 
       # fstab contains no nfs mounts, services are running
       DUMP("\nRead  - nfs not used & running\n")
-      TEST(->() { Nfs.Read }, [@EMPTY, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Read }, [@EMPTY, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, STOP services
       DUMP("\nWrite - nfs not used - so, stopping services\n")
-      TEST(->() { Nfs.Write }, [@EMPTY, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Write }, [@EMPTY, @WRITE, @EXECUTE], nil)
 
       # fstab contains no nfs mount, serives are stopped
       DUMP("\nRead  - nfs not used & services are stopped\n")
-      TEST(->() { Nfs.Read }, [@EMPTY3, @WRITE, @EXECUTE], nil)
+      run_test(->() { Nfs.Read }, [@EMPTY3, @WRITE, @EXECUTE], nil)
       # fstab unchanged - so, leave services stopped
       DUMP("\nWrite - nfs not used; leave services stopped\n")
-      TEST(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil)
-
-      # // nfs and portmap are running
-      #     DUMP ("\nRead  - services are running\n");
-      #     TEST (``(Nfs::Read ()), [READ, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be stopped\n");
-      #     // Stop services!
-      # //    Nfs::start = false;
-      #     // And Write
-      #     TEST (``(Nfs::Write ()), [READ, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are running
-      #     DUMP ("\nRead  - services are running\n");
-      #     TEST (``(Nfs::Read ()), [READ, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services are running\n");
-      #     // Start services (nfsserver)
-      # //    Nfs::start = true;
-      #     // And Write
-      #     TEST (``(Nfs::Write ()), [READ, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are stopped
-      #     DUMP ("\nRead  - services are stopped\n");
-      #     TEST (``(Nfs::Read ()), [READ3, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be stopped\n");
-      #     // Leave services stopped
-      # //    Nfs::start = false;
-      #     // And Write
-      #     TEST (``(Nfs::Write ()), [READ3, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are stopped
-      #     DUMP ("\nRead  - services are stopped\n");
-      #     TEST (``(Nfs::Read ()), [READ3, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be started\n");
-      #     // Start services
-      # //    Nfs::start = true;
-      #     // And Write
-      #     TEST (``(Nfs::Write ()), [READ3, WRITE, EXECUTE], nil);
-      #
-      #     DUMP ("\nEMPTY\n");
-      #     TEST (``(Nfs::Read ()), [EMPTY, WRITE, EXECUTE], nil);
-      #     TEST (``(Nfs::Write ()), [EMPTY, WRITE, EXECUTE], nil);
+      run_test(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil)
 
       nil
     end
