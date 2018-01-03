@@ -503,7 +503,6 @@ module Yast
     # Summary()
     # @return Html formatted configuration summary
     def Summary
-      log.info("Entries: #{@nfs_entries}")
       summary = ""
       # summary header
       summary = Summary.AddHeader(summary, _("NFS Entries"))
