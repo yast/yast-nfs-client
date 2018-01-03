@@ -184,46 +184,6 @@ module Yast
       DUMP("\nWrite - nfs not used; leave services stopped\n")
       run_test(->() { Nfs.Write }, [@EMPTY3, @WRITE, @EXECUTE], nil)
 
-      # // nfs and portmap are running
-      #     DUMP ("\nRead  - services are running\n");
-      #     run_test (``(Nfs::Read ()), [READ, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be stopped\n");
-      #     // Stop services!
-      # //    Nfs::start = false;
-      #     // And Write
-      #     run_test (``(Nfs::Write ()), [READ, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are running
-      #     DUMP ("\nRead  - services are running\n");
-      #     run_test (``(Nfs::Read ()), [READ, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services are running\n");
-      #     // Start services (nfsserver)
-      # //    Nfs::start = true;
-      #     // And Write
-      #     run_test (``(Nfs::Write ()), [READ, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are stopped
-      #     DUMP ("\nRead  - services are stopped\n");
-      #     run_test (``(Nfs::Read ()), [READ3, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be stopped\n");
-      #     // Leave services stopped
-      # //    Nfs::start = false;
-      #     // And Write
-      #     run_test (``(Nfs::Write ()), [READ3, WRITE, EXECUTE], nil);
-      #
-      #     // nfs and portmap are stopped
-      #     DUMP ("\nRead  - services are stopped\n");
-      #     run_test (``(Nfs::Read ()), [READ3, WRITE, EXECUTE], nil);
-      #     DUMP ("\nWrite - services will be started\n");
-      #     // Start services
-      # //    Nfs::start = true;
-      #     // And Write
-      #     run_test (``(Nfs::Write ()), [READ3, WRITE, EXECUTE], nil);
-      #
-      #     DUMP ("\nEMPTY\n");
-      #     run_test (``(Nfs::Read ()), [EMPTY, WRITE, EXECUTE], nil);
-      #     run_test (``(Nfs::Write ()), [EMPTY, WRITE, EXECUTE], nil);
-
       nil
     end
   end
