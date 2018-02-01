@@ -2,6 +2,7 @@
 
 require "yast"
 require "fstab/tsort"
+require "y2firewall/firewalld"
 
 # YaST namespace
 module Yast
@@ -18,7 +19,6 @@ module Yast
       Yast.import "Report"
       Yast.import "Service"
       Yast.import "Summary"
-      Yast.import "SuSEFirewall"
       Yast.import "Progress"
       Yast.import "PackageSystem"
       Yast.import "PackagesProposal"
@@ -53,6 +53,10 @@ module Yast
 
       # list of created directories
       @created_dirs = []
+    end
+
+    def firewalld
+      Y2Firewall::Firewalld.instance
     end
 
     # Function sets internal variable, which indicates, that any
@@ -337,7 +341,7 @@ module Yast
       @idmapd_domain = ReadIdmapd()
 
       progress_orig = Progress.set(false)
-      SuSEFirewall.Read
+      firewalld.read
       Progress.set(progress_orig)
 
       @portmapper = FindPortmapper()
@@ -429,7 +433,7 @@ module Yast
       )
 
       progress_orig = Progress.set(false)
-      SuSEFirewall.WriteOnly
+      firewalld.write_only
       Progress.set(progress_orig)
 
       true
@@ -488,11 +492,7 @@ module Yast
           return false
         end
       end
-
-      progress_orig = Progress.set(false)
-      SuSEFirewall.ActivateConfiguration
-      Progress.set(progress_orig)
-
+      firewalld.reload
       Progress.NextStage
       true
     end
