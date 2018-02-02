@@ -19,16 +19,17 @@
 
 require_relative "spec_helper"
 require "yaml"
+require "y2firewall/firewalld"
 
 Yast.import "Nfs"
 Yast.import "Progress"
-Yast.import "SuSEFirewall"
 Yast.import "Service"
 
 describe Yast::Nfs do
   subject { Yast::Nfs }
 
   describe ".WriteOnly" do
+    let(:firewalld) { Y2Firewall::Firewalld.instance }
     let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
     let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
 
@@ -39,7 +40,7 @@ describe Yast::Nfs do
       allow(subject).to receive(:FindPortmapper).and_return "portmap"
 
       # Stub some risky calls
-      allow(Yast::SuSEFirewall).to receive(:WriteOnly)
+      allow(subject).to receive(:firewalld).and_return(firewalld)
       allow(Yast::Progress).to receive(:set)
       allow(Yast::Service).to receive(:Enable)
       allow(Yast::SCR).to receive(:Execute)
@@ -48,6 +49,9 @@ describe Yast::Nfs do
         .with(path_matching(/^\.sysconfig\.nfs/), any_args)
       allow(Yast::SCR).to receive(:Write)
         .with(path_matching(/^\.etc\.idmapd_conf/), any_args)
+      allow(firewalld).to receive(:installed?).and_return(true)
+      allow(firewalld).to receive(:read)
+      allow(firewalld).to receive(:write_only)
       # Creation of the backup
       allow(Yast::SCR).to receive(:Execute)
         .with(path(".target.bash"), %r{^/bin/cp }, any_args)

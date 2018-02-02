@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "y2firewall/firewalld"
 
 # YaST namespace
 module Yast
@@ -15,7 +16,6 @@ module Yast
       Yast.import "Nfs"
       Yast.import "NfsOptions"
       Yast.import "Popup"
-      Yast.import "SuSEFirewall"
       Yast.import "Wizard"
       Yast.include include_target, "nfs/routines.rb"
 
@@ -28,7 +28,7 @@ module Yast
 
       # firewall widget using CWM
       @fw_settings = {
-        "services"        => ["service:nfs-client"],
+        "services"        => ["nfs"],
         "display_details" => true
       }
       @fw_cwm_widget = CWMFirewallInterfaces.CreateOpenFirewallWidget(
@@ -324,13 +324,13 @@ module Yast
             # Translators: 1st part of error message
             error_msg = _("No NFS server has been found on your network.")
 
-            if SuSEFirewall.GetStartService
+            if firewalld.running?
               # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
               error_msg = Ops.add(
                 error_msg,
                 _(
                   "\n" \
-                    "This could be caused by a running SuSEfirewall2,\n" \
+                    "This could be caused by a running firewall,\n" \
                     "which probably blocks the network scanning."
                 )
               )
@@ -708,7 +708,7 @@ module Yast
       end
 
       if ret == :next
-        # grab current settings, store them to SuSEFirewall::
+        # grab current settings, store them to firewalld::
         SaveFstabEntries() if UI.WidgetExists(Id(:fstable))
         SaveSettings(event) if UI.WidgetExists(Id(:enable_nfs4))
       end
