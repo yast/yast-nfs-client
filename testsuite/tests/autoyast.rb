@@ -6,13 +6,7 @@ module Yast
       Yast.include self, "testsuite.rb"
       @I_READ = { "target" => { "tmpdir" => "/tmp" } }
       @I_WRITE = {}
-      # Firewalld rpm not installed
-      @I_EXEC = {
-        "target" => {
-          "bash"        => 1,
-          "bash_output" => { "exit" => 0, "stdout" => "", "stderr" => "" }
-        }
-      }
+      @I_EXEC = {}
 
       TESTSUITE_INIT([@I_READ, @I_WRITE, @I_EXEC], nil)
 
