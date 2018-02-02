@@ -330,7 +330,7 @@ module Yast
                 error_msg,
                 _(
                   "\n" \
-                    "This could be caused by a running Firewall,\n" \
+                    "This could be caused by a running firewall,\n" \
                     "which probably blocks the network scanning."
                 )
               )
