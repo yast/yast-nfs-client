@@ -15,6 +15,7 @@ module Yast
 
       Yast.import "FileUtils"
       Yast.import "Mode"
+      Yast.import "Stage"
       Yast.import "NfsOptions"
       Yast.import "Report"
       Yast.import "Service"
@@ -558,8 +559,8 @@ module Yast
       end
 
       portmapper = FindPortmapper()
-      # check whether portmapper is installed
-      if IsPortmapperInstalled(portmapper) == false
+      # check whether portmapper is installed, skip the check in inst-sys
+      if !Stage.initial && IsPortmapperInstalled(portmapper) == false
         Builtins.y2warning("Neither rpcbind nor portmap is installed")
         return nil
       end
@@ -676,7 +677,7 @@ module Yast
     # Probe a server for its exports.
     # @param [String] server IP or hostname
     # @param [Boolean] v4 Use NFSv4?
-    # @return a list of exported paths
+    # @return [Array<String>, nil] a list of exported paths or nil on error
     def ProbeExports(server, v4)
       dirs = []
 
@@ -704,8 +705,7 @@ module Yast
         )
       end
 
-      dirs = ["internal error"] if dirs.nil?
-      deep_copy(dirs)
+      dirs
     end
 
     publish variable: :modified, type: "boolean"

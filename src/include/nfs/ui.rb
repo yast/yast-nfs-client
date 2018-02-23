@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "y2firewall/firewalld"
+require "yast2/feedback"
 
 # YaST namespace
 module Yast
@@ -17,6 +18,7 @@ module Yast
       Yast.import "NfsOptions"
       Yast.import "Popup"
       Yast.import "Wizard"
+      Yast.import "Report"
       Yast.include include_target, "nfs/routines.rb"
 
       # Caches names of nfs servers for GetFstabEntry
@@ -341,28 +343,15 @@ module Yast
             UI.ChangeWidget(Id(:serverent), :Value, host) if host
           end
         elsif ret == :pathent_list
-          server2 = Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
-          v4 = Convert.to_boolean(UI.QueryWidget(Id(:nfs4), :Value))
+          server2 = UI.QueryWidget(Id(:serverent), :Value)
 
           if !CheckHostName(server2)
             UI.SetFocus(Id(:serverent))
             next
           end
 
-          UI.OpenDialog(
-            Label(
-              # Popup dialog, %1 is a host name
-              Builtins.sformat(
-                _("Getting directory list for \"%1\"..."),
-                server2
-              )
-            )
-          )
-          dirs = Nfs.ProbeExports(server2, v4)
-          UI.CloseDialog
-
-          dir = ChooseExport(dirs)
-          UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
+          v4 = UI.QueryWidget(Id(:nfs4), :Value)
+          scan_exports(server2, v4)
         elsif ret == :browse
           dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
           dir = "/" if dir.nil? || Builtins.size(dir) == 0
@@ -715,6 +704,24 @@ module Yast
 
       Wizard.RestoreScreenShotName
       Convert.to_symbol(ret)
+    end
+
+    # Scans the server and lets the user to select the export
+    # @param server [String] server hostname
+    # @param v4 [Boolen] if true use NFSv4, NFSv3 otherwise
+    def scan_exports(server, v4)
+      msg = Builtins.sformat(_("Getting directory list for \"%1\"..."), server)
+      dirs = Yast2::Feedback.show(msg) do
+        Nfs.ProbeExports(server, v4)
+      end
+
+      if dirs
+        dir = ChooseExport(dirs)
+        UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
+      else
+        # TRANSLATORS: Error message, scanning the NFS server failed
+        Report.Error(_("The NFS scan failed."))
+      end
     end
   end
 end

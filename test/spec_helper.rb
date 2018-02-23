@@ -21,15 +21,15 @@ SRC_PATH = File.expand_path("../../src", __FILE__)
 DATA_PATH = File.join(File.expand_path(File.dirname(__FILE__)), "data")
 ENV["Y2DIR"] = SRC_PATH
 
+# make sure we run the tests in English locale
+# (some tests check the output which is marked for translation)
+ENV["LC_ALL"] = "en_US.UTF-8"
+
 require "yast"
 require "yast/rspec"
 
 if ENV["COVERAGE"]
   require "simplecov"
-  SimpleCov.start
-
-  # for coverage we need to load all ruby files
-  Dir["#{SRC_PATH}/lib/**/*.rb"].each { |f| require_relative f }
 
   # use coveralls for on-line code coverage reporting at Travis CI
   if ENV["TRAVIS"]
@@ -38,5 +38,13 @@ if ENV["COVERAGE"]
       SimpleCov::Formatter::HTMLFormatter,
       Coveralls::SimpleCov::Formatter
     ]
+  end
+
+  # track all ruby files under src
+  src_location = File.expand_path("../../src", __FILE__)
+  SimpleCov.track_files("#{src_location}/**/*.rb")
+
+  SimpleCov.start do
+    add_filter "/test/"
   end
 end
