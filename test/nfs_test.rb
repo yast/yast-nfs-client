@@ -25,7 +25,7 @@ Yast.import "Nfs"
 Yast.import "Progress"
 Yast.import "Service"
 
-describe Yast::Nfs do
+describe "Yast::Nfs" do
   subject { Yast::Nfs }
 
   describe ".WriteOnly" do
