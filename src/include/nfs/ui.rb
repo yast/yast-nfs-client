@@ -326,7 +326,7 @@ module Yast
             # Translators: 1st part of error message
             error_msg = _("No NFS server has been found on your network.")
 
-            if firewalld.running?
+            if Y2Firewall::Firewalld.instance.running?
               # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
               error_msg = Ops.add(
                 error_msg,
