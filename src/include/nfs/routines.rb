@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "y2nfs_client/nfs_version"
+
 # YaST namespace
 module Yast
   # Miscellaneous
@@ -12,6 +14,7 @@ module Yast
       Yast.import "IP"
       Yast.import "Hostname"
       Yast.import "String"
+      Yast.import "NfsOptions"
     end
 
     # @param [String] spec      "server:/path/specification"
@@ -49,13 +52,15 @@ module Yast
       count = 0
       Builtins.maplist(fstab) do |entry|
         sp = SpecToServPath(Ops.get_string(entry, "spec", ""))
+        mntops = entry.fetch("mntops", "")
+        version = NfsOptions.nfs_version(mntops)
         it = Item(
           Id(count),
           Ops.add(Ops.get_string(sp, 0, ""), " "),
           Ops.add(Ops.get_string(sp, 1, ""), " "),
           Ops.add(Ops.get_string(entry, "file", ""), " "),
-          Ops.get_string(entry, "vfstype", " "),
-          Ops.add(Ops.get_string(entry, "mntops", ""), " ")
+          "#{version.label} ",
+          "#{mntops} "
         )
         count = Ops.add(count, 1)
         deep_copy(it)
