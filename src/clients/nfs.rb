@@ -96,7 +96,7 @@ module Yast
             # command line option help
             # fstab(5): fs_type
             "help" => _(
-              "File system ID, supported nfs and nfs4. Default value is nfs."
+              "File system ID. Legacy. Only default value (nfs) makes sense."
             )
           }
         },
@@ -148,7 +148,7 @@ module Yast
             Ops.get_string(i, 1, ""),
             Ops.get_string(i, 2, ""),
             Ops.get_string(i, 3, ""),
-            Ops.get_string(i, 4, "")
+            Ops.get_string(i, 5, "")
           ]
         )
       end
@@ -262,7 +262,7 @@ module Yast
               Ops.get_string(i2, 1, ""),
               Ops.get_string(i2, 2, ""),
               Ops.get_string(i2, 3, ""),
-              Ops.get_string(i2, 4, "")
+              Ops.get_string(i2, 5, "")
             ]
           )
         end

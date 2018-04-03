@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Apr  3 08:41:56 UTC 2018 - ancor@suse.com
+
+- Command line interface: display correct content in the 'Options'
+  column (bsc#1087826) when listing.
+- Command line interface: updated help about the 'type' option.
+- 4.0.4
+
+-------------------------------------------------------------------
 Tue Feb 27 13:36:26 UTC 2018 - knut.anderssen@suse.com
 
 - Fix a missing definition of firewalld method (bsc#1082919)
