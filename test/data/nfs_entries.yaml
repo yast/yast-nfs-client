@@ -1,0 +1,24 @@
+- spec:     nfs.example.com:/one
+  file:     /one
+  vfstype:  nfs
+  mntops:   defaults
+
+- spec:     nfs.example.com:/two
+  file:     /two
+  vfstype:  nfs4
+  mntops:   defaults
+
+- spec:     nfs.example.com:/three
+  file:     /three
+  vfstype:  nfs
+  mntops:   nfsvers=4
+
+- spec:     nfs.example.com:/four
+  file:     /four
+  vfstype:  nfs4
+  mntops:   rw,minorversion=1
+
+- spec:     nfs.example.com:/five
+  file:     /five
+  vfstype:  nfs
+  mntops:   vers=4,minorversion=1,ro

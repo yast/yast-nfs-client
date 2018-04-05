@@ -1,5 +1,5 @@
 Dump	FstabTableItems
-Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "Any ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "Any ", "defaults "), `item (`id (2), "foo.bar.com.tw ", "/local/install ", "/install ", "Any ", "hard,intr ")]
+Return	[`item (`id (0), "foo.bar.com ", "/home ", "/home ", "Any (Please Check) ", "defaults "), `item (`id (1), "foo.bar.com ", "/var/spool/mail ", "/var/spool/mail ", "Any ", "defaults "), `item (`id (2), "foo.bar.com.tw ", "/local/install ", "/install ", "Any ", "hard,intr ")]
 Dump	IsMpInFstab
 Log	fstab already contains an entry
 Return	true

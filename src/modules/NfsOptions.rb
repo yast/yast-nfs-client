@@ -252,6 +252,19 @@ module Yast
       set_nfs_version(options, version)
     end
 
+    # Checks whether some of the old options that used to work to configure
+    # the NFS version (but do not longer work now) is used.
+    #
+    # Basically, this checks for the presence of minorversion
+    #
+    # @param options [String] mount options in the comma-separated format used
+    #   by mount and /etc/fstab
+    # @return [Boolean]
+    def legacy?(options)
+      option_list = from_string(options)
+      option_list.any? { |opt| opt.start_with?("minorversion=") }
+    end
+
     publish function: :validate, type: "string (string)"
     publish function: :get_nfs41, type: "boolean (string)"
     publish function: :set_nfs41, type: "string (string, boolean)"
