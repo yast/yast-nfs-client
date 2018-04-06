@@ -103,4 +103,24 @@ describe "Yast::Nfs" do
       subject.WriteOnly
     end
   end
+
+  describe ".legacy_entry?" do
+    let(:all_entries) { YAML.load_file(File.join(DATA_PATH, "nfs_entries.yaml")) }
+    let(:entries) { all_entries.map { |e| [e["file"], e] }.to_h }
+
+    it "returns true for entries using nfs4 as vfstype" do
+      expect(subject.legacy_entry?(entries["/two"])).to eq true
+      expect(subject.legacy_entry?(entries["/four"])).to eq true
+    end
+
+    it "returns true for entries using minorversion in the mount options" do
+      expect(subject.legacy_entry?(entries["/four"])).to eq true
+      expect(subject.legacy_entry?(entries["/five"])).to eq true
+    end
+
+    it "returns false for entries without nfs4 or minorversion" do
+      expect(subject.legacy_entry?(entries["/one"])).to eq false
+      expect(subject.legacy_entry?(entries["/three"])).to eq false
+    end
+  end
 end

@@ -25,40 +25,34 @@ module Yast
       Assert.Equal(false, NfsOptions.get_nfs41(""))
       Assert.Equal(false, NfsOptions.get_nfs41("defaults"))
       Assert.Equal(false, NfsOptions.get_nfs41("ro,sync"))
+      # minorversion is irrelevant nowadays, no matter its value
       Assert.Equal(false, NfsOptions.get_nfs41("minorversion=0"))
-      Assert.Equal(true, NfsOptions.get_nfs41("minorversion=1"))
-      # "minorversion=2" does not exist yet, YAGNI
+      Assert.Equal(false, NfsOptions.get_nfs41("minorversion=1"))
       Assert.Equal(false, NfsOptions.get_nfs41("subminorversion=1")) # substring must not match
       # Assert::Equal(?,  NfsOptions::get_nfs41("minorversion=1,minorversion=0")); // don't care
       Assert.Equal(false, NfsOptions.get_nfs41("ro,minorversion=0,sync"))
-      Assert.Equal(true, NfsOptions.get_nfs41("ro,minorversion=1,sync"))
+      Assert.Equal(false, NfsOptions.get_nfs41("ro,minorversion=1,sync"))
 
       DUMP("NfsOptions::set_nfs41")
-      Assert.Equal("", NfsOptions.set_nfs41("", false))
-      Assert.Equal("minorversion=1", NfsOptions.set_nfs41("", true))
+      Assert.Equal("defaults", NfsOptions.set_nfs41("", false))
+      Assert.Equal("nfsvers=4.1", NfsOptions.set_nfs41("", true))
 
       Assert.Equal("defaults", NfsOptions.set_nfs41("defaults", false))
-      Assert.Equal("minorversion=1", NfsOptions.set_nfs41("defaults", true))
+      Assert.Equal("nfsvers=4.1", NfsOptions.set_nfs41("defaults", true))
 
       Assert.Equal("ro,sync", NfsOptions.set_nfs41("ro,sync", false))
       Assert.Equal(
-        "ro,sync,minorversion=1",
+        "ro,sync,nfsvers=4.1",
         NfsOptions.set_nfs41("ro,sync", true)
       )
 
       Assert.Equal(
-        "minorversion=0",
+        "defaults",
         NfsOptions.set_nfs41("minorversion=0", false)
       )
       Assert.Equal(
-        "minorversion=1",
+        "nfsvers=4.1",
         NfsOptions.set_nfs41("minorversion=0", true)
-      )
-
-      Assert.Equal("defaults", NfsOptions.set_nfs41("minorversion=1", false))
-      Assert.Equal(
-        "minorversion=1",
-        NfsOptions.set_nfs41("minorversion=1", true)
       )
 
       Assert.Equal(
@@ -66,16 +60,16 @@ module Yast
         NfsOptions.set_nfs41("subminorversion=1", false)
       )
       Assert.Equal(
-        "subminorversion=1,minorversion=1",
+        "subminorversion=1,nfsvers=4.1",
         NfsOptions.set_nfs41("subminorversion=1", true)
       )
 
       Assert.Equal(
-        "ro,minorversion=0,sync",
+        "ro,sync",
         NfsOptions.set_nfs41("ro,minorversion=0,sync", false)
       )
       Assert.Equal(
-        "ro,sync,minorversion=1",
+        "ro,sync,nfsvers=4.1",
         NfsOptions.set_nfs41("ro,minorversion=0,sync", true)
       )
 
@@ -84,7 +78,7 @@ module Yast
         NfsOptions.set_nfs41("ro,minorversion=1,sync", false)
       )
       Assert.Equal(
-        "ro,minorversion=1,sync",
+        "ro,sync,nfsvers=4.1",
         NfsOptions.set_nfs41("ro,minorversion=1,sync", true)
       )
 

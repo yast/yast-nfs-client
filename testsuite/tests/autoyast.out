@@ -23,6 +23,11 @@ Read	.sysconfig.nfs.NFS4_SUPPORT "no"
 Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
 Return	true
 Dump	-- and Export
+Dump	- NFSv4 via mntops
+Read	.sysconfig.nfs.NFS4_SUPPORT "no"
+Read	.sysconfig.nfs.NFS_SECURITY_GSS "no"
+Return	true
+Dump	-- and Export
 Dump	- with GSS
 Return	true
 Dump	-- and Export

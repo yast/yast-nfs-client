@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "y2nfs_client/nfs_version"
+
 # YaST namespace
 module Yast
   # Miscellaneous
@@ -12,6 +14,7 @@ module Yast
       Yast.import "IP"
       Yast.import "Hostname"
       Yast.import "String"
+      Yast.import "NfsOptions"
     end
 
     # @param [String] spec      "server:/path/specification"
@@ -49,13 +52,14 @@ module Yast
       count = 0
       Builtins.maplist(fstab) do |entry|
         sp = SpecToServPath(Ops.get_string(entry, "spec", ""))
+        mntops = entry["mntops"] || ""
         it = Item(
           Id(count),
           Ops.add(Ops.get_string(sp, 0, ""), " "),
           Ops.add(Ops.get_string(sp, 1, ""), " "),
           Ops.add(Ops.get_string(entry, "file", ""), " "),
-          Ops.get_string(entry, "vfstype", " "),
-          Ops.add(Ops.get_string(entry, "mntops", ""), " ")
+          "#{nfs_version_for_table(entry)} ",
+          "#{mntops} "
         )
         count = Ops.add(count, 1)
         deep_copy(it)
@@ -169,6 +173,34 @@ module Yast
     # @return [Boolean] true if portmap is installed
     def IsPortmapperInstalled(portmapper)
       Package.Install(portmapper)
+    end
+
+    # Whether the fstab entry uses old ways of configuring the NFS version that
+    # do not longer work in the way they used to.
+    #
+    # @param entry [Hash]
+    # @return [Boolean]
+    def legacy_entry?(entry)
+      entry["vfstype"] == "nfs4" || NfsOptions.legacy?(entry["mntops"] || "")
+    end
+
+  private
+
+    # @see #FstabTableItems
+    #
+    # @param entry [Hash]
+    # @return [String]
+    def nfs_version_for_table(entry)
+      mntops = entry["mntops"] || ""
+      version = NfsOptions.nfs_version(mntops)
+
+      if legacy_entry?(entry)
+        # TRANSLATORS: %s is a string representing the NFS version used, but
+        # maybe it's not the one the user wanted.
+        _("%s (Please Check)") % version.label
+      else
+        version.label
+      end
     end
   end
 end

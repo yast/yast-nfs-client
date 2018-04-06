@@ -101,7 +101,7 @@ module Yast
 
       TEST(->() { Nfs.ImportAny([@global_options2, @entry2]) }, [@READ, {}, {}], nil)
 
-      Assert.Equal(true, Nfs.nfs4_enabled)
+      Assert.Equal(false, Nfs.nfs4_enabled)
       Assert.Equal("example.com", Nfs.idmapd_domain)
       Assert.Equal(1, Builtins.size(Nfs.nfs_entries))
       Assert.Equal(
@@ -113,7 +113,7 @@ module Yast
       @ex = Nfs.Export
       @e = Ops.get_list(@ex, "nfs_entries", [])
       Assert.Equal(1, Builtins.size(@e))
-      Assert.Equal(true, Ops.get_boolean(@ex, "enable_nfs4", false))
+      Assert.Equal(false, Ops.get_boolean(@ex, "enable_nfs4", false))
       Assert.Equal("example.com", Ops.get_string(@ex, "idmapd_domain", ""))
       Assert.Equal(
         "data.example.com:/mirror",
@@ -121,6 +121,27 @@ module Yast
       )
       Assert.Equal("/mirror", Ops.get_string(@e, [0, "mount_point"], ""))
       Assert.Equal("defaults", Ops.get_string(@e, [0, "nfs_options"], ""))
+
+      # ---------
+      DUMP("- NFSv4 via mntops")
+      @entry3 = {
+        "server_path" => "data.example.com:/mirror",
+        "mount_point" => "/mirror",
+        "nfs_options" => "nfsvers=4",
+        "vfstype"     => "nfs"
+      }
+
+      TEST(->() { Nfs.ImportAny([@global_options2, @entry3]) }, [@READ, {}, {}], nil)
+
+      Assert.Equal(true, Nfs.nfs4_enabled)
+      Assert.Equal(1, Nfs.nfs_entries.size)
+
+      DUMP("-- and Export")
+      @ex = Nfs.Export
+      @e = @ex["nfs_entries"]
+      Assert.Equal(1, @e.size)
+      Assert.Equal(true, @ex["enable_nfs4"])
+      Assert.Equal("nfsvers=4", @e.first["nfs_options"])
 
       # ---------
       DUMP("- with GSS")

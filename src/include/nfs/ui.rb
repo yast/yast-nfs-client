@@ -1,6 +1,8 @@
 # encoding: utf-8
 require "y2firewall/firewalld"
 require "yast2/feedback"
+require "yast2/popup"
+require "y2nfs_client/nfs_version"
 
 # YaST namespace
 module Yast
@@ -39,19 +41,29 @@ module Yast
 
       @modify_line = {}
 
-      # Help, part 1 of 3
+      # Help, part 1 of 4
       @help_text1 = _(
         "<p>The table contains all directories \n" \
           "exported from remote servers and mounted locally via NFS (NFS shares).</p>"
       ) +
-        # Help, part 2 of 3
+        # Help, part 2 of 4
         _(
           "<p>Each NFS share is identified by remote NFS server address and\n" \
             "exported directory, local directory where the remote directory is mounted, \n" \
-            "NFS type (either plain nfs or nfsv4) and mount options. For further information \n" \
+            "version of the NFS protocol and mount options. For further information \n" \
             "about mounting NFS and mount options, refer to <tt>man nfs.</tt></p>"
         ) +
-        # Help, part 3 of 3
+        # Help, part 3 of 4
+        _(
+          "<p>It may happen that some NFS share is mounted using an old method\n" \
+            "to specify the version of the NFS protocol, like the usage of 'nfs4'\n" \
+            "as file system type or the usage of 'minorversion' in the mount options.\n" \
+            "Those methods do not longer work as they used to, so if such\n" \
+            "circumstance is detected, the real current version is displayed in the\n" \
+            "list followed by a warning message. Those entries can be edited to\n" \
+            "make sure they use more current ways of specifying the version.</p>"
+        ) +
+        # Help, part 4 of 4
         _(
           "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" \
             "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" \
@@ -61,8 +73,8 @@ module Yast
       @help_text2 = Ops.add(
         _(
           "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
-            "protocol), check the <b>Enable NFSv4</b> option. In that case, you might need\n" \
-            "to supply specific a <b>NFSv4 Domain Name</b> required for the correct setting\n" \
+            "protocol), check the <b>NFS version</b> option. In that case, you might need\n" \
+            "to supply an specific <b>NFSv4 Domain Name</b> required for the correct setting\n" \
             "of file/directory access rights.</p>\n"
         ),
         Ops.get_string(@fw_cwm_widget, "help", "")
@@ -202,8 +214,6 @@ module Yast
       server = ""
       pth = ""
       mount = ""
-      nfs4 = false
-      nfs41 = false
       options = "defaults"
       servers = []
       old = ""
@@ -214,15 +224,14 @@ module Yast
         server = Ops.get_string(couple, 0, "")
         pth = Ops.get_string(couple, 1, "")
         mount = Ops.get_string(fstab_ent, "file", "")
-        nfs4 = Ops.get_string(fstab_ent, "vfstype", "") == "nfs4"
         options = Ops.get_string(fstab_ent, "mntops", "")
-        nfs41 = nfs4 && NfsOptions.get_nfs41(options)
         servers = [server]
         old = Ops.get_string(fstab_ent, "spec", "")
       else
         proposed_server = ProposeHostname()
         servers = [proposed_server] if HostnameExists(proposed_server)
       end
+      version = NfsOptions.nfs_version(options)
 
       # append already defined servers - bug #547983
       Builtins.foreach(@nfs_entries) do |nfs_entry|
@@ -273,12 +282,7 @@ module Yast
               )
             ),
             Left(
-              HBox(
-                CheckBox(Id(:nfs4), _("NFS&v4 Share"), nfs4),
-                HSpacing(2),
-                # parallel NFS, protocol version 4.1
-                CheckBox(Id(:nfs41), _("pNFS (v4.1)"), nfs41)
-              )
+              version_widget(version)
             ),
             Left(
               TextAndButton(
@@ -350,7 +354,7 @@ module Yast
             next
           end
 
-          v4 = UI.QueryWidget(Id(:nfs4), :Value)
+          v4 = version_from_widget.browse_with_v4?
           scan_exports(server2, v4)
         elsif ret == :browse
           dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
@@ -372,13 +376,11 @@ module Yast
           mount = StripExtraSlash(
             Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
           )
-          nfs4 = Convert.to_boolean(UI.QueryWidget(Id(:nfs4), :Value))
-          nfs41 = Convert.to_boolean(UI.QueryWidget(Id(:nfs41), :Value))
           options = Builtins.deletechars(
             Convert.to_string(UI.QueryWidget(Id(:optionsent), :Value)),
             " "
           )
-          options = NfsOptions.set_nfs41(options, nfs41)
+          options = NfsOptions.set_nfs_version(options, version_from_widget)
 
           ret = nil
           options_error = NfsOptions.validate(options)
@@ -395,7 +397,7 @@ module Yast
             fstab_ent = {
               "spec"    => Ops.add(Ops.add(server, ":"), pth),
               "file"    => mount,
-              "vfstype" => nfs4 ? "nfs4" : "nfs",
+              "vfstype" => "nfs",
               "mntops"  => options
             }
             if old != Ops.add(Ops.add(server, ":"), pth)
@@ -472,7 +474,7 @@ module Yast
             # table header
             _("Mount Point") + "  ",
             # table header
-            _("NFS Type"),
+            _("NFS Version"),
             # table header
             _("Options") + "  "
           ),
@@ -598,28 +600,9 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
-        entry = GetFstabEntry(
-          Ops.get(@nfs_entries, entryno, {}),
-          Convert.convert(
-            Builtins.union(
-              Nfs.non_nfs_entries,
-              Builtins.remove(@nfs_entries, entryno)
-            ),
-            from: "list",
-            to:   "list <map>"
-          ) # Default values
-        )
-        if entry
-          count2 = 0
-          @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
-            count2 = Ops.add(count2, 1)
-            next deep_copy(ent) if Ops.subtract(count2, 1) != entryno
-            deep_copy(entry)
-          end
-
-          @modify_line = deep_copy(entry)
-          UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
-          Nfs.SetModified
+        source_entry = @nfs_entries[entryno] || {}
+        if !legacy_entry?(source_entry) || edit_legacy?
+          edit_entry(source_entry, entryno)
         end
       elsif widget == :delbut &&
           Ops.greater_than(Builtins.size(@nfs_entries), 0)
@@ -722,6 +705,64 @@ module Yast
         # TRANSLATORS: Error message, scanning the NFS server failed
         Report.Error(_("The NFS scan failed."))
       end
+    end
+
+  private
+
+    # Widget to select the version of the NFS protocol to use in a mount that is
+    # being created or edited.
+    def version_widget(current_version)
+      items = Y2NfsClient::NfsVersion.all.map do |vers|
+        Item(Id(vers.widget_id), vers.widget_text, current_version == vers)
+      end
+      ComboBox(Id(:nfs_version), _("NFS &Version"), items)
+    end
+
+    # Version of the NFS protocol selected in the corresponding widget.
+    #
+    # @return [Y2NfsClient::NfsVersion]
+    def version_from_widget
+      id = UI.QueryWidget(Id(:nfs_version), :Value).to_sym
+      Y2NfsClient::NfsVersion.all.find { |v| v.widget_id == id }
+    end
+
+    # @see #HandleEvent
+    def edit_entry(source_entry, entryno)
+      entry = GetFstabEntry(
+        source_entry,
+        Convert.convert(
+          Builtins.union(
+            Nfs.non_nfs_entries,
+            Builtins.remove(@nfs_entries, entryno)
+          ),
+          from: "list",
+          to:   "list <map>"
+        ) # Default values
+      )
+      if entry
+        count2 = 0
+        @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
+          count2 = Ops.add(count2, 1)
+          next deep_copy(ent) if Ops.subtract(count2, 1) != entryno
+          deep_copy(entry)
+        end
+
+        @modify_line = deep_copy(entry)
+        UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
+        Nfs.SetModified
+      end
+    end
+
+    def edit_legacy?
+      msg = _(
+        "This entry uses old ways of specifying the NFS protocol version that\n" \
+        "do not longer work as they used to do it (like the usage of 'nfs4' as\n" \
+        "file system type or the usage of 'minorversion' in the mount options).\n\n" \
+        "Editing the entry will change how the version is specified, with no\n" \
+        "possibility to use old outdated method again.\n\n" \
+        "Proceed and edit?"
+      )
+      Yast2::Popup.show(msg, buttons: :continue_cancel) == :continue
     end
   end
 end

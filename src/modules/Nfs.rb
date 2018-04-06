@@ -201,7 +201,8 @@ module Yast
 
       # vfstype can override a missing enable_nfs4
       @nfs4_enabled = true if Builtins.find(entries) do |entry|
-        Ops.get_string(entry, "vfstype", "") == "nfs4"
+        version = NfsOptions.nfs_version(entry["nfs_options"] || "")
+        version && version.requires_v4?
       end
 
       @nfs_entries = Builtins.maplist(entries) do |entry|
