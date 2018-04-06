@@ -291,7 +291,7 @@ module Yast
       relevant_option = relevant_version_option(option_list)
       return nil unless relevant_option
       parts = relevant_option.split("=")
-      return nil if parts.size == 1
+      return nil if parts.size != 2
       parts.last
     end
 
