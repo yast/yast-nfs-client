@@ -27,34 +27,33 @@ module Y2NfsClient
   # The main goal of the class if to map how the version is configured in the
   # /etc/fstab entry with how that is presented to the user.
   #
-  # Each instance can represent the configuration to enforce a concrete version
-  # or a more generic configuration (i.e. "use any available version").
+  # Each instance is an immutable object that can represent the configuration
+  # to enforce a concrete version or a more generic configuration (i.e. "use
+  # any available version").
   class NfsVersion
     include Yast::I18n
     extend Yast::I18n
     textdomain "nfs"
 
-    ALL_ATTRIBUTES = [
-      [nil,   N_("Any"),     :vers_any, N_("Any (Highest Available)")],
-      ["3",   N_("NFSv3"),   :vers_3,   N_("Force NFSv3")],
-      ["4",   N_("NFSv4"),   :vers_4,   N_("Force NFSv4")],
-      ["4.1", N_("NFSv4.1"), :vers_4_1, N_("Force pNFS (v4.1)")]
-    ].freeze
-    private_constant :ALL_ATTRIBUTES
-
     # Constructor
     def initialize(mntops_value, label, widget_id, widget_text)
-      textdomain "nfs"
-
       @mntops_value = mntops_value
       @label = label
       @widget_id = widget_id
       @widget_text = widget_text
     end
 
+    ALL = [
+      new(nil,   N_("Any"),     :vers_any, N_("Any (Highest Available)")),
+      new("3",   N_("NFSv3"),   :vers_3,   N_("Force NFSv3")),
+      new("4",   N_("NFSv4"),   :vers_4,   N_("Force NFSv4")),
+      new("4.1", N_("NFSv4.1"), :vers_4_1, N_("Force pNFS (v4.1)"))
+    ].freeze
+    private_constant :ALL
+
     # Sorted list of all possible settings
     def self.all
-      ALL_ATTRIBUTES.map { |attrs| new(*attrs) }
+      ALL.dup
     end
 
     # An instance corresponding to a given value in the mount options
@@ -79,14 +78,14 @@ module Y2NfsClient
 
     # Short localized label to represent the instance in listings
     #
-    # @return [String]
+    # @return [String] very likely, a frozen string
     def label
       _(@label)
     end
 
     # Localized text to use in a widget representing the instance
     #
-    # @return [String]
+    # @return [String] very likely, a frozen string
     def widget_text
       _(@widget_text)
     end

@@ -277,8 +277,8 @@ module Yast
     # @return [String, nil] contains the whole 'option=value' string
     def relevant_version_option(option_list)
       # According to manual tests and documentation, none of the forms has higher precedence.
-      # Use #reverse because in case of conflicting options, the latest one is used by mount
-      option_list.reverse.find do |opt|
+      # Use #reverse_each because in case of conflicting options, the latest one is used by mount
+      option_list.reverse_each.find do |opt|
         version_option?(opt)
       end
     end

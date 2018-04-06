@@ -762,7 +762,7 @@ module Yast
         "possibility to use old outdated method again.\n\n" \
         "Proceed and edit?"
       )
-      Yast2::Popup.show(msg, buttons: :yes_no) == :yes
+      Yast2::Popup.show(msg, buttons: :continue_cancel) == :continue
     end
   end
 end
