@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Apr  6 08:51:02 UTC 2018 - ancor@suse.com
+
+- Use only nfsvers (or its alias) to specify the version of the
+  NFS protocol, instead of the legacy nfs4 (vfstype) and
+  minorversion (bsc#1088426).
+- Detect legacy entries and warn the user.
+- 4.0.5
+
+-------------------------------------------------------------------
 Tue Apr  3 08:41:56 UTC 2018 - ancor@suse.com
 
 - Command line interface: display correct content in the 'Options'
