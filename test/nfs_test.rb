@@ -62,17 +62,6 @@ describe "Yast::Nfs" do
         .and_return fstab_entries
     end
 
-    it "creates a properly ordered fstab" do
-      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
-        mount_points = fstab.map { |e| e["file"] }
-        sorted_mount_points = ["/", "/foof", "/foo", "/foo/bar", "/foo/bar/baz"]
-
-        expect(mount_points).to eq sorted_mount_points
-      end
-
-      subject.WriteOnly
-    end
-
     it "ensures zero for 'passno' and 'freq' fields, only in nfs entries" do
       expected_passnos = {
         "/"            => 1,
