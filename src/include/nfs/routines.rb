@@ -103,16 +103,21 @@ module Yast
     end
 
     # Check if a mountpoint is in the fstab. If yes, display a message.
-    # @param [Array<Hash>] fstab     in .etc.fstab format (must contain the key "file")
-    # @param [String] mpoint    mount point
+    #
+    # This method checks against all the mount points not handled by the
+    # yast-nfs-client module (i.e. non-NFS entries in fstab) and against the
+    # list of NFS shares currently managed by the module (provided as argument).
+    #
+    # @param nfs_entries [Array<Hash>] list of NFS entries to check in addition
+    #   to the known non-NFS mount points. The NFS entries must be in .etc.fstab
+    #   format (must contain the key "file")
+    # @param mpoint [String] mount point
     # @return          is it there?
-    def IsMpInFstab(fstab, mpoint)
-      fstab = deep_copy(fstab)
-      tmp = Builtins.filter(fstab) do |fse|
-        Ops.get_string(fse, "file", "") == mpoint
-      end
+    def IsMpInFstab(nfs_entries, mpoint)
+      found = non_nfs_mount_paths.any?(mpoint)
+      found ||= nfs_entries.any? { |fse| fse["file"] == mpoint }
 
-      return false if Builtins.size(tmp) == 0
+      return false unless found
 
       # error popup message
       Report.Error(
@@ -241,6 +246,30 @@ module Yast
       else
         version.label
       end
+    end
+
+    # Singleton instance of Y2Storage::StorageManager
+    #
+    # @return [Y2Storage::StorageManager]
+    def storage_manager
+      Y2Storage::StorageManager.instance
+    end
+
+    # Devicegraph to operate with
+    #
+    # @return [Y2Storage::Devicegraph]
+    def working_graph
+      storage_manager.staging
+    end
+
+    # Mount points present on /etc/fstab but not handled by the yast-nfs-client
+    # module.
+    #
+    # @return [Array<String>]
+    def non_nfs_mount_paths
+      Y2Storage::MountPoint.all(working_graph).select do |mp|
+        mp.mountable && !mp.mountable.is?(:nfs)
+      end.map(&:path)
     end
   end
 end

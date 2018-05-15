@@ -39,6 +39,10 @@ Requires:       yast2 >= 4.0.39
 Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
 Recommends:     nfs-client
+# Y2Storage::MountPoint#active=
+Requires:       yast2-storage-ng >= 4.0.180
+# Y2Storage::MountPoint#active=
+BuildRequires:  yast2-storage-ng >= 4.0.180
 
 # Unfortunately we cannot move this to macros.yast,
 # bcond within macros are ignored by osc/OBS.
@@ -88,7 +92,6 @@ file system access. It allows access to files on remote machines.
 %dir %{yast_moduledir}
 %{yast_moduledir}/Nfs.rb
 %{yast_moduledir}/NfsOptions.rb
-%{yast_dir}/lib/fstab
 %{yast_dir}/lib/y2nfs_client
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop

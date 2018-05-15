@@ -208,7 +208,6 @@ module Yast
     # @return		a nfs_entry or nil
     def GetFstabEntry(fstab_ent, existing)
       fstab_ent = deep_copy(fstab_ent)
-      existing = deep_copy(existing)
       Wizard.SetScreenShotName("nfs-client-1a-edit")
 
       server = ""
@@ -581,14 +580,7 @@ module Yast
       end
 
       if widget == :newbut
-        entry = GetFstabEntry(
-          nil,
-          Convert.convert(
-            Builtins.union(Nfs.non_nfs_entries, @nfs_entries),
-            from: "list",
-            to:   "list <map>"
-          )
-        )
+        entry = GetFstabEntry(nil, @nfs_entries)
 
         if entry
           @nfs_entries = Builtins.add(@nfs_entries, entry)
@@ -728,17 +720,8 @@ module Yast
 
     # @see #HandleEvent
     def edit_entry(source_entry, entryno)
-      entry = GetFstabEntry(
-        source_entry,
-        Convert.convert(
-          Builtins.union(
-            Nfs.non_nfs_entries,
-            Builtins.remove(@nfs_entries, entryno)
-          ),
-          from: "list",
-          to:   "list <map>"
-        ) # Default values
-      )
+      entry = GetFstabEntry(source_entry, Builtins.remove(@nfs_entries, entryno))
+
       if entry
         count2 = 0
         @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|

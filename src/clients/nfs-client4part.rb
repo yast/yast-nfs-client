@@ -35,13 +35,7 @@ module Yast
         return FstabTab()
       elsif @func == "FromStorage"
         shares = Ops.get_list(@param, "shares", [])
-        Nfs.nfs_entries = shares.map { |entry| storage_to_fstab(entry) }
-        Builtins.y2milestone(
-          "Nfs shares imported from storage %1",
-          Nfs.nfs_entries
-        )
-        @nfs_entries = deep_copy(Nfs.nfs_entries)
-        InitFstabEntries()
+        @nfs_entries = Nfs.load_nfs_entries(shares)
       elsif @func == "Read"
         Nfs.skip_fstab = true
         Nfs.Read

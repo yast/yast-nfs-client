@@ -23,15 +23,11 @@ schemafiles_DATA = \
 desktop_DATA = \
   desktop/nfs.desktop
 
-ylibdir = @ylibdir@/fstab
-ylib_DATA = \
-  lib/fstab/tsort.rb
-
 y2nfslibdir = @ylibdir@/y2nfs_client
 y2nfslib_DATA = \
   lib/y2nfs_client/nfs_version.rb
 
 EXTRA_DIST = \
-	$(module_DATA) $(client_DATA) $(ynclude_DATA) $(schemafiles_DATA) $(desktop_DATA) $(ylib_DATA) $(y2nfslib_DATA)
+	$(module_DATA) $(client_DATA) $(ynclude_DATA) $(schemafiles_DATA) $(desktop_DATA) $(y2nfslib_DATA)
 
 include $(top_srcdir)/Makefile.am.common
