@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require "y2nfs_client/nfs_version"
+require "y2storage"
 
 # YaST namespace
 module Yast
@@ -182,6 +183,45 @@ module Yast
     # @return [Boolean]
     def legacy_entry?(entry)
       entry["vfstype"] == "nfs4" || NfsOptions.legacy?(entry["mntops"] || "")
+    end
+
+    # Transforms a hash representing an NFS mount from the internal format used
+    # by yast-nfs-client to the TargetMap format used by the old yast-storage
+    #
+    # This is a direct translation of the old NfsClient4partClient#ToStorage
+    #
+    # @param entry [Hash] NFS mount in the internal format that uses keys as
+    #   "spec", "file", etc.
+    # @return [Hash] NFS mount in the TargetMap format that uses keys as
+    #   "device", "mount", etc.
+    def fstab_to_storage(entry)
+      ret = {}
+
+      if entry && entry != {}
+        ret = {
+          "device"  => entry.fetch("spec", ""),
+          "mount"   => entry.fetch("file", ""),
+          "fstopt"  => entry.fetch("mntops", ""),
+          "vfstype" => entry.fetch("vfstype", "nfs")
+        }
+        ret["old_device"] = entry["old"] if entry["old"]
+      end
+      ret
+    end
+
+    # Inverse of {#fstab_to_storage}
+    #
+    # @param entry [Hash] see return value of {#fstab_to_storage}
+    # @return [Hash] see argument of {#fstab_to_storage}
+    def storage_to_fstab(entry)
+      return {} if entry.nil? || entry.empty?
+
+      {
+        "spec"    => entry.fetch("device", ""),
+        "file"    => entry.fetch("mount", ""),
+        "vfstype" => entry.fetch("used_fs", :nfs) == :nfs ? "nfs" : "nfs4",
+        "mntops"  => entry.fetch("fstopt", "")
+      }
     end
 
   private
