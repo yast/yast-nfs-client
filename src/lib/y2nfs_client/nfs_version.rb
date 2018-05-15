@@ -37,6 +37,8 @@ module Y2NfsClient
 
     # Constructor
     def initialize(mntops_value, label, widget_id, widget_text)
+      textdomain "nfs"
+
       @mntops_value = mntops_value
       @label = label
       @widget_id = widget_id
