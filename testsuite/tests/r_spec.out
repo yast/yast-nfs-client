@@ -1,8 +1,0 @@
-Dump	SpecToServPath
-Return	`couple ("big.foo.com", "/share/data")
-Return	`couple ("only.server.com", "")
-Return	`couple ("", "nocolon.only.server.com")
-Return	`couple ("", "/only/path")
-Return	`couple ("", "/nocolon/only/path")
-Return	`couple ("fe80::219:d1ff:feac:fd10", "/path")
-Return	`couple ("", "")

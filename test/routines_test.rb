@@ -1,3 +1,4 @@
+#! /usr/bin/env rspec
 require_relative "spec_helper"
 
 module Yast
@@ -48,6 +49,7 @@ describe "Yast::NfsRoutinesInclude" do
   end
 
   describe "#SpecToServPath" do
+    # FIXME: separate in individual tests
     it "returns a couple term with the server and the exported path params" do
       term = subject.SpecToServPath("big.foo.com:/share/data")
       expect(term.value).to eql(:couple)
@@ -56,6 +58,14 @@ describe "Yast::NfsRoutinesInclude" do
       expect(term.params).to eql(["big.foo.com", ""])
       term = subject.SpecToServPath("big.foo.com")
       expect(term.params).to eql(["", "big.foo.com"])
+      term = subject.SpecToServPath(":/only/path")
+      expect(term.params).to eql(["", "/only/path"])
+      term = subject.SpecToServPath("/nocolon/only/path")
+      expect(term.params).to eql(["", "/nocolon/only/path"])
+      term = subject.SpecToServPath("fe80::219:d1ff:feac:fd10:/path")
+      expect(term.params).to eql(["fe80::219:d1ff:feac:fd10", "/path"])
+      term = subject.SpecToServPath("")
+      expect(term.params).to eql(["", ""])
     end
   end
 
@@ -140,19 +150,79 @@ describe "Yast::NfsRoutinesInclude" do
     end
   end
 
-  describe "#CheckHostname" do
+  describe "#CheckHostName" do
+    let(:too_long_name) { "123456789" * 10 }
+    let(:valid_ipv6_names) do
+      [
+        "fe80::219:d1ff:feac:fd10",
+        "[::1]",
+        "fe80::3%eth0",
+        "[fe80::3%eth0]"
+      ]
+    end
+    let(:invalid_names) do
+      [
+        "Wrong:Server:Name",
+        "[::1",
+        "192.168.10:1",
+        "[fe80::3%]"
+      ]
+    end
+
+    before do
+      allow(Yast::Report).to receive(:Error)
+    end
+
     context "when the given name is between 1 and 49 characteres" do
       it "returns true if it is a valid IPv4" do
+        expect(subject.CheckHostName("192.168.0.1")).to eql(true)
       end
 
-      it "returns true if its a valid IPv6" do
+      it "returns true if it is a valid IPv6" do
+        valid_ipv6_names.map do |name|
+          expect(subject.CheckHostName(name)).to eql(true)
+        end
       end
 
       it "returns true if it is a valid domain" do
+        expect(subject.CheckHostName("nfs-server.suse.com")).to eql(true)
+      end
+
+      context "and was not validated previously" do
+        it "reports an error" do
+          invalid_names.map do |name|
+            expect(Yast::Report).to receive(:Error).with(/The hostname entered is invalid/)
+            subject.CheckHostName(name)
+          end
+        end
+
+        it "returns false" do
+          invalid_names.map do |name|
+            expect(subject.CheckHostName(name)).to eql(false)
+          end
+        end
       end
     end
 
-    context "when the given name is out of 1..49 range" do
+    context "when the given name size is out of 1..49 range" do
+      it "reports and error" do
+        expect(Yast::Report).to receive(:Error).with(/The hostname entered is invalid/)
+
+        subject.CheckHostName(too_long_name)
+      end
+
+      it "returns false" do
+        expect(subject.CheckHostName(too_long_name)).to eql(false)
+      end
+    end
+  end
+
+  describe "#FormatHostnameForFstab" do
+    it "encloses the given hostname into brackets in case of a IPv6 one" do
+      expect(subject.FormatHostnameForFstab("::1")).to eql("[::1]")
+      expect(subject.FormatHostnameForFstab("[::1]")).to eql("[::1]")
+      expect(subject.FormatHostnameForFstab("127.0.0.1")).to eql("127.0.0.1")
+      expect(subject.FormatHostnameForFstab("suse.de")).to eql("suse.de")
     end
   end
 end
