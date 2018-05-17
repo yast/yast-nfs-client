@@ -323,31 +323,10 @@ module Yast
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
       @idmapd_domain = ReadIdmapd()
-
-      progress_orig = Progress.set(false)
-      firewalld.read
-      Progress.set(progress_orig)
-
       @portmapper = FindPortmapper()
-      # There is neither rpcbind  nor portmap
-      if @portmapper == ""
-        # so let's install rpcbind (default since #423026)
-        @required_packages = Builtins.add(@required_packages, "rpcbind")
-        @portmapper = "rpcbind"
-      end
-      if @nfs4_enabled
-        @required_packages = Builtins.add(@required_packages, "nfsidmap")
-      end
 
-      if Mode.installation
-        Builtins.foreach(@required_packages) do |p|
-          PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
-        end
-      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
-        return false
-      end
-
-      true
+      firewalld.read
+      check_and_install_required_packages
     end
 
     # Writes the NFS client configuration without
@@ -777,6 +756,34 @@ module Yast
       legacy = Y2Storage::Filesystems::LegacyNfs.new_from_hash(storage_hash)
       legacy.default_devicegraph = working_graph
       legacy
+    end
+
+    # Check that the required nfs-client packages are present adding them to
+    # the packages proposal in case of a installation or installing them
+    # interactively in a running system.
+    #
+    # @return [Boolean] false if some required package was not installed in a
+    # running system; true otherwise
+    def check_and_install_required_packages
+      # There is neither rpcbind  nor portmap
+      if @portmapper == ""
+        # so let's install rpcbind (default since #423026)
+        @required_packages = Builtins.add(@required_packages, "rpcbind")
+        @portmapper = "rpcbind"
+      end
+      if @nfs4_enabled
+        @required_packages = Builtins.add(@required_packages, "nfsidmap")
+      end
+
+      if Mode.installation
+        Builtins.foreach(@required_packages) do |p|
+          PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
+        end
+      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
+        return false
+      end
+
+      true
     end
   end
 
