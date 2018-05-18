@@ -43,9 +43,26 @@ describe "Yast::Nfs" do
         ]
       }
     end
-    it "imports the nfs entries defined in the profile" do
-      subject.Import(profile)
-      expect(subject.nfs_entries.size).to eql(1)
+
+    before do
+      subject.nfs_entries = []
+    end
+
+    context "when the nfs_entries in the profile contains all the mandatory fields " do
+      it "imports the nfs entries defined in the profile" do
+        subject.Import(profile)
+        expect(subject.nfs_entries.size).to eql(1)
+        expect(subject.nfs_entries.first["spec"]).to eql("data.example.com:/mirror")
+      end
+    end
+
+    context "when the nfs_entries in the profile does not contain all the mandatory fields " do
+      let(:profile) { { "nfs_entries" => [{ "server_path" => "data.example.com:/mirror" }] } }
+
+      it "does not import the incomplete nfs entries " do
+        expect(subject.Import(profile)).to eql(false)
+        expect(subject.nfs_entries.size).to eql(0)
+      end
     end
   end
 

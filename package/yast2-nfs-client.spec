@@ -31,6 +31,8 @@ BuildRequires:  yast2-testsuite
 # SuSEFirewall2 replaced by firewalld (fate#323460)
 BuildRequires:  yast2 >= 4.0.39
 BuildRequires:  rubygem(rspec)
+#for install task
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 # path_matching (RSpec argument matcher)
 BuildRequires:  yast2-ruby-bindings >= 3.1.31
 # SuSEFirewall2 replaced by firewalld (fate#323460)
@@ -75,10 +77,12 @@ file system access. It allows access to files on remote machines.
 %setup -n %{name}-%{version}
 
 %build
-%yast_build
+
+%check
+rake test:unit
 
 %install
-%yast_install
+rake install DESTDIR="%{buildroot}"
 
 %files
 %defattr(-,root,root)
