@@ -699,7 +699,7 @@ module Yast
 
     # Forces a Y2Storage (re)probing
     #
-    # return [Boolean] false if something went wrong and the user
+    # @return [Boolean] false if something went wrong and the user
     #   decided to abort
     def storage_probe
       storage_manager.probe
@@ -725,6 +725,10 @@ module Yast
       # probed and will mount active Nfs shares from staging.
       # Let's prevent that since we don't want libstorage-ng to perform any
       # mount/umount.
+      #
+      # TODO: this implies too much knowledge about how libstorage-ng works, it
+      # should be moved to yast2-storage-ng (e.g. as a :skip_mount flag to
+      # #commit).
       deactivate_mount_points(storage_manager.probed)
       deactivate_mount_points(storage_manager.staging)
       storage_manager.commit

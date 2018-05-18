@@ -209,6 +209,10 @@ module Yast
           "fstopt"  => entry.fetch("mntops", ""),
           "vfstype" => entry.fetch("vfstype", "nfs")
         }
+        # The "old" and "old_device" keys are used by nfs-client to indicate to
+        # the storage stack that an entry is not new, but a replacement for one
+        # of the entries originally reported by the storage stack. Thus, is only
+        # needed in this direction (from fstab to storage).
         ret["old_device"] = entry["old"] if entry["old"]
       end
       ret

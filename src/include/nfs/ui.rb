@@ -592,6 +592,8 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
+        # Handle situations in which edit is called with no entry selected
+        # (caused by a bug in yast2-storage-ng)
         return EnableDisableButtons() if entryno.nil?
 
         source_entry = @nfs_entries[entryno] || {}
@@ -599,6 +601,9 @@ module Yast
           edit_entry(source_entry, entryno)
         end
       elsif widget == :delbut
+        # Handle unexpected delete request. The delete button shouldn't be
+        # enabled if there are no entries, but it can happen due to a bug
+        # in yast2-storage-ng
         return EnableDisableButtons() if @nfs_entries.empty? || entryno.nil?
 
         share = Ops.get(@nfs_entries, entryno, {})
