@@ -34,7 +34,9 @@ describe "Yast::Nfs" do
   describe ".Import" do
     let(:profile) do
       {
-        "nfs_entries" => [
+        "enable_nfs4"    => true,
+        "enable_nfs_gss" => true,
+        "nfs_entries"    => [
           {
             "server_path" => "data.example.com:/mirror",
             "mount_point" => "/mirror",
@@ -44,26 +46,70 @@ describe "Yast::Nfs" do
       }
     end
 
-    before do
-      subject.nfs_entries = []
+    # bnc#820989
+    let(:profile_SLE11) do
+      [
+        {
+          "enable_nfs_gss" => true,
+          "idmapd_domain"  => "example.com"
+        },
+        {
+          "server_path" => "data.example.com:/mirror",
+          "mount_point" => "/mirror",
+          "nfs_options" => "defaults"
+        }
+      ]
     end
 
-    context "when the nfs_entries in the profile contains all the mandatory fields " do
+    before do
+      subject.nfs_entries = []
+      subject.nfs4_enabled = false
+    end
+
+    context "when all the nfs entries given in the profile are valid" do
       it "imports the nfs entries defined in the profile" do
         subject.Import(profile)
         expect(subject.nfs_entries.size).to eql(1)
         expect(subject.nfs_entries.first["spec"]).to eql("data.example.com:/mirror")
       end
+
+      it "imports the global options when defined as a list" do
+        subject.Import(profile)
+        expect(subject.nfs4_enabled).to eql(true)
+        expect(subject.nfs_gss_enabled).to eql(true)
+      end
+
+      it "imports the global options when defined as a map" do
+        subject.Import(profile_SLE11)
+        expect(subject.nfs_gss_enabled).to eql(true)
+        expect(subject.idmapd_domain).to eql("example.com")
+      end
+
+      context "and some of the entries defines the nfs_version=4 in the nfs_options" do
+        it "enables nfs4 globaly even if it was missing in the profile" do
+          profile_SLE11.last["nfs_options"] = "nfsvers=4"
+          expect(subject.Import(profile_SLE11)).to eql(true)
+          expect(subject.nfs_entries.size).to eql(1)
+          expect(subject.nfs4_enabled).to eql(true)
+        end
+      end
     end
 
-    context "when the nfs_entries in the profile does not contain all the mandatory fields " do
+    context "when some of the nfs entries does not contain all the mandatory fields " do
       let(:profile) { { "nfs_entries" => [{ "server_path" => "data.example.com:/mirror" }] } }
 
       it "does not import the incomplete nfs entries " do
-        expect(subject.Import(profile)).to eql(false)
+        subject.Import(profile)
         expect(subject.nfs_entries.size).to eql(0)
       end
+
+      it "returns false" do
+        expect(subject.Import(profile)).to eql(false)
+      end
     end
+  end
+
+  describe ".Export" do
   end
 
   describe ".Read" do

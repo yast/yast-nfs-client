@@ -219,7 +219,6 @@ module Yast
     # @param [Hash{String => Object}] settings	a map($) of nfs_entries
     # @return	success
     def Import(settings)
-      settings = deep_copy(settings)
       ImportAny(settings)
     end
 
