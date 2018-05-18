@@ -110,11 +110,42 @@ describe "Yast::Nfs" do
   end
 
   describe ".Export" do
+    let(:expected_profile) do
+      {
+        "enable_nfs4"    => true,
+        "enable_nfs_gss" => false,
+        "idmapd_domain"  => "example.com",
+        "nfs_entries"    => [
+          {
+            "server_path" => "nfs.example.com:/foo",
+            "mount_point" => "/foo",
+            "vfstype"     => "nfs",
+            "nfs_options" => "defaults"
+          },
+          {
+            "server_path" => "nfs.example.com:/baz",
+            "mount_point" => "/foo/bar/baz",
+            "vfstype"     => "nfs",
+            "nfs_options" => "defaults"
+          }
+        ]
+      }
+    end
+    before do
+      subject.nfs4_enabled = true
+      subject.nfs_gss_enabled = false
+      subject.idmapd_domain = "example.com"
+      subject.nfs_entries = nfs_entries
+    end
+
+    it "exports the current nfs settings as a map" do
+      profile = subject.Export()
+
+      expect(profile).to eql(expected_profile)
+    end
   end
 
   describe ".Read" do
-    let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
-    let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
     before do
       subject.skip_fstab = true
       subject.nfs4_enabled = true
