@@ -592,12 +592,15 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
+        return EnableDisableButtons() if entryno.nil?
+
         source_entry = @nfs_entries[entryno] || {}
         if !legacy_entry?(source_entry) || edit_legacy?
           edit_entry(source_entry, entryno)
         end
-      elsif widget == :delbut &&
-          Ops.greater_than(Builtins.size(@nfs_entries), 0)
+      elsif widget == :delbut
+        return EnableDisableButtons() if @nfs_entries.empty? || entryno.nil?
+
         share = Ops.get(@nfs_entries, entryno, {})
         if Popup.YesNo(
           Builtins.sformat(
