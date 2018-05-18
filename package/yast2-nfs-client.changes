@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Fri May 18 14:28:05 UTC 2018 - ancor@suse.com
+
+- Fixed a bug preventing some strings (introduced while fixing
+  bsc#1088426) to be translated.
+- Do not crash when 'edit' button is pressed in the partitioner
+  if there are no NFS entries (affects installation, part of
+  fate#318196).
+- When executed standalone (not embedded in the Partitioner),
+  use storage-ng to read and write /etc/fstab, instead of the old
+  buggy parser (bsc#429326, bsc#1064437).
+- 4.0.6
+
+-------------------------------------------------------------------
 Fri Apr  6 08:51:02 UTC 2018 - ancor@suse.com
 
 - Use only nfsvers (or its alias) to specify the version of the

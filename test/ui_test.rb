@@ -1,3 +1,4 @@
+#! /usr/bin/env rspec
 require_relative "spec_helper"
 
 module Yast

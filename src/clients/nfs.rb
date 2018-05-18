@@ -179,14 +179,9 @@ module Yast
       server = Ops.get_string(specl, 0, "")
       pth = Ops.get_string(specl, 1, "")
       mount = Ops.get_string(options, "file", "")
-      existing = Convert.convert(
-        Builtins.union(Nfs.non_nfs_entries, nfs_entries),
-        from: "list",
-        to:   "list <map>"
-      )
 
       if !CheckHostName(server) || !CheckPath(pth) || !CheckPath(mount) ||
-          IsMpInFstab(existing, mount)
+          IsMpInFstab(nfs_entries, mount)
         return false
       end
 
@@ -290,14 +285,7 @@ module Yast
       server = Ops.get_string(specl, 0, "")
       pth = Ops.get_string(specl, 1, "")
       mount = Ops.get_string(entry, "file", "")
-      existing = Convert.convert(
-        Builtins.union(
-          Nfs.non_nfs_entries,
-          Builtins.remove(nfs_entries, entryno)
-        ),
-        from: "list",
-        to:   "list <map>"
-      )
+      existing = Builtins.remove(nfs_entries, entryno)
 
       if !CheckHostName(server) || !CheckPath(pth) || !CheckPath(mount) ||
           IsMpInFstab(existing, mount)
