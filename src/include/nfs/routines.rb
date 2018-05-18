@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require "y2nfs_client/nfs_version"
+require "y2storage"
 
 # YaST namespace
 module Yast
@@ -102,16 +103,21 @@ module Yast
     end
 
     # Check if a mountpoint is in the fstab. If yes, display a message.
-    # @param [Array<Hash>] fstab     in .etc.fstab format (must contain the key "file")
-    # @param [String] mpoint    mount point
+    #
+    # This method checks against all the mount points not handled by the
+    # yast-nfs-client module (i.e. non-NFS entries in fstab) and against the
+    # list of NFS shares currently managed by the module (provided as argument).
+    #
+    # @param nfs_entries [Array<Hash>] list of NFS entries to check in addition
+    #   to the known non-NFS mount points. The NFS entries must be in .etc.fstab
+    #   format (must contain the key "file")
+    # @param mpoint [String] mount point
     # @return          is it there?
-    def IsMpInFstab(fstab, mpoint)
-      fstab = deep_copy(fstab)
-      tmp = Builtins.filter(fstab) do |fse|
-        Ops.get_string(fse, "file", "") == mpoint
-      end
+    def IsMpInFstab(nfs_entries, mpoint)
+      found = non_nfs_mount_paths.any?(mpoint)
+      found ||= nfs_entries.any? { |fse| fse["file"] == mpoint }
 
-      return false if Builtins.size(tmp) == 0
+      return false unless found
 
       # error popup message
       Report.Error(
@@ -184,6 +190,49 @@ module Yast
       entry["vfstype"] == "nfs4" || NfsOptions.legacy?(entry["mntops"] || "")
     end
 
+    # Transforms a hash representing an NFS mount from the internal format used
+    # by yast-nfs-client to the TargetMap format used by the old yast-storage
+    #
+    # This is a direct translation of the old NfsClient4partClient#ToStorage
+    #
+    # @param entry [Hash] NFS mount in the internal format that uses keys as
+    #   "spec", "file", etc.
+    # @return [Hash] NFS mount in the TargetMap format that uses keys as
+    #   "device", "mount", etc.
+    def fstab_to_storage(entry)
+      ret = {}
+
+      if entry && entry != {}
+        ret = {
+          "device"  => entry.fetch("spec", ""),
+          "mount"   => entry.fetch("file", ""),
+          "fstopt"  => entry.fetch("mntops", ""),
+          "vfstype" => entry.fetch("vfstype", "nfs")
+        }
+        # The "old" and "old_device" keys are used by nfs-client to indicate to
+        # the storage stack that an entry is not new, but a replacement for one
+        # of the entries originally reported by the storage stack. Thus, is only
+        # needed in this direction (from fstab to storage).
+        ret["old_device"] = entry["old"] if entry["old"]
+      end
+      ret
+    end
+
+    # Inverse of {#fstab_to_storage}
+    #
+    # @param entry [Hash] see return value of {#fstab_to_storage}
+    # @return [Hash] see argument of {#fstab_to_storage}
+    def storage_to_fstab(entry)
+      return {} if entry.nil? || entry.empty?
+
+      {
+        "spec"    => entry.fetch("device", ""),
+        "file"    => entry.fetch("mount", ""),
+        "vfstype" => entry.fetch("used_fs", :nfs) == :nfs ? "nfs" : "nfs4",
+        "mntops"  => entry.fetch("fstopt", "")
+      }
+    end
+
   private
 
     # @see #FstabTableItems
@@ -201,6 +250,30 @@ module Yast
       else
         version.label
       end
+    end
+
+    # Singleton instance of Y2Storage::StorageManager
+    #
+    # @return [Y2Storage::StorageManager]
+    def storage_manager
+      Y2Storage::StorageManager.instance
+    end
+
+    # Devicegraph to operate with
+    #
+    # @return [Y2Storage::Devicegraph]
+    def working_graph
+      storage_manager.staging
+    end
+
+    # Mount points present on /etc/fstab but not handled by the yast-nfs-client
+    # module.
+    #
+    # @return [Array<String>]
+    def non_nfs_mount_paths
+      Y2Storage::MountPoint.all(working_graph).select do |mp|
+        mp.mountable && !mp.mountable.is?(:nfs)
+      end.map(&:path)
     end
   end
 end

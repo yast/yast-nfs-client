@@ -208,7 +208,6 @@ module Yast
     # @return		a nfs_entry or nil
     def GetFstabEntry(fstab_ent, existing)
       fstab_ent = deep_copy(fstab_ent)
-      existing = deep_copy(existing)
       Wizard.SetScreenShotName("nfs-client-1a-edit")
 
       server = ""
@@ -581,14 +580,7 @@ module Yast
       end
 
       if widget == :newbut
-        entry = GetFstabEntry(
-          nil,
-          Convert.convert(
-            Builtins.union(Nfs.non_nfs_entries, @nfs_entries),
-            from: "list",
-            to:   "list <map>"
-          )
-        )
+        entry = GetFstabEntry(nil, @nfs_entries)
 
         if entry
           @nfs_entries = Builtins.add(@nfs_entries, entry)
@@ -600,12 +592,20 @@ module Yast
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
       elsif widget == :editbut
+        # Handle situations in which edit is called with no entry selected
+        # (caused by a bug in yast2-storage-ng)
+        return EnableDisableButtons() if entryno.nil?
+
         source_entry = @nfs_entries[entryno] || {}
         if !legacy_entry?(source_entry) || edit_legacy?
           edit_entry(source_entry, entryno)
         end
-      elsif widget == :delbut &&
-          Ops.greater_than(Builtins.size(@nfs_entries), 0)
+      elsif widget == :delbut
+        # Handle unexpected delete request. The delete button shouldn't be
+        # enabled if there are no entries, but it can happen due to a bug
+        # in yast2-storage-ng
+        return EnableDisableButtons() if @nfs_entries.empty? || entryno.nil?
+
         share = Ops.get(@nfs_entries, entryno, {})
         if Popup.YesNo(
           Builtins.sformat(
@@ -728,17 +728,8 @@ module Yast
 
     # @see #HandleEvent
     def edit_entry(source_entry, entryno)
-      entry = GetFstabEntry(
-        source_entry,
-        Convert.convert(
-          Builtins.union(
-            Nfs.non_nfs_entries,
-            Builtins.remove(@nfs_entries, entryno)
-          ),
-          from: "list",
-          to:   "list <map>"
-        ) # Default values
-      )
+      entry = GetFstabEntry(source_entry, Builtins.remove(@nfs_entries, entryno))
+
       if entry
         count2 = 0
         @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|

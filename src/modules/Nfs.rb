@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require "yast"
-require "fstab/tsort"
 require "y2firewall/firewalld"
 
 # YaST namespace
@@ -40,9 +39,6 @@ module Yast
 
       # eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntops": "defaults"], ...]
       @nfs_entries = []
-
-      # Read only, intended for checking mount-point uniqueness.
-      @non_nfs_entries = []
 
       @nfs4_enabled = nil
 
@@ -223,7 +219,6 @@ module Yast
     # @param [Hash{String => Object}] settings	a map($) of nfs_entries
     # @return	success
     def Import(settings)
-      settings = deep_copy(settings)
       ImportAny(settings)
     end
 
@@ -317,55 +312,20 @@ module Yast
     # Reads NFS settings from the SCR (.etc.fstab)
     # @return true on success
     def Read
-      # Read /etc/fstab if we're running standalone (otherwise, libstorage does the job)
+      # Read /etc/fstab if we're running standalone
       if !@skip_fstab
-        fstab = Convert.convert(
-          SCR.Read(path(".etc.fstab")),
-          from: "any",
-          to:   "list <map <string, any>>"
-        )
-        fstab = UnescapeSpaces(fstab)
-        Builtins.y2milestone("fstab: %1", fstab)
-
-        # For simplicity, this leaves also the unused fileds in the maps.
-        @nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") == "nfs" ||
-            Ops.get_string(entry, "vfstype", "") == "nfs4"
-        end
-        @non_nfs_entries = Builtins.filter(fstab) do |entry|
-          Ops.get_string(entry, "vfstype", "") != "nfs" &&
-            Ops.get_string(entry, "vfstype", "") != "nfs4"
-        end
+        # Let's explictly trigger a (re)probing
+        return false unless storage_probe
+        load_nfs_entries(storage_nfs_mounts.map(&:to_legacy_hash))
       end
 
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
       @idmapd_domain = ReadIdmapd()
-
-      progress_orig = Progress.set(false)
-      firewalld.read
-      Progress.set(progress_orig)
-
       @portmapper = FindPortmapper()
-      # There is neither rpcbind  nor portmap
-      if @portmapper == ""
-        # so let's install rpcbind (default since #423026)
-        @required_packages = Builtins.add(@required_packages, "rpcbind")
-        @portmapper = "rpcbind"
-      end
-      if @nfs4_enabled
-        @required_packages = Builtins.add(@required_packages, "nfsidmap")
-      end
 
-      if Mode.installation
-        Builtins.foreach(@required_packages) do |p|
-          PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
-        end
-      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
-        return false
-      end
-
-      true
+      firewalld.read
+      check_and_install_required_packages
     end
 
     # Writes the NFS client configuration without
@@ -375,14 +335,11 @@ module Yast
     # (No parameters because it is too short to abort)
     # @return true on success
     def WriteOnly
-      # Merge with non-nfs entries from fstab:
-      fstab = SCR.Read(path(".etc.fstab"))
-      # unescape deferred for optimization
-      fstab.delete_if { |entry| ["nfs", "nfs4"].include?(entry["vfstype"]) }
-      fstab = UnescapeSpaces(fstab)
+      remove_storage_nfs_mounts
 
       @nfs_entries.each do |entry|
-        fstab << entry.merge("freq" => 0, "passno" => 0)
+        create_storage_device(entry)
+
         # create mount points
         file = entry["file"] || ""
         next if SCR.Execute(path(".target.mkdir"), file)
@@ -392,18 +349,13 @@ module Yast
         )
       end
 
-      log.debug("fstab before ordering: #{fstab}")
-      fstab = Fstab::TSort.sort(fstab)
-      log.info("fstab: #{fstab}")
-
       SCR.Execute(
         path(".target.bash"),
         "/bin/cp $ORIG $BACKUP",
         "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
       )
 
-      fstab = EscapeSpaces(fstab)
-      if !SCR.Write(path(".etc.fstab"), fstab)
+      if !write_fstab
         # error popup message
         Report.Error(
           _(
@@ -709,13 +661,24 @@ module Yast
       dirs
     end
 
+    # Initializes {#nfs_entries} with the information provided by the storage
+    # layer
+    #
+    # @param shares [Array<Hash>] entries in the TargetMap format used by the old
+    #   storage (with keys such as "device", "mount", etc.)
+    # @return [Array<Hash>] new value of {#nfs_entries}
+    def load_nfs_entries(shares)
+      @nfs_entries = shares.map { |entry| storage_to_fstab(entry) }
+      log.info("Nfs shares imported from storage #{@nfs_entries}")
+      @nfs_entries
+    end
+
     publish variable: :modified, type: "boolean"
     publish variable: :skip_fstab, type: "boolean"
     publish function: :SetModified, type: "void ()"
     publish function: :GetModified, type: "boolean ()"
     publish variable: :required_packages, type: "list <string>"
     publish variable: :nfs_entries, type: "list <map <string, any>>"
-    publish variable: :non_nfs_entries, type: "list <map>"
     publish variable: :nfs4_enabled, type: "boolean"
     publish variable: :nfs_gss_enabled, type: "boolean"
     publish variable: :idmapd_domain, type: "string"
@@ -731,6 +694,100 @@ module Yast
     publish function: :AutoPackages, type: "map ()"
     publish function: :ProbeServers, type: "list <string> ()"
     publish function: :ProbeExports, type: "list <string> (string, boolean)"
+
+  private
+
+    # Forces a Y2Storage (re)probing
+    #
+    # @return [Boolean] false if something went wrong and the user
+    #   decided to abort
+    def storage_probe
+      storage_manager.probe
+    end
+
+    # NFS mounts from Y2Storage
+    #
+    # @return [Array<Y2Storage::Filesystems::Nfs>]
+    def storage_nfs_mounts
+      working_graph.nfs_mounts
+    end
+
+    # Remove all pre-existing NFS mounts from the working devicegraph
+    def remove_storage_nfs_mounts
+      storage_nfs_mounts.each do |nfs|
+        working_graph.remove_nfs(nfs)
+      end
+    end
+
+    # Commits storage changes to /etc/fstab
+    def write_fstab
+      # By default, libstorage-ng will umount active NFS shares found in
+      # probed and will mount active Nfs shares from staging.
+      # Let's prevent that since we don't want libstorage-ng to perform any
+      # mount/umount.
+      #
+      # TODO: this implies too much knowledge about how libstorage-ng works, it
+      # should be moved to yast2-storage-ng (e.g. as a :skip_mount flag to
+      # #commit).
+      deactivate_mount_points(storage_manager.probed)
+      deactivate_mount_points(storage_manager.staging)
+      storage_manager.commit
+    end
+
+    # See {#write_fstab}
+    #
+    # @param graph [Y2Storage::Devicegraph]
+    def deactivate_mount_points(graph)
+      graph.nfs_mounts.each do |nfs|
+        nfs.mount_point && nfs.mount_point.active = false
+      end
+    end
+
+    # Creates a Y2Storage::Filesystems::Nfs device in the working devicegraph
+    #
+    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such
+    #   as "spec", "file", etc
+    def create_storage_device(entry)
+      to_legacy_nfs(entry).create_nfs_device
+    end
+
+    # @see #create_storage_device
+    #
+    # @param entry [Hash] see {#create_storage_device}
+    def to_legacy_nfs(entry)
+      storage_hash = fstab_to_storage(entry)
+      legacy = Y2Storage::Filesystems::LegacyNfs.new_from_hash(storage_hash)
+      legacy.default_devicegraph = working_graph
+      legacy
+    end
+
+    # Check that the required nfs-client packages are present adding them to
+    # the packages proposal in case of a installation or installing them
+    # interactively in a running system.
+    #
+    # @return [Boolean] false if some required package was not installed in a
+    # running system; true otherwise
+    def check_and_install_required_packages
+      # There is neither rpcbind  nor portmap
+      if @portmapper == ""
+        # so let's install rpcbind (default since #423026)
+        @required_packages = Builtins.add(@required_packages, "rpcbind")
+        @portmapper = "rpcbind"
+      end
+      if @nfs4_enabled
+        @required_packages = Builtins.add(@required_packages, "nfsidmap")
+      end
+
+      if Mode.installation
+        Builtins.foreach(@required_packages) do |p|
+          PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
+        end
+      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
+        return false
+      end
+
+      true
+    end
   end
 
   Nfs = NfsClass.new

@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        4.0.5
+Version:        4.0.6
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -31,6 +31,8 @@ BuildRequires:  yast2-testsuite
 # SuSEFirewall2 replaced by firewalld (fate#323460)
 BuildRequires:  yast2 >= 4.0.39
 BuildRequires:  rubygem(rspec)
+#for install task
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 # path_matching (RSpec argument matcher)
 BuildRequires:  yast2-ruby-bindings >= 3.1.31
 # SuSEFirewall2 replaced by firewalld (fate#323460)
@@ -39,6 +41,10 @@ Requires:       yast2 >= 4.0.39
 Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
 Recommends:     nfs-client
+# Y2Storage::MountPoint#active=
+Requires:       yast2-storage-ng >= 4.0.180
+# Y2Storage::MountPoint#active=
+BuildRequires:  yast2-storage-ng >= 4.0.180
 
 # Unfortunately we cannot move this to macros.yast,
 # bcond within macros are ignored by osc/OBS.
@@ -71,10 +77,12 @@ file system access. It allows access to files on remote machines.
 %setup -n %{name}-%{version}
 
 %build
-%yast_build
+
+%check
+rake test:unit
 
 %install
-%yast_install
+rake install DESTDIR="%{buildroot}"
 
 %files
 %defattr(-,root,root)
@@ -88,7 +96,6 @@ file system access. It allows access to files on remote machines.
 %dir %{yast_moduledir}
 %{yast_moduledir}/Nfs.rb
 %{yast_moduledir}/NfsOptions.rb
-%{yast_dir}/lib/fstab
 %{yast_dir}/lib/y2nfs_client
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop
