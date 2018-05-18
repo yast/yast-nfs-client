@@ -28,8 +28,34 @@ Yast.import "Service"
 describe "Yast::Nfs" do
   subject { Yast::Nfs }
   let(:firewalld) { Y2Firewall::Firewalld.instance }
-  let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
-  let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
+
+  def allow_read_side_effects
+    allow(subject).to receive(:ReadNfs4)
+    allow(subject).to receive(:ReadNfsGss)
+    allow(subject).to receive(:ReadIdmapd)
+    allow(subject).to receive(:FindPortmapper).and_return("rpcbind")
+    allow(subject).to receive(:firewalld).and_return(firewalld)
+    allow(firewalld).to receive(:read)
+    allow(subject).to receive(:check_and_install_required_packages)
+  end
+
+  def mock_entries
+    subject.skip_fstab = false
+    subject.Read
+  end
+
+  before do
+    # Load local devices
+    sm = Y2Storage::StorageManager.create_test_instance
+    sm.probe_from_yaml(File.join(DATA_PATH, "devicegraph.yaml"))
+
+    # Add NFS entries
+    Y2Storage::Filesystems::Nfs.create(sm.staging, "nfs.example.com", "/foo").mount_path = "/foo"
+    Y2Storage::Filesystems::Nfs.create(sm.staging, "nfs.example.com", "/baz").mount_path = "/foo/bar/baz"
+
+    # Prevent further reprobing
+    allow(sm).to receive(:probe).and_return true
+  end
 
   describe ".Import" do
     let(:profile) do
@@ -132,10 +158,10 @@ describe "Yast::Nfs" do
       }
     end
     before do
+      mock_entries
       subject.nfs4_enabled = true
       subject.nfs_gss_enabled = false
       subject.idmapd_domain = "example.com"
-      subject.nfs_entries = nfs_entries
     end
 
     it "exports the current nfs settings as a map" do
@@ -150,13 +176,7 @@ describe "Yast::Nfs" do
       subject.skip_fstab = true
       subject.nfs4_enabled = true
       subject.nfs_gss_enabled = true
-      allow(subject).to receive(:ReadNfs4)
-      allow(subject).to receive(:ReadNfsGss)
-      allow(subject).to receive(:ReadIdmapd)
-      allow(subject).to receive(:FindPortmapper).and_return("rpcbind")
-      allow(subject).to receive(:firewalld).and_return(firewalld)
-      allow(firewalld).to receive(:read)
-      allow(subject).to receive(:check_and_install_required_packages)
+      allow_read_side_effects
     end
 
     context "when the read of fstab is not set to be skipped" do
@@ -232,51 +252,40 @@ describe "Yast::Nfs" do
         .with(path(".target.bash"), %r{^/bin/cp }, any_args)
 
       # Load the lists
-      subject.nfs_entries = nfs_entries
-      allow(Yast::SCR).to receive(:Read).with(path(".etc.fstab"))
-        .and_return fstab_entries
+      allow_read_side_effects
+      mock_entries
     end
 
-    xit "ensures zero for 'passno' and 'freq' fields, only in nfs entries" do
-      expected_passnos = {
-        "/"            => 1,
-        "/foof"        => nil,
-        "/foo"         => 0,
-        "/foo/bar"     => 0,
-        "/foo/bar/baz" => 0
-      }
-      expected_freqs = {
-        "/"            => nil,
-        "/foof"        => 1,
-        "/foo"         => 0,
-        "/foo/bar"     => 2,
-        "/foo/bar/baz" => 0
-      }
+    def find_mp(path)
+      staging = Y2Storage::StorageManager.instance.staging
+      staging.filesystems.find { |fs| fs.mount_path == path }.mount_point
+    end
 
-      expect(Yast::SCR).to receive(:Write).with(path(".etc.fstab"), anything) do |_path, fstab|
-        passnos = {}
-        freqs = {}
-        fstab.each do |e|
-          passnos[e["file"]] = e["passno"]
-          freqs[e["file"]] = e["freq"]
-        end
-        expect(passnos).to eq expected_passnos
-        expect(freqs).to eq expected_freqs
-      end
+    it "ensures zero for the 'passno' field, only in nfs entries" do
+      # Enforce weird passno value for NFS
+      find_mp("/foo").to_storage_value.passno = 1
+      find_mp("/foo/bar/baz").to_storage_value.passno = 2
+
+      expect(find_mp("/").passno).to eq 1
+      expect(find_mp("/foof").passno).to eq 2
+      expect(find_mp("/foo").passno).to eq 1
+      expect(find_mp("/foo/bar/baz").passno).to eq 2
 
       subject.WriteOnly
+
+      expect(find_mp("/").passno).to eq 1
+      expect(find_mp("/foof").passno).to eq 2
+      expect(find_mp("/foo").passno).to eq 0
+      expect(find_mp("/foo/bar/baz").passno).to eq 0
     end
   end
 
   describe ".Write" do
-    let(:fstab_entries) { YAML.load_file(File.join(DATA_PATH, "fstab_entries.yaml")) }
-    let(:nfs_entries) { fstab_entries.select { |e| e["vfstype"] == "nfs" } }
     let(:written) { false }
     let(:portmapper) { "rpcbind" }
 
     before do
       subject.instance_variable_set("@portmapper", portmapper)
-      subject.nfs_entries = nfs_entries
       allow(subject).to receive(:WriteOnly).and_return(written)
       allow(Yast::Wizard)
       allow(Yast::Progress).to receive(:set)
