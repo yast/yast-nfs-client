@@ -49,23 +49,83 @@ describe "Yast::NfsRoutinesInclude" do
   end
 
   describe "#SpecToServPath" do
-    # FIXME: separate in individual tests
-    it "returns a couple term with the server and the exported path params" do
-      term = subject.SpecToServPath("big.foo.com:/share/data")
-      expect(term.value).to eql(:couple)
-      expect(term.params).to eql(["big.foo.com", "/share/data"])
-      term = subject.SpecToServPath("big.foo.com:")
-      expect(term.params).to eql(["big.foo.com", ""])
-      term = subject.SpecToServPath("big.foo.com")
-      expect(term.params).to eql(["", "big.foo.com"])
-      term = subject.SpecToServPath(":/only/path")
-      expect(term.params).to eql(["", "/only/path"])
-      term = subject.SpecToServPath("/nocolon/only/path")
-      expect(term.params).to eql(["", "/nocolon/only/path"])
-      term = subject.SpecToServPath("fe80::219:d1ff:feac:fd10:/path")
-      expect(term.params).to eql(["fe80::219:d1ff:feac:fd10", "/path"])
-      term = subject.SpecToServPath("")
-      expect(term.params).to eql(["", ""])
+    let(:term) { subject.SpecToServPath(spec) }
+
+    RSpec.shared_examples "couple term" do
+      it "returns a :couple term" do
+        expect(term).to be_a Yast::Term
+        expect(term.value).to eql(:couple)
+      end
+    end
+
+    context "for a spec with url and path separated by colon" do
+      let(:spec) { "big.foo.com:/share/data" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are the url and the path" do
+        expect(term.params).to eql ["big.foo.com", "/share/data"]
+      end
+    end
+
+    context "for a spec with url followed by a colon but no path" do
+      let(:spec) { "big.foo.com:" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are the url and an empty string" do
+        expect(term.params).to eql ["big.foo.com", ""]
+      end
+    end
+
+    context "for a spec with a string that looks like an url and no colon" do
+      let(:spec) { "big.foo.com" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are an empty string and the full spec" do
+        expect(term.params).to eql ["", "big.foo.com"]
+      end
+    end
+
+    context "for a spec with a string that looks like a path and no colon" do
+      let(:spec) { "/nocolon/only/path" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are an empty string and the full spec" do
+        expect(term.params).to eql ["", "/nocolon/only/path"]
+      end
+    end
+
+    context "for a spec containing only a colon followed by a path" do
+      let(:spec) { ":/only/path" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are an empty string and the path" do
+        expect(term.params).to eql ["", "/only/path"]
+      end
+    end
+
+    context "for a spec containing an IPv6 address (several colons) followed by a colon and a path" do
+      let(:spec) { "fe80::219:d1ff:feac:fd10:/path" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are the IP address (including all its colons) and the path" do
+        expect(term.params).to eql ["fe80::219:d1ff:feac:fd10", "/path"]
+      end
+    end
+
+    context "for an empty spec" do
+      let(:spec) { "" }
+
+      include_examples "couple term"
+
+      it "returns a term in which the params are two empty strings" do
+        expect(term.params).to eql ["", ""]
+      end
     end
   end
 
