@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jun 27 17:30:25 CEST 2018 - schubi@suse.de
+
+- Added additional searchkeys to desktop file (fate#321043).
+- 4.0.7
+
+-------------------------------------------------------------------
 Fri May 18 14:28:05 UTC 2018 - ancor@suse.com
 
 - Fixed a bug preventing some strings (introduced while fixing
