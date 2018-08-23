@@ -181,6 +181,7 @@ module Yast
     #
     # @param options [String] mount options in the comma-separated format used
     #   by mount and /etc/fstab
+    # @raise [ArgumentError] if no matching version is found
     # @return [Y2NfsClient::NfsVersion]
     def nfs_version(options)
       option_list = from_string(options)

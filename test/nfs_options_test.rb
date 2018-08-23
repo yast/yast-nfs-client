@@ -107,6 +107,7 @@ describe "Yast::NfsOptions" do
       {
         "nfsvers=4"                => "4",
         "nfsvers=4,minorversion=1" => "4",
+        "nfsvers=4.0"              => "4",
         "defaults,nfsvers=3"       => "3",
         "nfsvers=4.1,nolock"       => "4.1"
       }.each_pair do |opts, version|
@@ -135,6 +136,16 @@ describe "Yast::NfsOptions" do
         returned = Yast::NfsOptions.nfs_version(opts)
         expect(returned.mntops_value).to eq version
       end
+    end
+
+    it "raises ArgumentError if unknown version appears" do
+      [
+        "nfsvers=4.5",
+        "vers=5,rw"
+      ].each do |opts|
+        expect { Yast::NfsOptions.nfs_version(opts) }.to raise_error(ArgumentError)
+      end
+
     end
   end
 
