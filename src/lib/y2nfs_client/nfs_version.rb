@@ -63,9 +63,11 @@ module Y2NfsClient
     # @see #mntops_value
     #
     # @param value [String]
+    # @raise Argument error for parameter for which matching version is not found
     # @return [NfsVersion]
     def self.for_mntops_value(value)
-      all.find { |version| version.mntops_value == value }
+      value = "4" if value == "4.0"
+      all.find { |version| version.mntops_value == value } or raise ArgumentError, "Unknown value #{value.inspect}"
     end
 
     # Value used in the corresponding mount option (nfsvers or vers)
