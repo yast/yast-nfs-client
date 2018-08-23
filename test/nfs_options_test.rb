@@ -107,7 +107,7 @@ describe "Yast::NfsOptions" do
       {
         "nfsvers=4"                => "4",
         "nfsvers=4,minorversion=1" => "4",
-        "nfsvers=4.0" => "4",
+        "nfsvers=4.0"              => "4",
         "defaults,nfsvers=3"       => "3",
         "nfsvers=4.1,nolock"       => "4.1"
       }.each_pair do |opts, version|
