@@ -65,7 +65,8 @@ module Y2NfsClient
     # @param value [String]
     # @return [NfsVersion]
     def self.for_mntops_value(value)
-      all.find { |version| version.mntops_value == value }
+      value = "4" if value == "4.0"
+      all.find { |version| version.mntops_value == value } or raise "Unknown mntops value #{value.inspect}"
     end
 
     # Value used in the corresponding mount option (nfsvers or vers)
