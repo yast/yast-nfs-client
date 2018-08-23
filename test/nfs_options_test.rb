@@ -137,6 +137,16 @@ describe "Yast::NfsOptions" do
         expect(returned.mntops_value).to eq version
       end
     end
+
+    it "raises ArgumentError if unknown version appears" do
+      [
+        "nfsvers=4.5",
+        "vers=5,rw"
+      ].each do |opts|
+        expect { Yast::NfsOptions.nfs_version(opts) }.to raise_error(ArgumentError)
+      end
+
+    end
   end
 
   describe "#set_nfs_version" do
