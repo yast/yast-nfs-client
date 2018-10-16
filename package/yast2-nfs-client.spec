@@ -101,5 +101,6 @@ rake install DESTDIR="%{buildroot}"
 %{yast_desktopdir}/nfs.desktop
 %doc %{yast_docdir}
 %{yast_schemadir}/autoyast/rnc/nfs.rnc
+%license COPYING
 
 %changelog
