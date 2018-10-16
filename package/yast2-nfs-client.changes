@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Oct 16 16:05:36 CEST 2018 - schubi@suse.de
+
+- Added license file to spec.
+
+-------------------------------------------------------------------
 Thu Aug 23 10:47:00 UTC 2018 - jreidinger@suse.com
 
 - do not crash when nfs version is written as 4.0 instead of 4
