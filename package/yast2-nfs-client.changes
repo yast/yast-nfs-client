@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Nov 25 19:16:53 UTC 2018 - Noah Davis <noahadvs@gmail.com>
+
+- Provide icon with module (boo#1109310)
+
+-------------------------------------------------------------------
 Tue Oct 16 16:05:36 CEST 2018 - schubi@suse.de
 
 - Added license file to spec.
