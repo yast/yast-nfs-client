@@ -55,6 +55,9 @@ describe "Yast::Nfs" do
 
     # Prevent further reprobing
     allow(sm).to receive(:probe).and_return true
+
+    # prevent storage-commit
+    allow(subject).to receive(:write_fstab)
   end
 
   describe ".Import" do
