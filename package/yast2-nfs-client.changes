@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Nov 27 11:49:07 UTC 2018 - jreidinger@suse.com
+
+- fix build failure caused by changes in storage-ng
+  (related to change done for bsc#1088426)
+- 4.0.9
+
+-------------------------------------------------------------------
 Thu Aug 23 10:47:00 UTC 2018 - jreidinger@suse.com
 
 - do not crash when nfs version is written as 4.0 instead of 4
