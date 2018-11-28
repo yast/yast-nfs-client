@@ -99,7 +99,7 @@ rake install DESTDIR="%{buildroot}"
 %{yast_dir}/lib/y2nfs_client
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop
-%{_datadir}/icons/*
+%{yast_icondir}
 %doc %{yast_docdir}
 %{yast_schemadir}/autoyast/rnc/nfs.rnc
 %license COPYING
