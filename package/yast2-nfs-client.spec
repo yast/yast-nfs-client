@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        4.1.1
+Version:        4.1.2
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
@@ -99,6 +99,7 @@ rake install DESTDIR="%{buildroot}"
 %{yast_dir}/lib/y2nfs_client
 %dir %{yast_desktopdir}
 %{yast_desktopdir}/nfs.desktop
+%{yast_icondir}
 %doc %{yast_docdir}
 %{yast_schemadir}/autoyast/rnc/nfs.rnc
 %license COPYING
