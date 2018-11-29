@@ -2,6 +2,13 @@
 Sun Nov 25 19:16:53 UTC 2018 - Noah Davis <noahadvs@gmail.com>
 
 - Provide icon with module (boo#1109310)
+- 4.1.2
+
+-------------------------------------------------------------------
+Tue Nov 27 11:49:07 UTC 2018 - jreidinger@suse.com
+
+- fix build failure caused by changes in storage-ng
+  (related to change done for bsc#1088426)
 - 4.1.1
 
 -------------------------------------------------------------------
