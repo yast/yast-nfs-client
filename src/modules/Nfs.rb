@@ -3,6 +3,8 @@
 require "yast"
 require "y2firewall/firewalld"
 
+require "shellwords"
+
 # YaST namespace
 module Yast
   # NFS client configuration data, I/O functions.
@@ -299,8 +301,7 @@ module Yast
 
       SCR.Execute(
         path(".target.bash"),
-        "/bin/cp $ORIG $BACKUP",
-        "ORIG" => "/etc/fstab", "BACKUP" => "/etc/fstab.YaST2.save"
+        "/usr/bin/cp /etc/fstab /etc/fstab.YaST2/save"
       )
 
       if !write_fstab
@@ -487,12 +488,12 @@ module Yast
 
       # build mount command
       command = Builtins.sformat(
-        "/bin/mount %1 %2 %3:%4 %5",
-        options.to_s == "" ? "" : "-o #{options}",
-        "-t #{type.to_s == "" ? "nfs" : type}",
-        server,
-        share,
-        mpoint
+        "/usr/bin/mount %1 %2 %3:%4 %5",
+        options.to_s == "" ? "" : "-o #{options.to_s.shellescape}",
+        "-t #{type.to_s == "" ? "nfs" : type.shellescape}",
+        server.shellescape,
+        share.shellescape,
+        mpoint.shellescape
       )
 
       # execute mount command
@@ -520,7 +521,7 @@ module Yast
       end
 
       if found
-        command = Builtins.sformat("/bin/umount %1", mpoint)
+        command = "/usr/bin/umount #{mpoint.shellescape}"
 
         return false if SCR.Execute(path(".target.bash"), command) != 0
       else
@@ -531,7 +532,7 @@ module Yast
       # if the directory was created by Mount call and it is empty then remove it
       if Builtins.contains(@created_dirs, mpoint) &&
           SCR.Read(path(".target.dir"), mpoint) == []
-        command = Builtins.sformat("/bin/rmdir %1", mpoint)
+        command = "/bin/rmdir #{mpoint.shellescape}"
 
         return false if SCR.Execute(path(".target.bash"), command) != 0
 
@@ -557,6 +558,7 @@ module Yast
       delim = ""
 
       # fallback from glibc (uses different field separators, grr :( )
+      # TODO: looks like glibc no longer contain this fallback?
       if !FileUtils.Exists(prog_name)
         prog_name = "/usr/sbin/rpcinfo"
         delim = "-d ' ' "
@@ -564,15 +566,9 @@ module Yast
 
       # #71064
       # this works also if ICMP broadcasts are ignored
-      cmd = Ops.add(
-        Ops.add(Ops.add(prog_name, " -b mountd 1 | cut "), delim),
-        "-f 2 | sort -u"
-      )
+      cmd = "#{prog_name} -b mountd 1 | /usr/bin/cut #{delim} -f 2 | /usr/bin/sort -u"
       out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
-      hosts = Builtins.filter(
-        Builtins.splitstring(Ops.get_string(out, "stdout", ""), "\n")
-      ) { |s| s != "" }
-      deep_copy(hosts)
+      hosts = Ops.get_string(out, "stdout", "").lines.map(&:strip).reject(&:empty?)
     end
 
     # Probe a server for its exports.
