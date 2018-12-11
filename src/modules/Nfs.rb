@@ -551,7 +551,7 @@ module Yast
 
     # Probe the LAN for NFS servers.
     # Uses RPC broadcast to mountd.
-    # @return a list of hostnames
+    # @return [Array<String>] a list of hostnames
     def ProbeServers
       # newer, shinier, better rpcinfo from rpcbind (#450056)
       prog_name = "/sbin/rpcinfo"
@@ -568,7 +568,7 @@ module Yast
       # this works also if ICMP broadcasts are ignored
       cmd = "#{prog_name} -b mountd 1 | /usr/bin/cut #{delim} -f 2 | /usr/bin/sort -u"
       out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
-      hosts = Ops.get_string(out, "stdout", "").lines.map(&:strip).reject(&:empty?)
+      Ops.get_string(out, "stdout", "").lines.map(&:strip).reject(&:empty?)
     end
 
     # Probe a server for its exports.
