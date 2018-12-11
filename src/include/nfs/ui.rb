@@ -140,7 +140,7 @@ module Yast
       if FileUtils.Exists(HOST_BIN)
         out = SCR.Execute(
           path(".target.bash_output"),
-          Builtins.sformat("%1 %2", HOST_BIN, hname.shellescape)
+          "#{HOST_BIN} #{hname.shellescape}"
         )
 
         ret = Ops.get_integer(out, "exit", -1) == 0
