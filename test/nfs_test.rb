@@ -252,7 +252,7 @@ describe "Yast::Nfs" do
       allow(firewalld).to receive(:write_only)
       # Creation of the backup
       allow(Yast::SCR).to receive(:Execute)
-        .with(path(".target.bash"), %r{^/bin/cp }, any_args)
+        .with(path(".target.bash"), %r{^/usr/bin/cp }, any_args)
 
       # Load the lists
       allow_read_side_effects

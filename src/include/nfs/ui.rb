@@ -4,6 +4,8 @@ require "yast2/feedback"
 require "yast2/popup"
 require "y2nfs_client/nfs_version"
 
+require "shellwords"
+
 # YaST namespace
 module Yast
   # NFS client dialogs
@@ -128,19 +130,17 @@ module Yast
       item
     end
 
+    HOST_BIN = "/usr/bin/host".freeze
     # Find out whether this nfs host really exists
     # @param [String] hname	hostname
     # @return true if it exists, false otherwise
     def HostnameExists(hname)
-      prog_name = "/usr/bin/host"
       ret = false
 
-      if FileUtils.Exists(prog_name)
-        out = Convert.to_map(
-          SCR.Execute(
-            path(".target.bash_output"),
-            Builtins.sformat("%1 %2", prog_name, hname)
-          )
+      if FileUtils.Exists(HOST_BIN)
+        out = SCR.Execute(
+          path(".target.bash_output"),
+          "#{HOST_BIN} #{hname.shellescape}"
         )
 
         ret = Ops.get_integer(out, "exit", -1) == 0
