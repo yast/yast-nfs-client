@@ -108,6 +108,7 @@ describe "Yast::NfsOptions" do
         "nfsvers=4"                => "4",
         "nfsvers=4,minorversion=1" => "4",
         "nfsvers=4.0"              => "4",
+        "nfsvers=4.2"              => "4.2",
         "defaults,nfsvers=3"       => "3",
         "nfsvers=4.1,nolock"       => "4.1"
       }.each_pair do |opts, version|
@@ -120,7 +121,8 @@ describe "Yast::NfsOptions" do
       {
         "minorversion=1,vers=4" => "4",
         "vers=3,ro"             => "3",
-        "vers=4.1"              => "4.1"
+        "vers=4.1"              => "4.1",
+        "vers=4.2"              => "4.2"
       }.each_pair do |opts, version|
         returned = Yast::NfsOptions.nfs_version(opts)
         expect(returned.mntops_value).to eq version
@@ -164,12 +166,14 @@ describe "Yast::NfsOptions" do
       expect(set_version("nfsvers=4", nil)).to eq "defaults"
       expect(set_version("vers=3,ro", nil)). to eq "ro"
       expect(set_version("nolock,vers=4.1,rw,nfsvers=4", nil)). to eq "nolock,rw"
+      expect(set_version("nolock,vers=4.2,rw,nfsvers=4", nil)). to eq "nolock,rw"
     end
 
     it "modifies the existing nfsvers or vers option if needed" do
       expect(set_version("nfsvers=4", "3")).to eq "nfsvers=3"
       expect(set_version("vers=3,ro", "4")). to eq "vers=4,ro"
       expect(set_version("nolock,nfsvers=4.1,rw,vers=4", "4.1")). to eq "nolock,rw,vers=4.1"
+      expect(set_version("nolock,nfsvers=4.2,rw,vers=4", "4.2")). to eq "nolock,rw,vers=4.2"
     end
 
     it "deletes surplus useless nfsvers and vers options" do
@@ -179,6 +183,7 @@ describe "Yast::NfsOptions" do
 
     it "adds a nfsvers if a new option is needed" do
       expect(set_version("defaults", "4.1")). to eq "nfsvers=4.1"
+      expect(set_version("defaults", "4.2")). to eq "nfsvers=4.2"
       expect(set_version("rw,nolock", "3")). to eq "rw,nolock,nfsvers=3"
     end
   end

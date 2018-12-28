@@ -49,7 +49,8 @@ module Y2NfsClient
       new(nil,   N_("Any"),     :vers_any, N_("Any (Highest Available)")),
       new("3",   N_("NFSv3"),   :vers_3,   N_("Force NFSv3")),
       new("4",   N_("NFSv4"),   :vers_4,   N_("Force NFSv4")),
-      new("4.1", N_("NFSv4.1"), :vers_4_1, N_("Force pNFS (v4.1)"))
+      new("4.1", N_("NFSv4.1"), :vers_4_1, N_("Force pNFS (v4.1)")),
+      new("4.2", N_("NFSv4.2"), :vers_4_2, N_("Force NFSv4.2"))
     ].freeze
     private_constant :ALL
 
