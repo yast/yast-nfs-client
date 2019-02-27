@@ -553,20 +553,10 @@ module Yast
     # Uses RPC broadcast to mountd.
     # @return [Array<String>] a list of hostnames
     def ProbeServers
-      # newer, shinier, better rpcinfo from rpcbind (#450056)
-      prog_name = "/sbin/rpcinfo"
-      delim = ""
-
-      # fallback from glibc (uses different field separators, grr :( )
-      # TODO: looks like glibc no longer contain this fallback?
-      if !FileUtils.Exists(prog_name)
-        prog_name = "/usr/sbin/rpcinfo"
-        delim = "-d ' ' "
-      end
-
       # #71064
       # this works also if ICMP broadcasts are ignored
-      cmd = "#{prog_name} -b mountd 1 | /usr/bin/cut #{delim} -f 2 | /usr/bin/sort -u"
+      # newer, shinier, better rpcinfo from rpcbind (#450056)
+      cmd = "/sbin/rpcinfo -b mountd 1 | /usr/bin/cut -f 2 | /usr/bin/sort -u"
       out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
       Ops.get_string(out, "stdout", "").lines.map(&:strip).reject(&:empty?)
     end
