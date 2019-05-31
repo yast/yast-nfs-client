@@ -39,7 +39,7 @@ module Yast
       }
 
       Wizard.OpenOKDialog
-      Wizard.SetDesktopTitleAndIcon("nfs")
+      Wizard.SetDesktopTitleAndIcon("org.openSUSE.YaST.NFS")
 
       ret = Sequencer.Run(aliases, sequence)
 
