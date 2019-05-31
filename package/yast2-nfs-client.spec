@@ -12,7 +12,7 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
@@ -20,8 +20,10 @@ Name:           yast2-nfs-client
 Version:        4.1.5
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
+Summary:        YaST2 - NFS Configuration
+License:        GPL-2.0-or-later
+Group:          System/YaST
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
 BuildRequires:  perl-XML-Writer
@@ -35,6 +37,15 @@ BuildRequires:  rubygem(rspec)
 BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 # path_matching (RSpec argument matcher)
 BuildRequires:  yast2-ruby-bindings >= 3.1.31
+# Y2Storage::MountPoint#active=
+BuildRequires:  yast2-storage-ng >= 4.0.180
+# Unfortunately we cannot move this to macros.yast,
+# bcond within macros are ignored by osc/OBS.
+%bcond_with yast_run_ci_tests
+%if %{with yast_run_ci_tests}
+BuildRequires: rubygem(yast-rake-ci)
+%endif
+
 # SuSEFirewall2 replaced by firewalld (fate#323460)
 Requires:       yast2 >= 4.0.39
 #idmapd_conf agent
@@ -43,65 +54,46 @@ Requires:       yast2-nfs-common >= 2.24.0
 Recommends:     nfs-client
 # Y2Storage::MountPoint#active=
 Requires:       yast2-storage-ng >= 4.0.180
-# Y2Storage::MountPoint#active=
-BuildRequires:  yast2-storage-ng >= 4.0.180
-
-# Unfortunately we cannot move this to macros.yast,
-# bcond within macros are ignored by osc/OBS.
-%bcond_with yast_run_ci_tests
-%if %{with yast_run_ci_tests}
-BuildRequires: rubygem(yast-rake-ci)
-%endif
+Requires:       yast2-ruby-bindings >= 1.0.0
 
 Provides:       yast2-config-nfs
 Provides:       yast2-config-nfs-devel
-Obsoletes:      yast2-config-nfs
-Obsoletes:      yast2-config-nfs-devel
 Provides:       yast2-trans-nfs
-Obsoletes:      yast2-trans-nfs
 Provides:       yast2-config-network:/usr/lib/YaST2/clients/lan_nfs_client.ycp
 
+Obsoletes:      yast2-config-nfs
+Obsoletes:      yast2-config-nfs-devel
+Obsoletes:      yast2-trans-nfs
+
 BuildArch:      noarch
-
-Requires:       yast2-ruby-bindings >= 1.0.0
-
-Summary:        YaST2 - NFS Configuration
-License:        GPL-2.0-or-later
-Group:          System/YaST
 
 %description
 The YaST2 component for configuration of NFS. NFS stands for network
 file system access. It allows access to files on remote machines.
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
 
 %build
 
 %check
-rake test:unit
+%yast_check
 
 %install
-rake install DESTDIR="%{buildroot}"
+%yast_install
+%yast_metainfo
 
 %files
-%defattr(-,root,root)
-%dir %{yast_yncludedir}/nfs
-%{yast_yncludedir}/nfs/*
-%dir %{yast_clientdir}
-%{yast_clientdir}/nfs.rb
-%{yast_clientdir}/nfs-client.rb
-%{yast_clientdir}/nfs_auto.rb
-%{yast_clientdir}/nfs-client4part.rb
-%dir %{yast_moduledir}
-%{yast_moduledir}/Nfs.rb
-%{yast_moduledir}/NfsOptions.rb
-%{yast_dir}/lib/y2nfs_client
-%dir %{yast_desktopdir}
-%{yast_desktopdir}/nfs.desktop
+%{yast_yncludedir}
+%{yast_clientdir}
+%{yast_moduledir}
+%{yast_moduledir}
+%{yast_libdir}
+%{yast_desktopdir}
+%{yast_metainfodir}
 %{yast_icondir}
 %doc %{yast_docdir}
-%{yast_schemadir}/autoyast/rnc/nfs.rnc
+%{yast_schemadir}
 %license COPYING
 
 %changelog
