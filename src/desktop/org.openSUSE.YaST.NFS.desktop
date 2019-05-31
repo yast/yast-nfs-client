@@ -22,6 +22,7 @@ X-SuSE-YaST-Keywords=network,file,directory,share
 Icon=yast-nfs
 Exec=xdg-su -c "/sbin/yast2 nfs"
 
-Name=NFS Client
-GenericName=Configure an NFS client
+Name=YaST NFS Client
+GenericName=NFS Client
+Comment=Configure an NFS client
 StartupNotify=true
