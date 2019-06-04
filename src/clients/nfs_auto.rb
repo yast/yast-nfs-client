@@ -55,7 +55,7 @@ module Yast
       # Change configuration (run AutoSequence)
       elsif @func == "Change"
         Wizard.CreateDialog
-        Wizard.SetDesktopIcon("nfs")
+        Wizard.SetDesktopIcon("org.opensuse.yast.NFS")
         @ret = FstabDialog()
         UI.CloseDialog
       elsif @func == "GetModified"
