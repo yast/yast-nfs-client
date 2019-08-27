@@ -32,7 +32,7 @@ BuildRequires:  yast2-devtools >= 4.2.2
 BuildRequires:  yast2-testsuite
 # SuSEFirewall2 replaced by firewalld (fate#323460)
 BuildRequires:  yast2 >= 4.0.39
-BuildRequires:  rubygem( %{rb_default_ruby_abi}:rspec)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 #for install task
 BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 # path_matching (RSpec argument matcher)
@@ -43,7 +43,7 @@ BuildRequires:  yast2-storage-ng >= 4.0.180
 # bcond within macros are ignored by osc/OBS.
 %bcond_with yast_run_ci_tests
 %if %{with yast_run_ci_tests}
-BuildRequires: rubygem( %{rb_default_ruby_abi}:yast-rake-ci)
+BuildRequires: rubygem(%{rb_default_ruby_abi}:yast-rake-ci)
 %endif
 
 # SuSEFirewall2 replaced by firewalld (fate#323460)
