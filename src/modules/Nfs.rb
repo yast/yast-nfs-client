@@ -708,9 +708,6 @@ module Yast
         @required_packages = Builtins.add(@required_packages, "rpcbind")
         @portmapper = "rpcbind"
       end
-      if @nfs4_enabled
-        @required_packages = Builtins.add(@required_packages, "nfsidmap")
-      end
 
       if Mode.installation
         Builtins.foreach(@required_packages) do |p|
