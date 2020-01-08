@@ -30,17 +30,18 @@ module Yast
         end
       end
 
-      if @func == "CreateUI"
+      case @func
+      when "CreateUI"
         return create_ui
-      elsif @func == "RefreshUI"
+      when "RefreshUI"
         return refresh_ui
-      elsif @func == "FromStorage"
-        shares = Ops.get_list(@param, "shares", [])
+      when "FromStorage"
+        shares = @param.fetch("shares", [])
         @nfs_entries = Nfs.load_nfs_entries(shares)
-      elsif @func == "Read"
+      when "Read"
         Nfs.skip_fstab = true
         Nfs.Read
-      elsif @func == "HandleEvent"
+      when "HandleEvent"
         @widget_id = Ops.get(@param, "widget_id")
         @w_ids = [:newbut, :editbut, :delbut]
 
