@@ -32,6 +32,8 @@ module Yast
 
       if @func == "CreateUI"
         return create_ui
+      elsif @func == "RefreshUI"
+        return refresh_ui
       elsif @func == "FromStorage"
         shares = Ops.get_list(@param, "shares", [])
         @nfs_entries = Nfs.load_nfs_entries(shares)
@@ -54,7 +56,7 @@ module Yast
       nil
     end
 
-    private
+  private
 
     # Generates the UI that allows to manage the NFS shares entries
     #
@@ -62,10 +64,14 @@ module Yast
     def create_ui
       Wizard.SetHelpText(@help_text1)
 
-      ReplacePoint(
-        id,
-        FstabTab()
-      )
+      ReplacePoint(id, FstabTab())
+    end
+
+    # Updates the UI that allows to manage the NFS shares entries
+    #
+    # @return [Boolean] true when entries are successfully replaced; false otherwise.
+    def refresh_ui
+      UI.ReplaceWidget(id, FstabTab())
     end
 
     # Returns the id for the NFS shares UI replace point
