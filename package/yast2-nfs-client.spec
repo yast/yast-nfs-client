@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        4.1.5
+Version:        4.1.6
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 
