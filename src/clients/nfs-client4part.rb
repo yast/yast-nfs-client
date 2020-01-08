@@ -31,8 +31,7 @@ module Yast
       end
 
       if @func == "CreateUI"
-        Wizard.SetHelpText(@help_text1)
-        return FstabTab()
+        return create_ui
       elsif @func == "FromStorage"
         shares = Ops.get_list(@param, "shares", [])
         @nfs_entries = Nfs.load_nfs_entries(shares)
@@ -53,6 +52,25 @@ module Yast
       end
 
       nil
+    end
+
+    private
+
+    # Generates the UI that allows to manage the NFS shares entries
+    #
+    # @return [Yast::Term] a term defining the UI
+    def create_ui
+      Wizard.SetHelpText(@help_text1)
+
+      ReplacePoint(
+        id,
+        FstabTab()
+      )
+    end
+
+    # Returns the id for the NFS shares UI replace point
+    def id
+      @id ||= Id(:fstab_rp)
     end
   end
 end
