@@ -33,11 +33,10 @@ module Yast
       case @func
       when "CreateUI"
         return create_ui
-      when "RefreshUI"
-        return refresh_ui
       when "FromStorage"
         shares = @param.fetch("shares", [])
         @nfs_entries = Nfs.load_nfs_entries(shares)
+        refresh_ui
       when "Read"
         Nfs.skip_fstab = true
         Nfs.Read
@@ -72,6 +71,10 @@ module Yast
     #
     # @return [Boolean] true when entries are successfully replaced; false otherwise.
     def refresh_ui
+      # The UI could be not available yet as FromStorage action can be called just to sync
+      # the NFS entries before create the interface.
+      return unless UI.WidgetExists(ui_id)
+
       UI.ReplaceWidget(ui_id, FstabTab())
     end
 
