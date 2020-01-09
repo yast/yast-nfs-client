@@ -30,16 +30,17 @@ module Yast
         end
       end
 
-      if @func == "CreateUI"
-        Wizard.SetHelpText(@help_text1)
-        return FstabTab()
-      elsif @func == "FromStorage"
-        shares = Ops.get_list(@param, "shares", [])
+      case @func
+      when "CreateUI"
+        return create_ui
+      when "FromStorage"
+        shares = @param.fetch("shares", [])
         @nfs_entries = Nfs.load_nfs_entries(shares)
-      elsif @func == "Read"
+        refresh_ui
+      when "Read"
         Nfs.skip_fstab = true
         Nfs.Read
-      elsif @func == "HandleEvent"
+      when "HandleEvent"
         @widget_id = Ops.get(@param, "widget_id")
         @w_ids = [:newbut, :editbut, :delbut]
 
@@ -53,6 +54,33 @@ module Yast
       end
 
       nil
+    end
+
+  private
+
+    # Generates the UI that allows to manage the NFS shares entries
+    #
+    # @return [Yast::Term] a term defining the UI
+    def create_ui
+      Wizard.SetHelpText(@help_text1)
+
+      ReplacePoint(ui_id, FstabTab())
+    end
+
+    # Updates the UI that allows to manage the NFS shares entries
+    #
+    # @return [Boolean] true when entries are successfully replaced; false otherwise.
+    def refresh_ui
+      # The UI could be not available yet as FromStorage action can be called just to sync
+      # the NFS entries before create the interface.
+      return unless UI.WidgetExists(ui_id)
+
+      UI.ReplaceWidget(ui_id, FstabTab())
+    end
+
+    # Returns the id for the NFS shares UI replace point
+    def ui_id
+      @ui_id ||= Id(:fstab_rp)
     end
   end
 end
