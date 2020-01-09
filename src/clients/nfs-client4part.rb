@@ -65,19 +65,19 @@ module Yast
     def create_ui
       Wizard.SetHelpText(@help_text1)
 
-      ReplacePoint(id, FstabTab())
+      ReplacePoint(ui_id, FstabTab())
     end
 
     # Updates the UI that allows to manage the NFS shares entries
     #
     # @return [Boolean] true when entries are successfully replaced; false otherwise.
     def refresh_ui
-      UI.ReplaceWidget(id, FstabTab())
+      UI.ReplaceWidget(ui_id, FstabTab())
     end
 
     # Returns the id for the NFS shares UI replace point
-    def id
-      @id ||= Id(:fstab_rp)
+    def ui_id
+      @ui_id ||= Id(:fstab_rp)
     end
   end
 end
