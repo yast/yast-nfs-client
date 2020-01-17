@@ -39,11 +39,13 @@ describe "Yast::Nfs" do
   end
 
   def add_nfs_devices
-    nfs1 = Y2Storage::Filesystems::Nfs.create(working_graph, "nfs.example.com", "/foo")
+    nfs1 = Y2Storage::Filesystems::Nfs.create(system_graph, "nfs.example.com", "/foo")
     nfs1.mount_path = "/foo"
 
-    nfs2 = Y2Storage::Filesystems::Nfs.create(working_graph, "nfs.example.com", "/baz")
+    nfs2 = Y2Storage::Filesystems::Nfs.create(system_graph, "nfs.example.com", "/baz")
     nfs2.mount_path = "/foo/bar/baz"
+
+    system_graph.copy(working_graph)
   end
 
   def mock_entries
@@ -70,6 +72,8 @@ describe "Yast::Nfs" do
   let(:firewalld) { Y2Firewall::Firewalld.instance }
 
   let(:working_graph) { Y2Storage::StorageManager.instance.staging }
+
+  let(:system_graph) { Y2Storage::StorageManager.instance.probed }
 
   describe ".Import" do
     let(:profile) do
@@ -275,6 +279,10 @@ describe "Yast::Nfs" do
       working_graph.nfs_mounts.find { |n| n.share == share }
     end
 
+    def probed_nfs(share)
+      system_graph.nfs_mounts.find { |n| n.share == share }
+    end
+
     def entry(spec)
       subject.nfs_entries.find { |e| e["spec"] == spec }
     end
@@ -397,7 +405,7 @@ describe "Yast::Nfs" do
 
       context "and the entry corresponds to a mounted NFS share" do
         before do
-          nfs(spec).mount_point.active = true
+          probed_nfs(spec).mount_point.active = true
         end
 
         it "creates a NFS share with active mount point" do
@@ -409,19 +417,19 @@ describe "Yast::Nfs" do
 
       context "and the entry corresponds to an unmounted NFS share" do
         before do
-          nfs(spec).mount_point.active = false
+          probed_nfs(spec).mount_point.active = false
         end
 
         it "creates a NFS share with inactive mount point" do
           subject.WriteOnly
 
-          expect(nfs(spec).mount_point.active?).to eq(true)
+          expect(nfs(spec).mount_point.active?).to eq(false)
         end
       end
 
       context "and the entry corresponds to a NFS share included in the fstab" do
         before do
-          nfs(spec).mount_point.in_etc_fstab = true
+          probed_nfs(spec).mount_point.in_etc_fstab = true
         end
 
         it "creates a NFS share that would be written to the fstab" do
@@ -433,7 +441,7 @@ describe "Yast::Nfs" do
 
       context "and the entry corresponds to a NFS that is not included in the fstab" do
         before do
-          nfs(spec).mount_point.in_etc_fstab = true
+          probed_nfs(spec).mount_point.in_etc_fstab = false
         end
 
         it "creates a NFS share that would not be written to the fstab" do
