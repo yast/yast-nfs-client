@@ -69,9 +69,12 @@ module Yast
         # Help, part 2 of 4
         _(
           "<p>Each NFS share is identified by remote NFS server address and\n" \
-            "exported directory, local directory where the remote directory is mounted, \n" \
-            "version of the NFS protocol and mount options. For further information \n" \
-            "about mounting NFS and mount options, refer to <tt>man nfs.</tt></p>"
+          "exported directory, local directory where the remote directory is mounted, \n" \
+          "version of the NFS protocol and mount options. For further information \n" \
+          "about mounting NFS and mount options, refer to <tt>man nfs</tt>.</p>\n" \
+          "<p>An asterisk (*) after the mount point indicates a file system that is \n" \
+          "currently not mounted (for example, because it has the <tt>noauto</tt> \n" \
+          "option set in <tt>/etc/fstab</tt>).</p>"
         ) +
         # Help, part 3 of 4
         _(

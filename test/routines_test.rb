@@ -1,4 +1,24 @@
-#! /usr/bin/env rspec
+#!/usr/bin/env rspec
+
+# Copyright (c) [2017-2020] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com
+
 require_relative "spec_helper"
 
 module Yast
@@ -139,6 +159,12 @@ describe "Yast::NfsRoutinesInclude" do
   end
 
   describe "#FstabTableItems" do
+    before do
+      Y2Storage::StorageManager.create_test_instance
+    end
+
+    let(:working_graph) { Y2Storage::StorageManager.instance.staging }
+
     context "given a list of nfs fstab entries" do
       it "returns a list of ui table items" do
         items = subject.FstabTableItems(nfs_entries)
@@ -146,9 +172,87 @@ describe "Yast::NfsRoutinesInclude" do
         expect(items.size).to eql(3)
         expect(items.first.params[1]).to eql("foo.bar.com ")
         expect(items.first.params[2]).to eql("/home ")
-        expect(items.first.params[2]).to eql("/home ")
+        expect(items.first.params[3]).to eql("/home* ")
         expect(items.first.params[4]).to eql("Any (Please Check) ")
         expect(items.first.params[5]).to eql("defaults ")
+      end
+
+      context "and an entry corresponds to a mounted NFS share" do
+        before do
+          nfs = Y2Storage::Filesystems::Nfs.create(working_graph, "srv", "/home/test")
+          nfs.mount_path = "/home/test"
+          nfs.mount_point.active = true
+        end
+
+        let(:nfs_entries) do
+          [
+            {
+              "spec"    => "srv:/home/test",
+              "file"    => "/home/test",
+              "freq"    => 0,
+              "mntops"  => "defaults",
+              "passno"  => 0,
+              "vfstype" => "nfs"
+            }
+          ]
+        end
+
+        it "does not append an asterisk to the mount path of the mounted NFS share" do
+          # Note that the mount point of "srv:/home/test" is active
+          items = subject.FstabTableItems(nfs_entries)
+
+          expect(items.first.params[1]).to eql("srv ")
+          expect(items.first.params[2]).to eql("/home/test ")
+          expect(items.first.params[3]).to eql("/home/test ")
+        end
+      end
+
+      context "and an entry corresponds to an unmounted NFS share" do
+        before do
+          nfs = Y2Storage::Filesystems::Nfs.create(working_graph, "srv", "/home/test")
+          nfs.mount_path = "/home/test"
+          nfs.mount_point.active = false
+        end
+
+        let(:nfs_entries) do
+          [
+            {
+              "spec"    => "srv:/home/test",
+              "file"    => "/home/test",
+              "freq"    => 0,
+              "mntops"  => "defaults",
+              "passno"  => 0,
+              "vfstype" => "nfs",
+              "new"     => new_entry
+            }
+          ]
+        end
+
+        context "and the entry is new" do
+          let(:new_entry) { true }
+
+          it "does not append an asterisk to the mount path of the new NFS share" do
+            # Note that the mount point of "srv:/home/test" is inactive
+            items = subject.FstabTableItems(nfs_entries)
+
+            expect(items.first.params[1]).to eql("srv ")
+            expect(items.first.params[2]).to eql("/home/test ")
+            expect(items.first.params[3]).to eql("/home/test ")
+          end
+        end
+
+        context "and the entry is not new" do
+          let(:new_entry) { false }
+
+          it "appends an asterisk to the mount path of the unmounted NFS share" do
+            # Note that the mount point of "srv:/home/a" is inactive
+            items = subject.FstabTableItems(nfs_entries)
+
+            expect(items.first.params[1]).to eql("srv ")
+            expect(items.first.params[2]).to eql("/home/test ")
+            expect(items.first.params[3]).to eql("/home/test* ")
+          end
+        end
       end
     end
   end
