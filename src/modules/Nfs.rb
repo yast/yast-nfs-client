@@ -1,4 +1,21 @@
-# encoding: utf-8
+# Copyright (c) [2013-2020] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com.
 
 require "yast"
 require "y2firewall/firewalld"
@@ -304,7 +321,8 @@ module Yast
         "/usr/bin/cp /etc/fstab /etc/fstab.YaST2/save"
       )
 
-      if !write_fstab
+      # Perform a storage commit to write the fstab file and mount/unmount NFS shares.
+      if !storage_manager.commit
         # error popup message
         Report.Error(
           _(
@@ -317,10 +335,7 @@ module Yast
       end
 
       @portmapper = FindPortmapper()
-      if !@nfs_entries.empty?
-        Service.Enable(@portmapper)
-        Service.Enable("nfs")
-      end
+      Service.Enable(@portmapper) unless @nfs_entries.empty?
 
       if @nfs4_enabled == true
         SCR.Write(path(".sysconfig.nfs.NFS4_SUPPORT"), "yes")
@@ -355,13 +370,9 @@ module Yast
         2,
         [
           # progress stage label
-          _("Stop services"),
-          # progress stage label
           _("Start services")
         ],
         [
-          # progress step label
-          _("Stopping services..."),
           # progress step label
           _("Starting services..."),
           # final progress step label
@@ -373,12 +384,8 @@ module Yast
       # help text
       Wizard.RestoreHelp(_("Writing NFS client settings. Please wait..."))
 
-      Progress.NextStage
-
-      Service.Stop("nfs")
-
-      Progress.NextStage
       if Ops.greater_than(Builtins.size(@nfs_entries), 0)
+        Progress.NextStage
         # portmap must not be started if it is running already (see bug # 9999)
         Service.Start(@portmapper) unless Service.active?(@portmapper)
 
@@ -386,15 +393,8 @@ module Yast
           Report.Error(Message.CannotStartService(@portmapper))
           return false
         end
-
-        Service.Start("nfs")
-
-        unless Service.active?("nfs")
-          # error popup message
-          Report.Error(_("Unable to mount the NFS entries from /etc/fstab."))
-          return false
-        end
       end
+
       firewalld.reload
       Progress.NextStage
       true
@@ -653,46 +653,24 @@ module Yast
       end
     end
 
-    # Commits storage changes to /etc/fstab
-    def write_fstab
-      # By default, libstorage-ng will umount active NFS shares found in
-      # probed and will mount active Nfs shares from staging.
-      # Let's prevent that since we don't want libstorage-ng to perform any
-      # mount/umount.
-      #
-      # TODO: this implies too much knowledge about how libstorage-ng works, it
-      # should be moved to yast2-storage-ng (e.g. as a :skip_mount flag to
-      # #commit).
-      deactivate_mount_points(storage_manager.probed)
-      deactivate_mount_points(storage_manager.staging)
-      storage_manager.commit
-    end
-
-    # See {#write_fstab}
-    #
-    # @param graph [Y2Storage::Devicegraph]
-    def deactivate_mount_points(graph)
-      graph.nfs_mounts.each do |nfs|
-        nfs.mount_point && nfs.mount_point.active = false
-      end
-    end
-
     # Creates a Y2Storage::Filesystems::Nfs device in the working devicegraph
     #
-    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such
-    #   as "spec", "file", etc
-    def create_storage_device(entry)
-      to_legacy_nfs(entry).create_nfs_device
-    end
-
-    # @see #create_storage_device
+    # Note that for existing entries (no newly added), the NFS share will not be mounted if it is
+    # currently unmounted. Similarly, existing shares that are not included in the fstab will not be
+    # added to the fstab after committing the changes.
     #
-    # @param entry [Hash] see {#create_storage_device}
-    def to_legacy_nfs(entry)
-      storage_hash = fstab_to_storage(entry)
-      legacy = Y2Storage::Filesystems::LegacyNfs.new_from_hash(storage_hash)
-      legacy.default_devicegraph = working_graph
-      legacy
+    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such as "spec", "file", etc.
+    # @return [Y2Partitioner::Filesystems::Nfs]
+    def create_storage_device(entry)
+      legacy_nfs = to_legacy_nfs(entry)
+
+      if !entry["new"]
+        probed_nfs = legacy_nfs.find_nfs_device(system_graph)
+
+        legacy_nfs.configure_from(probed_nfs) if probed_nfs
+      end
+
+      legacy_nfs.create_nfs_device
     end
 
     # Check that the required nfs-client packages are present adding them to

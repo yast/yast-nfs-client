@@ -1,4 +1,21 @@
-# encoding: utf-8
+# Copyright (c) [2013-2020] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com.
 
 require "y2nfs_client/nfs_version"
 require "y2storage"
@@ -53,15 +70,18 @@ module Yast
       count = 0
       Builtins.maplist(fstab) do |entry|
         sp = SpecToServPath(Ops.get_string(entry, "spec", ""))
+        mount_point = item_mount_point(entry)
         mntops = entry["mntops"] || ""
+
         it = Item(
           Id(count),
-          Ops.add(Ops.get_string(sp, 0, ""), " "),
-          Ops.add(Ops.get_string(sp, 1, ""), " "),
-          Ops.add(Ops.get_string(entry, "file", ""), " "),
-          "#{nfs_version_for_table(entry)} ",
-          "#{mntops} "
+          Ops.get_string(sp, 0, "") + " ",
+          Ops.get_string(sp, 1, "") + " ",
+          mount_point + " ",
+          nfs_version_for_table(entry) + " ",
+          mntops + " "
         )
+
         count = Ops.add(count, 1)
         deep_copy(it)
       end
@@ -233,6 +253,18 @@ module Yast
       }
     end
 
+    # Creates a LegacyNfs object according to the given entry
+    #
+    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such as "spec", "file", etc.
+    # @return [Y2Storage::Filesystems::LegacyNfs]
+    def to_legacy_nfs(entry)
+      storage_hash = fstab_to_storage(entry)
+      legacy = Y2Storage::Filesystems::LegacyNfs.new_from_hash(storage_hash)
+      legacy.default_devicegraph = working_graph
+
+      legacy
+    end
+
   private
 
     # @see #FstabTableItems
@@ -266,6 +298,13 @@ module Yast
       storage_manager.staging
     end
 
+    # Devicegraph representing the current system status
+    #
+    # @return [Y2Storage::Devicegraph]
+    def system_graph
+      storage_manager.probed
+    end
+
     # Mount points present on /etc/fstab but not handled by the yast-nfs-client
     # module.
     #
@@ -274,6 +313,33 @@ module Yast
       Y2Storage::MountPoint.all(working_graph).select do |mp|
         mp.mountable && !mp.mountable.is?(:nfs)
       end.map(&:path)
+    end
+
+    # Mount point to show for the given entry
+    #
+    # Note that an asterisk could be appended to the mount path when the NFS share is not currently
+    # mounted.
+    #
+    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such as "spec", "file", etc.
+    # @return [String]
+    def item_mount_point(entry)
+      mount_point = entry["file"].dup || ""
+
+      mount_point << "*" if unmounted_mark?(entry)
+
+      mount_point
+    end
+
+    # Whether a mark should be added to the mount path because the device is unmounted
+    #
+    # @param entry [Hash] NFS mount in the .etc.fstab format that uses keys such as "spec", "file", etc.
+    # @return [Boolean]
+    def unmounted_mark?(entry)
+      return false if entry["new"]
+
+      nfs = to_legacy_nfs(entry).find_nfs_device
+
+      nfs && nfs.mount_point && nfs.mount_point.active? ? false : true
     end
   end
 end
