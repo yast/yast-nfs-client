@@ -41,10 +41,10 @@ Requires:       yast2 >= 4.0.39
 Requires:       yast2-nfs-common >= 2.24.0
 # showmount, #150382, #286300
 Recommends:     nfs-client
-# Y2Storage::MountPoint#active=
-Requires:       yast2-storage-ng >= 4.0.180
-# Y2Storage::MountPoint#active=
-BuildRequires:  yast2-storage-ng >= 4.0.180
+# Y2Storage::Filesystems::LegacyNfs#configure_from
+Requires:       yast2-storage-ng >= 4.1.91
+# Y2Storage::Filesystems::LegacyNfs#configure_from
+BuildRequires:  yast2-storage-ng >= 4.1.91
 
 # Unfortunately we cannot move this to macros.yast,
 # bcond within macros are ignored by osc/OBS.
