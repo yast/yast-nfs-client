@@ -1,4 +1,22 @@
-# encoding: utf-8
+# Copyright (c) [2013-2020] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com.
+
 require "y2firewall/firewalld"
 require "yast2/feedback"
 require "yast2/popup"
@@ -219,6 +237,8 @@ module Yast
       ret = nil
 
       if fstab_ent
+        new_entry = fstab_ent.fetch("new", false)
+
         couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
         server = Ops.get_string(couple, 0, "")
         pth = Ops.get_string(couple, 1, "")
@@ -227,6 +247,8 @@ module Yast
         servers = [server]
         old = Ops.get_string(fstab_ent, "spec", "")
       else
+        new_entry = true
+
         proposed_server = ProposeHostname()
         servers = [proposed_server] if HostnameExists(proposed_server)
       end
@@ -449,6 +471,11 @@ module Yast
 
       UI.CloseDialog
       Wizard.RestoreScreenShotName
+
+      # New entries are identify by "new" key in the hash. This is useful to detect which entries are
+      # not created but updated. Note that this is important to keep the current mount point status of
+      # updated entries.
+      fstab_ent["new"] = new_entry
 
       return deep_copy(fstab_ent) if ret == :ok
       nil

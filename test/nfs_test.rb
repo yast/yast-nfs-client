@@ -1,21 +1,23 @@
-#! /usr/bin/env rspec
-# Copyright (c) 2014 SUSE Linux.
-#  All Rights Reserved.
+#!/usr/bin/env rspec
 
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of version 2 or 3 of the GNU General
-#  Public License as published by the Free Software Foundation.
-
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.   See the
-#  GNU General Public License for more details.
-
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, contact SUSE LLC.
-
-#  To contact SUSE about this file by physical or electronic mail,
-#  you may find current contact information at www.suse.com
+# Copyright (c) [2015-2020] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact SUSE LLC.
+#
+# To contact SUSE LLC about this file by physical or electronic mail, you may
+# find current contact information at www.suse.com
 
 require_relative "spec_helper"
 require "yaml"
@@ -26,9 +28,6 @@ Yast.import "Progress"
 Yast.import "Service"
 
 describe "Yast::Nfs" do
-  subject { Yast::Nfs }
-  let(:firewalld) { Y2Firewall::Firewalld.instance }
-
   def allow_read_side_effects
     allow(subject).to receive(:ReadNfs4)
     allow(subject).to receive(:ReadNfsGss)
@@ -39,7 +38,17 @@ describe "Yast::Nfs" do
     allow(subject).to receive(:check_and_install_required_packages)
   end
 
+  def add_nfs_devices
+    nfs1 = Y2Storage::Filesystems::Nfs.create(working_graph, "nfs.example.com", "/foo")
+    nfs1.mount_path = "/foo"
+
+    nfs2 = Y2Storage::Filesystems::Nfs.create(working_graph, "nfs.example.com", "/baz")
+    nfs2.mount_path = "/foo/bar/baz"
+  end
+
   def mock_entries
+    add_nfs_devices
+
     subject.skip_fstab = false
     subject.Read
   end
@@ -49,16 +58,18 @@ describe "Yast::Nfs" do
     sm = Y2Storage::StorageManager.create_test_instance
     sm.probe_from_yaml(File.join(DATA_PATH, "devicegraph.yaml"))
 
-    # Add NFS entries
-    Y2Storage::Filesystems::Nfs.create(sm.staging, "nfs.example.com", "/foo").mount_path = "/foo"
-    Y2Storage::Filesystems::Nfs.create(sm.staging, "nfs.example.com", "/baz").mount_path = "/foo/bar/baz"
-
     # Prevent further reprobing
     allow(sm).to receive(:probe).and_return true
 
     # prevent storage-commit
-    allow(subject).to receive(:write_fstab)
+    allow(sm).to receive(:commit)
   end
+
+  subject { Yast::Nfs }
+
+  let(:firewalld) { Y2Firewall::Firewalld.instance }
+
+  let(:working_graph) { Y2Storage::StorageManager.instance.staging }
 
   describe ".Import" do
     let(:profile) do
@@ -139,6 +150,13 @@ describe "Yast::Nfs" do
   end
 
   describe ".Export" do
+    before do
+      mock_entries
+      subject.nfs4_enabled = true
+      subject.nfs_gss_enabled = false
+      subject.idmapd_domain = "example.com"
+    end
+
     let(:expected_profile) do
       {
         "enable_nfs4"    => true,
@@ -159,12 +177,6 @@ describe "Yast::Nfs" do
           }
         ]
       }
-    end
-    before do
-      mock_entries
-      subject.nfs4_enabled = true
-      subject.nfs_gss_enabled = false
-      subject.idmapd_domain = "example.com"
     end
 
     it "exports the current nfs settings as a map" do
@@ -259,9 +271,27 @@ describe "Yast::Nfs" do
       mock_entries
     end
 
+    def nfs(share)
+      working_graph.nfs_mounts.find { |n| n.share == share }
+    end
+
+    def entry(spec)
+      subject.nfs_entries.find { |e| e["spec"] == spec }
+    end
+
+    def create_entry(spec)
+      {
+        "spec"    => spec,
+        "file"    => "/home/test",
+        "freq"    => 0,
+        "mntops"  => "defaults",
+        "passno"  => 0,
+        "vfstype" => "nfs"
+      }
+    end
+
     def find_mp(path)
-      staging = Y2Storage::StorageManager.instance.staging
-      staging.filesystems.find { |fs| fs.mount_path == path }.mount_point
+      working_graph.filesystems.find { |fs| fs.mount_path == path }.mount_point
     end
 
     it "ensures zero for the 'passno' field, only in nfs entries" do
@@ -281,21 +311,155 @@ describe "Yast::Nfs" do
       expect(find_mp("/foo").passno).to eq 0
       expect(find_mp("/foo/bar/baz").passno).to eq 0
     end
+
+    shared_examples "remove_entry" do
+      it "removes the existing NFS share" do
+        nfs_sid = nfs(spec).sid
+
+        subject.WriteOnly
+
+        expect(working_graph.find_device(nfs_sid)).to be_nil
+      end
+    end
+
+    context "when the entry is new" do
+      before do
+        entry = entry(spec)
+
+        if entry
+          entry["new"] = true
+        else
+          entry = create_entry(spec)
+          entry["new"] = true
+          subject.nfs_entries << entry
+        end
+      end
+
+      shared_examples "new_entry" do
+        it "creates a new NFS share for that entry" do
+          subject.WriteOnly
+
+          nfs = nfs(spec)
+
+          expect(nfs).to_not be_nil
+          expect(nfs.exists_in_probed?).to eq(false)
+        end
+
+        it "sets the NFS mount point as active" do
+          subject.WriteOnly
+
+          nfs = nfs(spec)
+
+          expect(nfs.mount_point.active?).to eq(true)
+        end
+
+        it "sets the NFS to be written to the fstab" do
+          subject.WriteOnly
+
+          nfs = nfs(spec)
+
+          expect(nfs.mount_point.in_etc_fstab?).to eq(true)
+        end
+      end
+
+      context "and the NFS share does no exist in the system yet" do
+        let(:spec) { "nfs.example.com:/home/test" }
+
+        include_examples "new_entry"
+      end
+
+      context "and the NFS share already exists in the system" do
+        let(:spec) { "nfs.example.com:/foo" }
+
+        before do
+          # Set mount point properties of the existing NFS share. This configuration should not be
+          # propagated to the new NFS share.
+          nfs = nfs(spec)
+          nfs.mount_point.active = false
+          nfs.mount_point.in_etc_fstab = false
+        end
+
+        include_examples "remove_entry"
+
+        include_examples "new_entry"
+      end
+    end
+
+    context "when the entry is not new" do
+      before do
+        entry = entry(spec)
+        entry["new"] = false
+      end
+
+      let(:spec) { "nfs.example.com:/foo" }
+
+      include_examples "remove_entry"
+
+      context "and the entry corresponds to a mounted NFS share" do
+        before do
+          nfs(spec).mount_point.active = true
+        end
+
+        it "creates a NFS share with active mount point" do
+          subject.WriteOnly
+
+          expect(nfs(spec).mount_point.active?).to eq(true)
+        end
+      end
+
+      context "and the entry corresponds to an unmounted NFS share" do
+        before do
+          nfs(spec).mount_point.active = false
+        end
+
+        it "creates a NFS share with inactive mount point" do
+          subject.WriteOnly
+
+          expect(nfs(spec).mount_point.active?).to eq(true)
+        end
+      end
+
+      context "and the entry corresponds to a NFS share included in the fstab" do
+        before do
+          nfs(spec).mount_point.in_etc_fstab = true
+        end
+
+        it "creates a NFS share that would be written to the fstab" do
+          subject.WriteOnly
+
+          expect(nfs(spec).mount_point.in_etc_fstab?).to eq(true)
+        end
+      end
+
+      context "and the entry corresponds to a NFS that is not included in the fstab" do
+        before do
+          nfs(spec).mount_point.in_etc_fstab = true
+        end
+
+        it "creates a NFS share that would not be written to the fstab" do
+          subject.WriteOnly
+
+          expect(nfs(spec).mount_point.in_etc_fstab?).to eq(false)
+        end
+      end
+    end
   end
 
   describe ".Write" do
-    let(:written) { false }
-    let(:portmapper) { "rpcbind" }
-
     before do
-      subject.instance_variable_set("@portmapper", portmapper)
       allow(subject).to receive(:WriteOnly).and_return(written)
+
       allow(Yast::Wizard)
       allow(Yast::Progress).to receive(:set)
       allow(Yast::Service).to receive(:Start)
       allow(Yast::Service).to receive(:Stop)
       allow(Yast::Service).to receive(:active?)
+
+      allow_read_side_effects
+      mock_entries
     end
+
+    let(:written) { false }
 
     it "writes the nfs configurations" do
       expect(subject).to receive(:WriteOnly)
@@ -305,14 +469,9 @@ describe "Yast::Nfs" do
     context "when the configuration is written correctly" do
       let(:written) { true }
 
-      it "stops the nfs service" do
-        expect(Yast::Service).to receive(:Stop).with("nfs")
-        subject.Write()
-      end
-
       it "tries to start the portmapper service if it is not running" do
-        expect(Yast::Service).to receive(:active?).with(portmapper).and_return(false)
-        expect(Yast::Service).to receive(:Start).with(portmapper)
+        expect(Yast::Service).to receive(:active?).with("rpcbind").and_return(false)
+        expect(Yast::Service).to receive(:Start).with("rpcbind")
         subject.Write()
       end
 
@@ -332,7 +491,6 @@ describe "Yast::Nfs" do
           expect(subject.Write).to eql(false)
         end
       end
-
     end
 
     context "when the configuration is not written correctly" do
