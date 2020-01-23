@@ -35,14 +35,15 @@ module Yast
         "actions"    => {
           "list"   => {
             # TODO: summary is probably better...
-            "handler" => fun_ref(
+            "handler"  => fun_ref(
               method(:NfsListHandler),
               "boolean (map)"
             ),
             # command line action help
-            "help"    => _(
+            "help"     => _(
               "List configured NFS mounts"
-            )
+            ),
+            "readonly" => true
           },
           "add"    => {
             "handler" => fun_ref(method(:NfsAddHandler), "boolean (map)"),
@@ -133,12 +134,12 @@ module Yast
     # CLI action handler.
     # Print summary in command line
     # @param [Hash] options command options
-    # @return false so that Write is not called in non-interactive mode
+    # @return true
     def NfsListHandler(_options)
       nfs_entries = deep_copy(Nfs.nfs_entries)
       if Ops.less_than(Builtins.size(nfs_entries), 1)
         CommandLine.Print(Summary.NotConfigured)
-        return false
+        return true
       end
       items = []
       Builtins.foreach(FstabTableItems(nfs_entries)) do |i|
@@ -165,7 +166,7 @@ module Yast
           {}
         )
       )
-      false
+      true
     end
 
     # CLI action handler.
@@ -334,6 +335,9 @@ module Yast
       end
 
       Nfs.nfs_entries = deep_copy(nfs_entries)
+
+      CommandLine.Print(_("NFS mount not found.")) unless deleted
+
       deleted
     end
   end
