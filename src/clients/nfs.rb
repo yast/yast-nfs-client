@@ -336,7 +336,10 @@ module Yast
 
       Nfs.nfs_entries = deep_copy(nfs_entries)
 
-      CommandLine.Print(_("NFS mount not found.")) unless deleted
+      if !deleted
+        # TRANSLATORS %s is mountpoint that is not found in nfs client configuration.
+        CommandLine.Print(format(_("NFS mount '%s' not found."), spec == "" ? file : spec))
+      end
 
       deleted
     end
