@@ -462,10 +462,13 @@ describe "Yast::Nfs" do
       allow(Yast::Service).to receive(:Start)
       allow(Yast::Service).to receive(:Stop)
       allow(Yast::Service).to receive(:active?)
+      allow(Yast::Execute).to receive(:locally).and_return(execute_object)
 
       allow_read_side_effects
       mock_entries
     end
+
+    let(:execute_object) { instance_double(Yast::Execute, stdout: "") }
 
     let(:written) { false }
 
@@ -477,26 +480,66 @@ describe "Yast::Nfs" do
     context "when the configuration is written correctly" do
       let(:written) { true }
 
-      it "tries to start the portmapper service if it is not running" do
-        expect(Yast::Service).to receive(:active?).with("rpcbind").and_return(false)
-        expect(Yast::Service).to receive(:Start).with("rpcbind")
-        subject.Write()
+      before do
+        allow(Yast::Service).to receive(:active?).with("rpcbind")
+          .and_return(service_status1, service_status2)
       end
 
-      context "and the portmapper service was not activated" do
-        before do
-          allow(Yast::Service).to receive(:active?).with("rpcbind").twice.and_return(false)
-          allow(Yast::Message).to receive(:CannotStartService).and_return("cannot_start")
-        end
+      let(:service_status1) { nil }
 
-        it "reports an error" do
-          expect(Yast::Report).to receive(:Error).with("cannot_start")
+      let(:service_status2) { nil }
+
+      context "and the portmapper service is not active" do
+        let(:service_status1) { false }
+
+        it "tries to kill the portmapper process" do
+          expect(execute_object).to receive(:stdout).with("killall", "rpcbind")
 
           subject.Write
         end
 
-        it "returns false" do
-          expect(subject.Write).to eql(false)
+        it "tries to activate the portmapper service" do
+          expect(Yast::Service).to receive(:Start).with("rpcbind")
+
+          subject.Write
+        end
+
+        context "and the portmapper service was activated" do
+          let(:service_status2) { true }
+
+          it "returns true" do
+            expect(subject.Write).to eql(true)
+          end
+        end
+
+        context "and the portmapper service was not activated" do
+          let(:service_status2) { false }
+
+          it "reports an error" do
+            expect(Yast::Report).to receive(:Error).with(/Cannot start/)
+
+            subject.Write
+          end
+
+          it "returns false" do
+            expect(subject.Write).to eql(false)
+          end
+        end
+      end
+
+      context "and the portmapper service is already active" do
+        let(:service_status1) { true }
+
+        let(:service_status2) { true }
+
+        it "does not try to activate the portmapper service again" do
+          expect(Yast::Service).to_not receive(:Start).with("rpcbind")
+
+          subject.Write
+        end
+
+        it "returns true" do
+          expect(subject.Write).to eql(true)
         end
       end
     end

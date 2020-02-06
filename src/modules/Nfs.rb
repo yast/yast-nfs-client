@@ -19,6 +19,7 @@
 
 require "yast"
 require "y2firewall/firewalld"
+require "yast2/execute"
 
 require "shellwords"
 
@@ -384,15 +385,10 @@ module Yast
       # help text
       Wizard.RestoreHelp(_("Writing NFS client settings. Please wait..."))
 
-      if Ops.greater_than(Builtins.size(@nfs_entries), 0)
+      if @nfs_entries.any?
         Progress.NextStage
-        # portmap must not be started if it is running already (see bug # 9999)
-        Service.Start(@portmapper) unless Service.active?(@portmapper)
 
-        unless Service.active?(@portmapper)
-          Report.Error(Message.CannotStartService(@portmapper))
-          return false
-        end
+        return false unless start_portmapper
       end
 
       firewalld.reload
@@ -699,6 +695,28 @@ module Yast
       end
 
       true
+    end
+
+    # Starts portmapper service
+    #
+    # @return [Boolean] true if the service was activated; false otherwise.
+    def start_portmapper
+      if !Service.active?(@portmapper)
+        # Before mounting NFS shares, libstorage-ng could execute rpcbind binary directly without using
+        # systemd. If so, the systemd service would look like stopped and systemd would fail when trying
+        # to start it. The following line ensures that the process is not running before systemd tries to
+        # starts the service (bsc#1161687).
+        Yast::Execute.locally.stdout("killall", @portmapper)
+
+        # portmap must not be started if it is already running (bsc#9999)
+        Service.Start(@portmapper)
+      end
+
+      return true if Service.active?(@portmapper)
+
+      Report.Error(Message.CannotStartService(@portmapper))
+
+      false
     end
   end
 
