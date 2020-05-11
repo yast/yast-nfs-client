@@ -475,6 +475,8 @@ module Yast
       UI.CloseDialog
       Wizard.RestoreScreenShotName
 
+      return nil if ret == :cancel
+
       # New entries are identify by "new" key in the hash. This is useful to detect which entries are
       # not created but updated. Note that this is important to keep the current mount point status of
       # updated entries.
