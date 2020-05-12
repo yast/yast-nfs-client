@@ -1,5 +1,7 @@
 # It is complicated.
 
+include "common.rnc"
+
 nfs_entry_content = (
       element server_path { text }
     & element mount_point { text }
@@ -10,10 +12,11 @@ nfs_entry_content = (
 # SLE11-SP2 and earlier, openSUSE 11.2 and earlier:
 # A list of entries
 # (This definition is unused below but provided for historical context)
-nfs_sle11_sp2 = 
+nfs_sle11_sp2 =
   element nfs {
     LIST,
     element nfs_entry {
+        MAP,
         nfs_entry_content
     }*
   }
@@ -29,13 +32,17 @@ nfs_global_options_content = (
 
 nfs_os113_123 =
   element nfs {
-    nfs_global_options_content,
-    element nfs_entries {
-      LIST,
-      element nfs_entry {
-        nfs_entry_content
-      }*
-    }
+    MAP,
+    (
+      nfs_global_options_content,
+      element nfs_entries {
+        LIST,
+        element nfs_entry {
+          MAP,
+          nfs_entry_content
+        }*
+      }
+    )
   }
 
 # Now we want to port the options to SLE11-SP3.
@@ -49,9 +56,11 @@ nfs_sle11_sp3 =
   element nfs {
     LIST,
     element nfs_entry {
+        MAP,
         nfs_global_options_content
     }? ,
     element nfs_entry {
+        MAP,
         nfs_entry_content
     }*
   }
