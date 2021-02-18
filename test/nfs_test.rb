@@ -64,7 +64,7 @@ describe "Yast::Nfs" do
     allow(sm).to receive(:probe).and_return true
 
     # prevent storage-commit
-    allow(sm).to receive(:commit)
+    allow(sm).to receive(:commit).and_return(true)
   end
 
   subject { Yast::Nfs }
@@ -258,7 +258,7 @@ describe "Yast::Nfs" do
       allow(Yast::Progress).to receive(:set)
       allow(Yast::Service).to receive(:Enable)
       allow(Yast::SCR).to receive(:Execute)
-        .with(path(".target.mkdir"), anything)
+        .with(path(".target.mkdir"), anything).and_return(true)
       allow(Yast::SCR).to receive(:Write)
         .with(path_matching(/^\.sysconfig\.nfs/), any_args)
       allow(Yast::SCR).to receive(:Write)
@@ -461,7 +461,7 @@ describe "Yast::Nfs" do
       allow(Yast::Progress).to receive(:set)
       allow(Yast::Service).to receive(:Start)
       allow(Yast::Service).to receive(:Stop)
-      allow(Yast::Service).to receive(:active?)
+      allow(Yast::Service).to receive(:active?).and_return(true)
       allow(Yast::Execute).to receive(:locally).and_return(execute_object)
 
       allow_read_side_effects
@@ -485,9 +485,9 @@ describe "Yast::Nfs" do
           .and_return(service_status1, service_status2)
       end
 
-      let(:service_status1) { nil }
+      let(:service_status1) { true }
 
-      let(:service_status2) { nil }
+      let(:service_status2) { true }
 
       context "and the portmapper service is not active" do
         let(:service_status1) { false }
@@ -514,6 +514,10 @@ describe "Yast::Nfs" do
 
         context "and the portmapper service was not activated" do
           let(:service_status2) { false }
+
+          before do
+            allow(Yast::Report).to receive(:Error)
+          end
 
           it "reports an error" do
             expect(Yast::Report).to receive(:Error).with(/Cannot start/)
