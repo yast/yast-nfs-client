@@ -293,6 +293,10 @@ describe "Yast::NfsRoutinesInclude" do
         end
       end
       context "and does not begin with a slash" do
+        before do
+          allow(Yast::Report).to receive(:Error)
+        end
+
         it "returns false" do
           expect(subject.CheckPath(path.to_s)).to eq(false)
         end
@@ -304,10 +308,15 @@ describe "Yast::NfsRoutinesInclude" do
       end
     end
     context "when the given path size is out of the 1..69 range" do
+      before do
+        allow(Yast::Report).to receive(:Error)
+      end
+
       it "reports and error" do
         expect(Yast::Report).to receive(:Error).with(/The path entered is invalid/)
         subject.CheckPath("/#{path}/verylong")
       end
+
       it "returns false" do
         expect(subject.CheckPath("/#{path}/verylong")).to eq(false)
       end
