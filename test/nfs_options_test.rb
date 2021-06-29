@@ -29,7 +29,9 @@ describe "Yast::NfsOptions" do
         "nolock,bg",
         "nolock,nobg",
         "nolock,rsize=8192",
-        "defaults,ro,noatime,nodiratime,users,exec"
+        "defaults,ro,noatime,nodiratime,users,exec",
+        # bsc#1187781
+        "noauto,nofail,x-systemd.automount,x-systemd.mount-timeout=10,_netdev,x-systemd.idle-timeout=5min"
       ].each do |options|
         returned = Yast::NfsOptions.validate(options)
         expect(returned).to be_empty, "options '#{options}' returned '#{returned}'"
