@@ -73,12 +73,12 @@ module Yast
       "rw",
       "silent",
       "sync",
-      "x-systemd.device-bound",
+      "x-initrd.mount",
       "x-systemd.automount",
-      "x-systemd.makefs",
+      "x-systemd.device-bound",
       "x-systemd.growfs",
-      "x-systemd.rw-only",
-      "x-initrd.mount"
+      "x-systemd.makefs",
+      "x-systemd.rw-only"
     ].freeze
 
     OPTIONS_WITH_VALUE = [
@@ -113,15 +113,15 @@ module Yast
       "timeo",
       "vers",
       "wsize",
-      "x-systemd.requires",
-      "x-systemd.before",
       "x-systemd.after",
-      "x-systemd.wanted-by",
-      "x-systemd.required-by",
-      "x-systemd.requires-mounts-for",
-      "x-systemd.idle-timeout",
+      "x-systemd.before",
       "x-systemd.device-timeout",
-      "x-systemd.mount-timeout"
+      "x-systemd.idle-timeout",
+      "x-systemd.mount-timeout",
+      "x-systemd.required-by",
+      "x-systemd.requires",
+      "x-systemd.requires-mounts-for",
+      "x-systemd.wanted-by"
     ].freeze
 
     def main
