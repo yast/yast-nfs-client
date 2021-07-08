@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun 29 09:43:08 UTC 2021 - Josef Reidinger <jreidinger@suse.com>
+
+- Support systemd mount options in fstab (bsc#1187781)
+- 4.3.4
+
+-------------------------------------------------------------------
 Thu Feb 18 15:16:03 UTC 2021 - Josef Reidinger <jreidinger@suse.com>
 
 - Adapted unit test to recent changes in Yast::Report (related to
