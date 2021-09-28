@@ -17,6 +17,8 @@ module Yast
     #   http://git.linux-nfs.org/?p=steved/nfs-utils.git;a=history;f=utils/mount/nfsmount.c
     # - kernel: fs/nfs/super.c
     #   http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=history;f=fs/nfs/super.c
+    # - systemd options:
+    #   https://www.freedesktop.org/software/systemd/man/systemd.mount.html
     # Note that minorversion in particular is mentioned only in the kernel
     # but not in nfs-utils.
 
@@ -70,7 +72,13 @@ module Yast
       "ro",
       "rw",
       "silent",
-      "sync"
+      "sync",
+      "x-initrd.mount",
+      "x-systemd.automount",
+      "x-systemd.device-bound",
+      "x-systemd.growfs",
+      "x-systemd.makefs",
+      "x-systemd.rw-only"
     ].freeze
 
     OPTIONS_WITH_VALUE = [
@@ -104,7 +112,16 @@ module Yast
       "sec",
       "timeo",
       "vers",
-      "wsize"
+      "wsize",
+      "x-systemd.after",
+      "x-systemd.before",
+      "x-systemd.device-timeout",
+      "x-systemd.idle-timeout",
+      "x-systemd.mount-timeout",
+      "x-systemd.required-by",
+      "x-systemd.requires",
+      "x-systemd.requires-mounts-for",
+      "x-systemd.wanted-by"
     ].freeze
 
     def main
