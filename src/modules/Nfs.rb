@@ -55,7 +55,7 @@ module Yast
       @skip_fstab = false
 
       # Required packages
-      @required_packages = ["nfs-client", "psmisc"]
+      @required_packages = ["nfs-client"]
 
       # eg.: [ $["spec": "moon:/cheese", file: "/mooncheese", "mntops": "defaults"], ...]
       @nfs_entries = []

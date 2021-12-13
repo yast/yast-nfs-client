@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        4.4.1
+Version:        4.4.2
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 Summary:        YaST2 - NFS Configuration
@@ -55,6 +55,8 @@ Recommends:     nfs-client
 # Y2Storage::Filesystems::LegacyNfs#configure_from
 Requires:       yast2-storage-ng >= 4.2.73
 Requires:       yast2-ruby-bindings >= 1.0.0
+# bsc#1161687
+Requires:	/usr/bin/killall
 
 Provides:       yast2-config-nfs
 Provides:       yast2-config-nfs-devel
