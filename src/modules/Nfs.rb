@@ -40,7 +40,7 @@ module Yast
       Yast.import "Service"
       Yast.import "Summary"
       Yast.import "Progress"
-      Yast.import "PackageSystem"
+      Yast.import "Package"
       Yast.import "PackagesProposal"
       Yast.import "Wizard"
       Yast.import "Message"
@@ -687,7 +687,7 @@ module Yast
         Builtins.foreach(@required_packages) do |p|
           PackagesProposal.AddResolvables("yast2-nfs-client", :package, [p])
         end
-      elsif !PackageSystem.CheckAndInstallPackagesInteractive(@required_packages)
+      elsif !Package.CheckAndInstallPackagesInteractive(@required_packages)
         return false
       end
 
