@@ -1,6 +1,6 @@
 #!/usr/bin/env rspec
 
-# Copyright (c) [2017-2020] SUSE LLC
+# Copyright (c) [2017-2022] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -42,7 +42,8 @@ describe "Yast::NfsRoutinesInclude" do
         "mntops"  => "defaults",
         "passno"  => 0,
         "spec"    => "foo.bar.com:/home",
-        "vfstype" => "nfs4"
+        "vfstype" => "nfs4",
+        "active"  => false
       },
       {
         "file"    => "/var/spool/mail",
@@ -68,87 +69,6 @@ describe "Yast::NfsRoutinesInclude" do
     subject.main
   end
 
-  describe "#SpecToServPath" do
-    let(:term) { subject.SpecToServPath(spec) }
-
-    RSpec.shared_examples "couple term" do
-      it "returns a :couple term" do
-        expect(term).to be_a Yast::Term
-        expect(term.value).to eql(:couple)
-      end
-    end
-
-    context "for a spec with url and path separated by colon" do
-      let(:spec) { "big.foo.com:/share/data" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are the url and the path" do
-        expect(term.params).to eql ["big.foo.com", "/share/data"]
-      end
-    end
-
-    context "for a spec with url followed by a colon but no path" do
-      let(:spec) { "big.foo.com:" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are the url and an empty string" do
-        expect(term.params).to eql ["big.foo.com", ""]
-      end
-    end
-
-    context "for a spec with a string that looks like an url and no colon" do
-      let(:spec) { "big.foo.com" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are an empty string and the full spec" do
-        expect(term.params).to eql ["", "big.foo.com"]
-      end
-    end
-
-    context "for a spec with a string that looks like a path and no colon" do
-      let(:spec) { "/nocolon/only/path" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are an empty string and the full spec" do
-        expect(term.params).to eql ["", "/nocolon/only/path"]
-      end
-    end
-
-    context "for a spec containing only a colon followed by a path" do
-      let(:spec) { ":/only/path" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are an empty string and the path" do
-        expect(term.params).to eql ["", "/only/path"]
-      end
-    end
-
-    context "for a spec containing an IPv6 address (several colons) followed by a colon and a path" do
-      let(:spec) { "fe80::219:d1ff:feac:fd10:/path" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are the IP address (including all its colons) and the path" do
-        expect(term.params).to eql ["fe80::219:d1ff:feac:fd10", "/path"]
-      end
-    end
-
-    context "for an empty spec" do
-      let(:spec) { "" }
-
-      include_examples "couple term"
-
-      it "returns a term in which the params are two empty strings" do
-        expect(term.params).to eql ["", ""]
-      end
-    end
-  end
-
   describe "#StripExtraSplash" do
     it "returns the striped path" do
       expect(subject.StripExtraSlash("")).to eql("")
@@ -170,50 +90,14 @@ describe "Yast::NfsRoutinesInclude" do
         items = subject.FstabTableItems(nfs_entries)
 
         expect(items.size).to eql(3)
-        expect(items.first.params[1]).to eql("foo.bar.com ")
-        expect(items.first.params[2]).to eql("/home ")
-        expect(items.first.params[3]).to eql("/home* ")
-        expect(items.first.params[4]).to eql("Any (Please Check) ")
-        expect(items.first.params[5]).to eql("defaults ")
+        expect(items.first.params[1]).to eql("foo.bar.com")
+        expect(items.first.params[2]).to eql("/home")
+        expect(items.first.params[3]).to eql("/home *")
+        expect(items.first.params[4]).to eql("Any (Please Check)")
+        expect(items.first.params[5]).to eql("defaults")
       end
 
       context "and an entry corresponds to a mounted NFS share" do
-        before do
-          nfs = Y2Storage::Filesystems::Nfs.create(working_graph, "srv", "/home/test")
-          nfs.mount_path = "/home/test"
-          nfs.mount_point.active = true
-        end
-
-        let(:nfs_entries) do
-          [
-            {
-              "spec"    => "srv:/home/test",
-              "file"    => "/home/test",
-              "freq"    => 0,
-              "mntops"  => "defaults",
-              "passno"  => 0,
-              "vfstype" => "nfs"
-            }
-          ]
-        end
-
-        it "does not append an asterisk to the mount path of the mounted NFS share" do
-          # Note that the mount point of "srv:/home/test" is active
-          items = subject.FstabTableItems(nfs_entries)
-
-          expect(items.first.params[1]).to eql("srv ")
-          expect(items.first.params[2]).to eql("/home/test ")
-          expect(items.first.params[3]).to eql("/home/test ")
-        end
-      end
-
-      context "and an entry corresponds to an unmounted NFS share" do
-        before do
-          nfs = Y2Storage::Filesystems::Nfs.create(working_graph, "srv", "/home/test")
-          nfs.mount_path = "/home/test"
-          nfs.mount_point.active = false
-        end
-
         let(:nfs_entries) do
           [
             {
@@ -223,35 +107,42 @@ describe "Yast::NfsRoutinesInclude" do
               "mntops"  => "defaults",
               "passno"  => 0,
               "vfstype" => "nfs",
-              "new"     => new_entry
+              "active"  => true
             }
           ]
         end
 
-        context "and the entry is new" do
-          let(:new_entry) { true }
+        it "does not append an asterisk to the mount path of the mounted NFS share" do
+          # Note that the mount point of "srv:/home/test" is active
+          items = subject.FstabTableItems(nfs_entries)
 
-          it "does not append an asterisk to the mount path of the new NFS share" do
-            # Note that the mount point of "srv:/home/test" is inactive
-            items = subject.FstabTableItems(nfs_entries)
+          expect(items.first.params[1]).to eql("srv")
+          expect(items.first.params[2]).to eql("/home/test")
+          expect(items.first.params[3]).to eql("/home/test")
+        end
+      end
 
-            expect(items.first.params[1]).to eql("srv ")
-            expect(items.first.params[2]).to eql("/home/test ")
-            expect(items.first.params[3]).to eql("/home/test ")
-          end
+      context "and an entry corresponds to an unmounted NFS share" do
+        let(:nfs_entries) do
+          [
+            {
+              "spec"    => "srv:/home/test",
+              "file"    => "/home/test",
+              "freq"    => 0,
+              "mntops"  => "defaults",
+              "passno"  => 0,
+              "vfstype" => "nfs",
+              "active"  => false
+            }
+          ]
         end
 
-        context "and the entry is not new" do
-          let(:new_entry) { false }
+        it "appends an asterisk to the mount path of the unmounted NFS share" do
+          items = subject.FstabTableItems(nfs_entries)
 
-          it "appends an asterisk to the mount path of the unmounted NFS share" do
-            # Note that the mount point of "srv:/home/a" is inactive
-            items = subject.FstabTableItems(nfs_entries)
-
-            expect(items.first.params[1]).to eql("srv ")
-            expect(items.first.params[2]).to eql("/home/test ")
-            expect(items.first.params[3]).to eql("/home/test* ")
-          end
+          expect(items.first.params[1]).to eql("srv")
+          expect(items.first.params[2]).to eql("/home/test")
+          expect(items.first.params[3]).to eql("/home/test *")
         end
       end
     end

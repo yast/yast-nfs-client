@@ -407,11 +407,10 @@ module Yast
       Builtins.y2milestone("Entries: %1", @nfs_entries)
       # summary item, %1 is a number
       configured = Builtins.sformat(_("%1 entries configured"), entries)
-      summary = Summary.AddLine(
+      Summary.AddLine(
         summary,
         Ops.greater_than(entries, 0) ? configured : nc
       )
-      summary
     end
 
     # Mount NFS directory
@@ -659,13 +658,6 @@ module Yast
     # @return [Y2Partitioner::Filesystems::Nfs]
     def create_storage_device(entry)
       legacy_nfs = to_legacy_nfs(entry)
-
-      if !entry["new"]
-        probed_nfs = legacy_nfs.find_nfs_device(system_graph)
-
-        legacy_nfs.configure_from(probed_nfs) if probed_nfs
-      end
-
       legacy_nfs.create_nfs_device
     end
 
