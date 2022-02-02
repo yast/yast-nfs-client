@@ -204,6 +204,7 @@ module Y2NfsClient
         @nfs.server = server
         @nfs.path = remote_path
         @nfs.mountpoint = mount_path
+        @nfs.fs_type = Y2Storage::Filesystems::Type::NFS
         @nfs.fstopt = mount_options
       end
 
@@ -251,6 +252,7 @@ module Y2NfsClient
         @servers = [proposed_server].compact
         @servers.concat(nfs_entries.map(&:server).sort)
         @servers.uniq!
+        @servers
       end
 
       # First server to propose
