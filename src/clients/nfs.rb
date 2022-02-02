@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # YaST namespace
 module Yast
   # Main file
@@ -186,9 +184,7 @@ module Yast
         return false
       end
 
-      if !Builtins.haskey(options, "mntops")
-        Ops.set(options, "mntops", "defaults")
-      end
+      Ops.set(options, "mntops", "defaults") if !Builtins.haskey(options, "mntops")
 
       options_error = NfsOptions.validate(Ops.get_string(options, "mntops", ""))
       if Ops.greater_than(Builtins.size(options_error), 0)
@@ -325,8 +321,8 @@ module Yast
       end
       deleted = false
       nfs_entries = Builtins.filter(nfs_entries) do |entry|
-        if spec != "" && Ops.get_string(entry, "spec", "") != spec ||
-            file != "" && Ops.get_string(entry, "file", "") != file
+        if (spec != "" && Ops.get_string(entry, "spec", "") != spec) ||
+            (file != "" && Ops.get_string(entry, "file", "") != file)
           next true
         else
           deleted = true

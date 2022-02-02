@@ -217,13 +217,13 @@ module Yast
 
       # vfstype can override a missing enable_nfs4
       @nfs4_enabled = true if Builtins.find(entries) do |entry|
-        begin
-          version = NfsOptions.nfs_version(entry["nfs_options"] || "")
-          version.requires_v4?
-        rescue ArgumentError => e
-          log.error "Invalid version #{e.inspect} in entry #{entry.inspect}"
-          false
-        end
+
+        version = NfsOptions.nfs_version(entry["nfs_options"] || "")
+        version.need_v4_support?
+      rescue ArgumentError => e
+        log.error "Invalid version #{e.inspect} in entry #{entry.inspect}"
+        false
+
       end
 
       @nfs_entries = Builtins.maplist(entries) do |entry|
@@ -272,6 +272,7 @@ module Yast
       # testsuite is dumb - it can't distinguish between the existence
       # of two services - either both exists or both do not
       return "portmap" if Mode.testsuite
+
       Service.Find(["rpcbind", "portmap"])
     end
 
@@ -284,6 +285,7 @@ module Yast
       if !@skip_fstab
         # Let's explictly trigger a (re)probing
         return false unless storage_probe
+
         load_nfs_entries(storage_nfs_mounts.map(&:to_legacy_hash))
       end
 
@@ -311,6 +313,7 @@ module Yast
         # create mount points
         file = entry["file"] || ""
         next if SCR.Execute(path(".target.mkdir"), file)
+
         # error popup message
         Report.Warning(
           Builtins.sformat(_("Unable to create directory '%1'."), file)
@@ -328,8 +331,8 @@ module Yast
         Report.Error(
           _(
             "Unable to write to /etc/fstab.\n" \
-              "No changes will be made to the\n" \
-              "the NFS client configuration.\n"
+            "No changes will be made to the\n" \
+            "the NFS client configuration.\n"
           )
         )
         return false
@@ -338,12 +341,12 @@ module Yast
       @portmapper = FindPortmapper()
       Service.Enable(@portmapper) unless @nfs_entries.empty?
 
-      if @nfs4_enabled == true
+      if @nfs4_enabled
         SCR.Write(path(".sysconfig.nfs.NFS4_SUPPORT"), "yes")
         SCR.Write(path(".etc.idmapd_conf.value.General.Domain"), @idmapd_domain)
         # flush the changes
         SCR.Write(path(".etc.idmapd_conf"), nil)
-      elsif @nfs4_enabled == false
+      else
         SCR.Write(path(".sysconfig.nfs.NFS4_SUPPORT"), "no")
       end
       SCR.Write(
@@ -426,11 +429,9 @@ module Yast
       return nil if Builtins.size(server) == 0 || Builtins.size(share) == 0
 
       # check if options are valid
-      if Ops.greater_than(Builtins.size(options), 0)
-        if NfsOptions.validate(options) != ""
-          Builtins.y2warning("invalid mount options: %1", options)
-          return nil
-        end
+      if Ops.greater_than(Builtins.size(options), 0) && (NfsOptions.validate(options) != "")
+        Builtins.y2warning("invalid mount options: %1", options)
+        return nil
       end
 
       # mount to temporary directory if mpoint is nil
@@ -463,11 +464,9 @@ module Yast
       end
 
       # start portmapper if it isn't running
-      unless Service.active?(portmapper)
-        unless Service.Start(portmapper)
-          Builtins.y2warning("%1 cannot be started", portmapper)
-          return nil
-        end
+      if !Service.active?(portmapper) && !Service.Start(portmapper)
+        Builtins.y2warning("%1 cannot be started", portmapper)
+        return nil
       end
 
       # create mount point if it doesn't exist
@@ -512,7 +511,7 @@ module Yast
       Builtins.foreach(mounts) do |m|
         type = Ops.get_string(m, "vfstype")
         file = Ops.get_string(m, "file")
-        found = true if (type == "nfs" || type == "nfs4") && file == mpoint
+        found = true if ["nfs", "nfs4"].include?(type) && file == mpoint
       end
 
       if found
@@ -557,14 +556,14 @@ module Yast
     end
 
     # Probe a server for its exports.
-    # @param [String] server IP or hostname
-    # @param [Boolean] v4 Use NFSv4?
+    # @param server [String] IP or hostname
+    # @param vers4 [Boolean] Use NFSv4?
     # @return [Array<String>, nil] a list of exported paths or nil on error
-    def ProbeExports(server, v4)
+    def ProbeExports(server, vers4)
       dirs = []
 
       # showmounts does not work for nfsv4 (#466454)
-      if v4
+      if vers4
         tmpdir = Mount(server, "/", nil, "ro", "nfs4")
 
         # This is completely stupid way how to explore what can be mounted

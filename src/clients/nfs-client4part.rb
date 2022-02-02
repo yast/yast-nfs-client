@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # YaST namespace
 module Yast
   # nfs-client stuff made accesible from the partitioner
@@ -48,9 +46,7 @@ module Yast
         Builtins.y2milestone("%1", @modify_line)
         Nfs.nfs_entries = deep_copy(@nfs_entries)
 
-        if Builtins.contains(@w_ids, Convert.to_symbol(@widget_id))
-          return fstab_to_storage(@modify_line)
-        end
+        return fstab_to_storage(@modify_line) if Builtins.contains(@w_ids, Convert.to_symbol(@widget_id))
       end
 
       nil

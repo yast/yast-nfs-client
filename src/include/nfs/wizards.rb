@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # YaST namespace
 module Yast
   # Wizards definitions
@@ -26,9 +24,9 @@ module Yast
     # @return sequence result
     def NfsSequence
       aliases = {
-        "read"  => [->() { ReadDialog() }, true],
-        "main"  => ->() { MainSequence() },
-        "write" => [->() { WriteDialog() }, true]
+        "read"  => [-> { ReadDialog() }, true],
+        "main"  => -> { MainSequence() },
+        "write" => [-> { WriteDialog() }, true]
       }
 
       sequence = {

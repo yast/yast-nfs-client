@@ -82,11 +82,11 @@ module Yast
         Builtins.sformat(
           _(
             "The hostname entered is invalid. It must be\n" \
-              "shorter than 50 characters and only use\n" \
-              "valid IPv4, IPv6 or domain name.\n" \
-              "Valid IPv4: %1\n" \
-              "Valid IPv6: %2\n" \
-              "Valid domain: %3"
+            "shorter than 50 characters and only use\n" \
+            "valid IPv4, IPv6 or domain name.\n" \
+            "Valid IPv4: %1\n" \
+            "Valid IPv6: %2\n" \
+            "Valid domain: %3"
           ),
           IP.Valid4,
           IP.Valid6,
@@ -141,8 +141,8 @@ module Yast
         Builtins.sformat(
           _(
             "The path entered is invalid.\n" \
-              "It must be shorter than 70 characters\n" \
-              "and it must begin with a slash (/)."
+            "It must be shorter than 70 characters\n" \
+            "and it must begin with a slash (/)."
           )
         )
       )
@@ -150,10 +150,10 @@ module Yast
     end
 
     # Strips a superfluous slash off the end of a pathname.
-    # @param [String] p       pathname
-    # @return          stripped pathname
-    def StripExtraSlash(p)
-      Builtins.regexpmatch(p, "^.+/$") ? Builtins.regexpsub(p, "^(.+)/$", "\\1") : p
+    # @param pathname [String]
+    # @return [String] stripped pathname
+    def StripExtraSlash(pathname)
+      Builtins.regexpmatch(pathname, "^.+/$") ? Builtins.regexpsub(pathname, "^(.+)/$", "\\1") : pathname
     end
 
     # Formats hostname into form suitable for fstab.
