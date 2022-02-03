@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # YaST namespace
 module Yast
   # Client for autoinstallation
@@ -35,43 +33,44 @@ module Yast
             Ops.is_list?(WFM.Args(1))
           Builtins.y2warning(
             "Old-style configuration detected (got list, expected map). " \
-              "<nfs> section needs to be converted to match up-to-date schema"
+            "<nfs> section needs to be converted to match up-to-date schema"
           )
         end
       end
       Builtins.y2debug("func=%1", @func)
       Builtins.y2debug("param=%1", @param)
 
-      # Create a  summary
-      if @func == "Import"
+      # Create a summary
+      case @func
+      when "Import"
         @ret = Nfs.Import(@param)
-      # Create a  summary
-      elsif @func == "Summary"
+      # Create a summary
+      when "Summary"
         @ret = Nfs.Summary
       # Reset configuration
-      elsif @func == "Reset"
+      when "Reset"
         Nfs.Import({})
         @ret = {}
       # Change configuration (run AutoSequence)
-      elsif @func == "Change"
+      when "Change"
         Wizard.CreateDialog
         Wizard.SetDesktopIcon("org.opensuse.yast.NFS")
         @ret = FstabDialog()
         UI.CloseDialog
-      elsif @func == "GetModified"
+      when "GetModified"
         @ret = Nfs.GetModified
-      elsif @func == "SetModified"
+      when "SetModified"
         Nfs.SetModified
       # Return actual state
-      elsif @func == "Packages"
+      when "Packages"
         @ret = Nfs.AutoPackages
       # Return actual state
-      elsif @func == "Export"
+      when "Export"
         @ret = Nfs.Export
-      elsif @func == "Read"
+      when "Read"
         @ret = Nfs.Read
       # Write givven settings
-      elsif @func == "Write"
+      when "Write"
         Yast.import "Progress"
         @progress_orig = Progress.set(false)
         @ret = Nfs.WriteOnly

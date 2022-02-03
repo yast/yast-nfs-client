@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # YaST namespace
 module Yast
   # Just a redirection

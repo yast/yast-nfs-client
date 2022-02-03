@@ -1,5 +1,6 @@
 #! /usr/bin/env rspec
-# Copyright (c) 2014 SUSE Linux.
+
+# Copyright (c) [2014-2022] SUSE Linux.
 #  All Rights Reserved.
 
 #  This program is free software; you can redistribute it and/or
@@ -26,7 +27,7 @@ describe "Yast::NfsOptions" do
     it "returns empty string on correct options" do
       [
         "defaults",
-        "nolock,bg",
+        "nolock, bg",
         "nolock,nobg",
         "nolock,rsize=8192",
         "defaults,ro,noatime,nodiratime,users,exec",
@@ -80,7 +81,6 @@ describe "Yast::NfsOptions" do
       [
         "noatime,unknownparam",
         "mountvers2",
-        "nolock, bg",
         "nolock,unknownoption",
         "nolock,unknownassignment=true",
         "nolock,two=equal=signs"
@@ -101,7 +101,7 @@ describe "Yast::NfsOptions" do
         "defaults,ro,noatime,minorversion=1,users,exec"
       ].each do |options|
         returned = Yast::NfsOptions.nfs_version(options)
-        expect(returned.mntops_value).to be_nil
+        expect(returned.any?).to eq(true)
       end
     end
 
@@ -115,7 +115,7 @@ describe "Yast::NfsOptions" do
         "nfsvers=4.1,nolock"       => "4.1"
       }.each_pair do |opts, version|
         returned = Yast::NfsOptions.nfs_version(opts)
-        expect(returned.mntops_value).to eq version
+        expect(returned.value).to eq version
       end
     end
 
@@ -127,7 +127,7 @@ describe "Yast::NfsOptions" do
         "vers=4.2"              => "4.2"
       }.each_pair do |opts, version|
         returned = Yast::NfsOptions.nfs_version(opts)
-        expect(returned.mntops_value).to eq version
+        expect(returned.value).to eq version
       end
     end
 
@@ -138,16 +138,16 @@ describe "Yast::NfsOptions" do
         "vers=4.1,rw,nfsvers=3,nfsvers=4,nolock" => "4"
       }.each_pair do |opts, version|
         returned = Yast::NfsOptions.nfs_version(opts)
-        expect(returned.mntops_value).to eq version
+        expect(returned.value).to eq version
       end
     end
 
-    it "raises ArgumentError if unknown version appears" do
+    it "returns nil if unknown version appears" do
       [
         "nfsvers=4.5",
         "vers=5,rw"
       ].each do |opts|
-        expect { Yast::NfsOptions.nfs_version(opts) }.to raise_error(ArgumentError)
+        expect(Yast::NfsOptions.nfs_version(opts)).to be_nil
       end
 
     end
@@ -155,38 +155,38 @@ describe "Yast::NfsOptions" do
 
   describe "#set_nfs_version" do
     def set_version(opts, version_value)
-      version = Y2NfsClient::NfsVersion.for_mntops_value(version_value)
+      version = Y2Storage::Filesystems::NfsVersion.find_by_value(version_value)
       Yast::NfsOptions.set_nfs_version(opts, version)
     end
 
     it "removes existing minorversion options" do
-      expect(set_version("minorversion=1", nil)).to eq "defaults"
-      expect(set_version("minorversion=1,ro,minorversion=1", "4")). to eq "ro,nfsvers=4"
+      expect(set_version("minorversion=1", "any")).to eq "defaults"
+      expect(set_version("minorversion=1,ro,minorversion=1", "4")).to eq "ro,nfsvers=4"
     end
 
     it "removes nfsvers and vers when enforcing no particular version" do
-      expect(set_version("nfsvers=4", nil)).to eq "defaults"
-      expect(set_version("vers=3,ro", nil)). to eq "ro"
-      expect(set_version("nolock,vers=4.1,rw,nfsvers=4", nil)). to eq "nolock,rw"
-      expect(set_version("nolock,vers=4.2,rw,nfsvers=4", nil)). to eq "nolock,rw"
+      expect(set_version("nfsvers=4", "any")).to eq "defaults"
+      expect(set_version("vers=3,ro", "any")).to eq "ro"
+      expect(set_version("nolock,vers=4.1,rw,nfsvers=4", "any")).to eq "nolock,rw"
+      expect(set_version("nolock,vers=4.2,rw,nfsvers=4", "any")).to eq "nolock,rw"
     end
 
     it "modifies the existing nfsvers or vers option if needed" do
       expect(set_version("nfsvers=4", "3")).to eq "nfsvers=3"
-      expect(set_version("vers=3,ro", "4")). to eq "vers=4,ro"
-      expect(set_version("nolock,nfsvers=4.1,rw,vers=4", "4.1")). to eq "nolock,rw,vers=4.1"
-      expect(set_version("nolock,nfsvers=4.2,rw,vers=4", "4.2")). to eq "nolock,rw,vers=4.2"
+      expect(set_version("vers=3,ro", "4")).to eq "vers=4,ro"
+      expect(set_version("nolock,nfsvers=4.1,rw,vers=4", "4.1")).to eq "nolock,rw,vers=4.1"
+      expect(set_version("nolock,nfsvers=4.2,rw,vers=4", "4.2")).to eq "nolock,rw,vers=4.2"
     end
 
     it "deletes surplus useless nfsvers and vers options" do
-      expect(set_version("vers=4,nolock,nfsvers=4.1,rw,vers=4", "4.1")). to eq "nolock,rw,vers=4.1"
-      expect(set_version("nfsvers=4,vers=4.1,rw,nfsvers=4", "3")). to eq "rw,nfsvers=3"
+      expect(set_version("vers=4,nolock,nfsvers=4.1,rw,vers=4", "4.1")).to eq "nolock,rw,vers=4.1"
+      expect(set_version("nfsvers=4,vers=4.1,rw,nfsvers=4", "3")).to eq "rw,nfsvers=3"
     end
 
     it "adds a nfsvers if a new option is needed" do
-      expect(set_version("defaults", "4.1")). to eq "nfsvers=4.1"
-      expect(set_version("defaults", "4.2")). to eq "nfsvers=4.2"
-      expect(set_version("rw,nolock", "3")). to eq "rw,nolock,nfsvers=3"
+      expect(set_version("defaults", "4.1")).to eq "nfsvers=4.1"
+      expect(set_version("defaults", "4.2")).to eq "nfsvers=4.2"
+      expect(set_version("rw,nolock", "3")).to eq "rw,nolock,nfsvers=3"
     end
   end
 end

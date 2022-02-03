@@ -1,6 +1,6 @@
 #!/usr/bin/env rspec
 
-# Copyright (c) [2015-2020] SUSE LLC
+# Copyright (c) [2015-2022] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -279,28 +279,15 @@ describe "Yast::Nfs" do
       working_graph.nfs_mounts.find { |n| n.share == share }
     end
 
-    def probed_nfs(share)
-      system_graph.nfs_mounts.find { |n| n.share == share }
-    end
-
     def entry(spec)
       subject.nfs_entries.find { |e| e["spec"] == spec }
-    end
-
-    def create_entry(spec)
-      {
-        "spec"    => spec,
-        "file"    => "/home/test",
-        "freq"    => 0,
-        "mntops"  => "defaults",
-        "passno"  => 0,
-        "vfstype" => "nfs"
-      }
     end
 
     def find_mp(path)
       working_graph.filesystems.find { |fs| fs.mount_path == path }.mount_point
     end
+
+    let(:spec) { "nfs.example.com:/foo" }
 
     it "ensures zero for the 'passno' field, only in nfs entries" do
       # Enforce weird passno value for NFS
@@ -320,135 +307,60 @@ describe "Yast::Nfs" do
       expect(find_mp("/foo/bar/baz").passno).to eq 0
     end
 
-    shared_examples "remove_entry" do
-      it "removes the existing NFS share" do
-        nfs_sid = nfs(spec).sid
+    it "removes all current NFS devices" do
+      sids = Y2Storage::Filesystems::Nfs.all(working_graph).map(&:sid)
 
+      subject.WriteOnly
+
+      devices = sids.map { |s| working_graph.find_device(s) }.compact
+      expect(devices).to be_empty
+    end
+
+    context "when the entry has #active equal to true" do
+      before do
+        entry(spec)["active"] = true
+      end
+
+      it "creates a NFS share with active mount point" do
         subject.WriteOnly
 
-        expect(working_graph.find_device(nfs_sid)).to be_nil
+        expect(nfs(spec).mount_point.active?).to eq(true)
       end
     end
 
-    context "when the entry is new" do
+    context "when the entry has #active equal to false" do
       before do
-        entry = entry(spec)
-
-        if entry
-          entry["new"] = true
-        else
-          entry = create_entry(spec)
-          entry["new"] = true
-          subject.nfs_entries << entry
-        end
+        entry(spec)["active"] = false
       end
 
-      shared_examples "new_entry" do
-        it "creates a new NFS share for that entry" do
-          subject.WriteOnly
+      it "creates a NFS share with inactive mount point" do
+        subject.WriteOnly
 
-          nfs = nfs(spec)
-
-          expect(nfs).to_not be_nil
-          expect(nfs.exists_in_probed?).to eq(false)
-        end
-
-        it "sets the NFS mount point as active" do
-          subject.WriteOnly
-
-          nfs = nfs(spec)
-
-          expect(nfs.mount_point.active?).to eq(true)
-        end
-
-        it "sets the NFS to be written to the fstab" do
-          subject.WriteOnly
-
-          nfs = nfs(spec)
-
-          expect(nfs.mount_point.in_etc_fstab?).to eq(true)
-        end
-      end
-
-      context "and the NFS share does no exist in the system yet" do
-        let(:spec) { "nfs.example.com:/home/test" }
-
-        include_examples "new_entry"
-      end
-
-      context "and the NFS share already exists in the system" do
-        let(:spec) { "nfs.example.com:/foo" }
-
-        before do
-          # Set mount point properties of the existing NFS share. This configuration should not be
-          # propagated to the new NFS share.
-          nfs = nfs(spec)
-          nfs.mount_point.active = false
-          nfs.mount_point.in_etc_fstab = false
-        end
-
-        include_examples "remove_entry"
-
-        include_examples "new_entry"
+        expect(nfs(spec).mount_point.active?).to eq(false)
       end
     end
 
-    context "when the entry is not new" do
+    context "when the entry has #in_etc_fstab equal to true" do
       before do
-        entry = entry(spec)
-        entry["new"] = false
+        entry(spec)["in_etc_fstab"] = true
       end
 
-      let(:spec) { "nfs.example.com:/foo" }
+      it "creates a NFS share that would be written to the fstab" do
+        subject.WriteOnly
 
-      include_examples "remove_entry"
+        expect(nfs(spec).mount_point.in_etc_fstab?).to eq(true)
+      end
+    end
 
-      context "and the entry corresponds to a mounted NFS share" do
-        before do
-          probed_nfs(spec).mount_point.active = true
-        end
-
-        it "creates a NFS share with active mount point" do
-          subject.WriteOnly
-
-          expect(nfs(spec).mount_point.active?).to eq(true)
-        end
+    context "when the entry has #in_etc_fstab equal to true" do
+      before do
+        entry(spec)["in_etc_fstab"] = false
       end
 
-      context "and the entry corresponds to an unmounted NFS share" do
-        before do
-          probed_nfs(spec).mount_point.active = false
-        end
+      it "creates a NFS share that would not be written to the fstab" do
+        subject.WriteOnly
 
-        it "creates a NFS share with inactive mount point" do
-          subject.WriteOnly
-
-          expect(nfs(spec).mount_point.active?).to eq(false)
-        end
-      end
-
-      context "and the entry corresponds to a NFS share included in the fstab" do
-        before do
-          probed_nfs(spec).mount_point.in_etc_fstab = true
-        end
-
-        it "creates a NFS share that would be written to the fstab" do
-          subject.WriteOnly
-
-          expect(nfs(spec).mount_point.in_etc_fstab?).to eq(true)
-        end
-      end
-
-      context "and the entry corresponds to a NFS that is not included in the fstab" do
-        before do
-          probed_nfs(spec).mount_point.in_etc_fstab = false
-        end
-
-        it "creates a NFS share that would not be written to the fstab" do
-          subject.WriteOnly
-
-          expect(nfs(spec).mount_point.in_etc_fstab?).to eq(false)
-        end
+        expect(nfs(spec).mount_point.in_etc_fstab?).to eq(false)
       end
     end
   end
@@ -556,26 +468,6 @@ describe "Yast::Nfs" do
       it "returns false" do
         expect(subject.Write).to eql(false)
       end
-    end
-  end
-
-  describe ".legacy_entry?" do
-    let(:all_entries) { YAML.load_file(File.join(DATA_PATH, "nfs_entries.yaml")) }
-    let(:entries) { all_entries.map { |e| [e["file"], e] }.to_h }
-
-    it "returns true for entries using nfs4 as vfstype" do
-      expect(subject.legacy_entry?(entries["/two"])).to eq true
-      expect(subject.legacy_entry?(entries["/four"])).to eq true
-    end
-
-    it "returns true for entries using minorversion in the mount options" do
-      expect(subject.legacy_entry?(entries["/four"])).to eq true
-      expect(subject.legacy_entry?(entries["/five"])).to eq true
-    end
-
-    it "returns false for entries without nfs4 or minorversion" do
-      expect(subject.legacy_entry?(entries["/one"])).to eq false
-      expect(subject.legacy_entry?(entries["/three"])).to eq false
     end
   end
 end

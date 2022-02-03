@@ -1,4 +1,4 @@
-# Copyright (c) [2013-2020] SUSE LLC
+# Copyright (c) [2013-2022] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -20,7 +20,8 @@
 require "y2firewall/firewalld"
 require "yast2/feedback"
 require "yast2/popup"
-require "y2nfs_client/nfs_version"
+require "y2nfs_client/widgets/nfs_form"
+require "y2partitioner/widgets/help"
 
 require "shellwords"
 
@@ -28,6 +29,8 @@ require "shellwords"
 module Yast
   # NFS client dialogs
   module NfsUiInclude
+    include Y2Partitioner::Widgets::Help
+
     def initialize_nfs_ui(include_target)
       Yast.import "UI"
       textdomain "nfs"
@@ -61,44 +64,24 @@ module Yast
 
       @modify_line = {}
 
-      # Help, part 1 of 4
-      @help_text1 = _(
-        "<p>The table contains all directories \n" \
-          "exported from remote servers and mounted locally via NFS (NFS shares).</p>"
-      ) +
-        # Help, part 2 of 4
-        _(
-          "<p>Each NFS share is identified by remote NFS server address and\n" \
+      @help_text1 =
+        _("<p>The table contains all directories \n" \
+          "exported from remote servers and mounted locally via NFS (NFS shares).</p>") +
+        _("<p>Each NFS share is identified by remote NFS server address and\n" \
           "exported directory, local directory where the remote directory is mounted, \n" \
           "version of the NFS protocol and mount options. For further information \n" \
-          "about mounting NFS and mount options, refer to <tt>man nfs</tt>.</p>\n" \
-          "<p>An asterisk (*) after the mount point indicates a file system that is \n" \
-          "currently not mounted (for example, because it has the <tt>noauto</tt> \n" \
-          "option set in <tt>/etc/fstab</tt>).</p>"
-        ) +
-        # Help, part 3 of 4
-        _(
-          "<p>It may happen that some NFS share is mounted using an old method\n" \
-            "to specify the version of the NFS protocol, like the usage of 'nfs4'\n" \
-            "as file system type or the usage of 'minorversion' in the mount options.\n" \
-            "Those methods do not longer work as they used to, so if such\n" \
-            "circumstance is detected, the real current version is displayed in the\n" \
-            "list followed by a warning message. Those entries can be edited to\n" \
-            "make sure they use more current ways of specifying the version.</p>"
-        ) +
-        # Help, part 4 of 4
-        _(
-          "<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" \
-            "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" \
-            "share with <B>Delete</B>.</p>\n"
-        )
+          "about mounting NFS and mount options, refer to <tt>man nfs</tt>.</p>") +
+        helptext_for(:mount_point) + helptext_for(:nfs_version) +
+        _("<p>To mount a new NFS share, click <B>Add</B>. To change the configuration of\n" \
+          "a currently mounted share, click <B>Edit</B>. Remove and unmount a selected\n" \
+          "share with <B>Delete</B>.</p>")
 
       @help_text2 = Ops.add(
         _(
           "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
-            "protocol), check the <b>NFS version</b> option. In that case, you might need\n" \
-            "to supply an specific <b>NFSv4 Domain Name</b> required for the correct setting\n" \
-            "of file/directory access rights.</p>\n"
+          "protocol), check the <b>NFS version</b> option. In that case, you might need\n" \
+          "to supply an specific <b>NFSv4 Domain Name</b> required for the correct setting\n" \
+          "of file/directory access rights.</p>\n"
         ),
         Ops.get_string(@fw_cwm_widget, "help", "")
       )
@@ -118,109 +101,8 @@ module Yast
       ret ? :next : :abort
     end
 
-    # Let the user choose one of a list of items
-    # @param [String] title	selectionbox title
-    # @param [Array<String>] items	a list of items
-    # @return		one item or nil
-    def ChooseItem(title, items)
-      items = deep_copy(items)
-      item = nil
-      ret = nil
-
-      UI.OpenDialog(
-        VBox(
-          HSpacing(40),
-          HBox(SelectionBox(Id(:items), title, items), VSpacing(10)),
-          ButtonBox(
-            PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton),
-            PushButton(Id(:cancel), Opt(:key_F9), Label.CancelButton)
-          )
-        )
-      )
-      UI.SetFocus(Id(:items))
-      loop do
-        ret = UI.UserInput
-        break if ret == :ok || ret == :cancel
-      end
-
-      if ret == :ok
-        item = Convert.to_string(UI.QueryWidget(Id(:items), :CurrentItem))
-      end
-      UI.CloseDialog
-
-      item
-    end
-
-    HOST_BIN = "/usr/bin/host".freeze
-    # Find out whether this nfs host really exists
-    # @param [String] hname	hostname
-    # @return true if it exists, false otherwise
-    def HostnameExists(hname)
-      ret = false
-
-      if FileUtils.Exists(HOST_BIN)
-        out = SCR.Execute(
-          path(".target.bash_output"),
-          "#{HOST_BIN} #{hname.shellescape}"
-        )
-
-        ret = Ops.get_integer(out, "exit", -1) == 0
-        Builtins.y2debug("DNS lookup of %1 returned %2", hname, ret)
-      else
-        Builtins.y2warning(
-          "Cannot DNS lookup %1, will not propose default hostname",
-          hname
-        )
-      end
-
-      ret
-    end
-
-    # Return convenient hostname (FaTE #302863) to be proposed
-    # i.e. nfs + current domain (nfs. + suse.cz)
-    # @return string	proposed hostname
-    def ProposeHostname
-      ret = ""
-      cur_domain = Hostname.CurrentDomain
-
-      ret = "nfs.#{cur_domain}" if cur_domain && cur_domain != ""
-      ret
-    end
-
-    # Give me one name from the list of hosts
-    # @param [Array<String>] hosts	a list of hostnames
-    # @return		a hostname
-    def ChooseHostName(hosts)
-      hosts = deep_copy(hosts)
-      Wizard.SetScreenShotName("nfs-client-1aa-hosts")
-      # selection box label
-      # changed from "Remote hosts" because now it shows
-      # NFS servers only
-      ret = ChooseItem(_("&NFS Servers"), hosts)
-      Wizard.RestoreScreenShotName
-      ret
-    end
-
-    # Give me one name from the list of exports
-    # @param [Array<String>] exports	a list of exports
-    # @return		an export
-    def ChooseExport(exports)
-      exports = deep_copy(exports)
-      Wizard.SetScreenShotName("nfs-client-1ab-exports")
-      # selection box label
-      ret = ChooseItem(_("&Exported Directories"), exports)
-      Wizard.RestoreScreenShotName
-      ret
-    end
-
-    # Nicely put a `TextEntry and its helper `PushButton together
-    # @param [Yast::Term] text   textentry widget
-    # @param [Yast::Term] button pushbutton widget
-    # @return a HBox
-    def TextAndButton(text, button)
-      text = deep_copy(text)
-      button = deep_copy(button)
-      HBox(Bottom(text), HSpacing(0.5), Bottom(button))
+    def devicegraph
+      Y2Storage::StorageManager.instance.staging
     end
 
     # Ask user for an entry.
@@ -231,101 +113,26 @@ module Yast
       fstab_ent = deep_copy(fstab_ent)
       Wizard.SetScreenShotName("nfs-client-1a-edit")
 
-      server = ""
-      pth = ""
-      mount = ""
-      options = "defaults"
-      servers = []
-      old = ""
       ret = nil
 
+      nfs_entries = existing.map { |i| to_legacy_nfs(i) }
+      nfs = nil
       if fstab_ent
-        new_entry = fstab_ent.fetch("new", false)
-
-        couple = SpecToServPath(Ops.get_string(fstab_ent, "spec", ""))
-        server = Ops.get_string(couple, 0, "")
-        pth = Ops.get_string(couple, 1, "")
-        mount = Ops.get_string(fstab_ent, "file", "")
-        options = Ops.get_string(fstab_ent, "mntops", "")
-        servers = [server]
-        old = Ops.get_string(fstab_ent, "spec", "")
+        nfs = to_legacy_nfs(fstab_ent)
       else
-        new_entry = true
-
-        proposed_server = ProposeHostname()
-        servers = [proposed_server] if HostnameExists(proposed_server)
-      end
-      version = NfsOptions.nfs_version(options)
-
-      # append already defined servers - bug #547983
-      Builtins.foreach(@nfs_entries) do |nfs_entry|
-        couple = SpecToServPath(Ops.get_string(nfs_entry, "spec", ""))
-        known_server = Ops.get_string(couple, 0, "")
-        if !Builtins.contains(servers, known_server)
-          servers = Builtins.add(servers, known_server)
-        end
+        nfs = Y2Storage::Filesystems::LegacyNfs.new
+        nfs.fstopt = "defaults"
       end
 
-      servers = Builtins.sort(servers)
-      #
+      form = Y2NfsClient::Widgets::NfsForm.new(nfs, nfs_entries)
+      return nil unless form.run?
 
       UI.OpenDialog(
         Opt(:decorated),
         HBox(
           HSpacing(1),
           VBox(
-            VSpacing(0.2),
-            HBox(
-              TextAndButton(
-                ComboBox(
-                  Id(:serverent),
-                  Opt(:editable),
-                  # text entry label
-                  _("&NFS Server Hostname"),
-                  servers
-                ),
-                # pushbutton label
-                # choose a host from a list
-                # appears in help text too
-                PushButton(Id(:choose), _("Choo&se"))
-              ),
-              HSpacing(0.5),
-              TextAndButton(
-                InputField(
-                  Id(:pathent),
-                  Opt(:hstretch),
-                  # textentry label
-                  _("&Remote Directory"),
-                  pth
-                ),
-                # pushbutton label,
-                # select from a list of remote filesystems
-                # make it short
-                # appears in help text too
-                PushButton(Id(:pathent_list), _("&Select"))
-              )
-            ),
-            Left(
-              version_widget(version)
-            ),
-            Left(
-              TextAndButton(
-                InputField(
-                  Id(:mountent),
-                  Opt(:hstretch),
-                  # textentry label
-                  _("&Mount Point (local)"),
-                  mount
-                ),
-                # button label
-                # browse directories to select a mount point
-                # appears in help text too
-                PushButton(Id(:browse), _("&Browse"))
-              )
-            ),
-            # textentry label
-            VSpacing(0.2),
-            InputField(Id(:optionsent), Opt(:hstretch), _("O&ptions"), options),
+            form.contents,
             VSpacing(0.2),
             ButtonBox(
               PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton),
@@ -337,139 +144,27 @@ module Yast
           HSpacing(1)
         )
       )
-      UI.ChangeWidget(Id(:serverent), :Value, server)
-      UI.SetFocus(Id(:serverent))
+
+      form.init
 
       loop do
         ret = UI.UserInput
 
-        if ret == :choose
-          if @hosts.nil?
-            # label message
-            UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
-            @hosts = Nfs.ProbeServers
-            UI.CloseDialog
-          end
-          if @hosts == [] || @hosts.nil?
-            # Translators: 1st part of error message
-            error_msg = _("No NFS server has been found on your network.")
-
-            if Y2Firewall::Firewalld.instance.running?
-              # Translators: 2nd part of error message (1st one is 'No nfs servers have been found ...)
-              error_msg = Ops.add(
-                error_msg,
-                _(
-                  "\n" \
-                    "This could be caused by a running firewall,\n" \
-                    "which probably blocks the network scanning."
-                )
-              )
-            end
-            Report.Error(error_msg)
+        case ret
+        when :ok
+          if form.validate
+            form.store
           else
-            host = ChooseHostName(@hosts)
-            UI.ChangeWidget(Id(:serverent), :Value, host) if host
+            ret = nil
           end
-        elsif ret == :pathent_list
-          server2 = UI.QueryWidget(Id(:serverent), :Value)
-
-          if !CheckHostName(server2)
-            UI.SetFocus(Id(:serverent))
-            next
-          end
-
-          v4 = version_from_widget.browse_with_v4?
-          scan_exports(server2, v4)
-        elsif ret == :browse
-          dir = Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          dir = "/" if dir.nil? || Builtins.size(dir) == 0
-
-          # heading for a directory selection dialog
-          dir = UI.AskForExistingDirectory(dir, _("Select the Mount Point"))
-
-          if dir && Ops.greater_than(Builtins.size(dir), 0)
-            UI.ChangeWidget(Id(:mountent), :Value, dir)
-          end
-        elsif ret == :ok
-          server = FormatHostnameForFstab(
-            Convert.to_string(UI.QueryWidget(Id(:serverent), :Value))
-          )
-          pth = StripExtraSlash(
-            Convert.to_string(UI.QueryWidget(Id(:pathent), :Value))
-          )
-          mount = StripExtraSlash(
-            Convert.to_string(UI.QueryWidget(Id(:mountent), :Value))
-          )
-          options = Builtins.deletechars(
-            Convert.to_string(UI.QueryWidget(Id(:optionsent), :Value)),
-            " "
-          )
-          options = NfsOptions.set_nfs_version(options, version_from_widget)
-
-          ret = nil
-          options_error = NfsOptions.validate(options)
-          if !CheckHostName(server)
-            UI.SetFocus(Id(:serverent))
-          elsif !CheckPath(pth)
-            UI.SetFocus(Id(:pathent))
-          elsif !CheckPath(mount) || IsMpInFstab(existing, mount)
-            UI.SetFocus(Id(:mountent))
-          elsif Ops.greater_than(Builtins.size(options_error), 0)
-            Popup.Error(options_error)
-            UI.SetFocus(Id(:optionsent))
-          else
-            fstab_ent = {
-              "spec"    => Ops.add(Ops.add(server, ":"), pth),
-              "file"    => mount,
-              "vfstype" => "nfs",
-              "mntops"  => options
-            }
-            if old != Ops.add(Ops.add(server, ":"), pth)
-              fstab_ent = Builtins.add(fstab_ent, "old", old)
-            end
-            ret = :ok
-          end
-        elsif ret == :help
-          # help text 1/4
-          # change: locally defined -> servers on LAN
-          helptext = _(
-            "<p>Enter the <b>NFS Server Hostname</b>.  With\n" \
-              "<b>Choose</b>, browse through a list of\n" \
-              "NFS servers on the local network.</p>\n"
-          )
-          # help text 2/4
-          # added "Select" button
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>In <b>Remote File System</b>,\n" \
-                "enter the path to the directory on the NFS server.  Use\n" \
-                "<b>Select</b> to select one from those exported by the server.\n" \
-                "</p>"
-            )
-          )
-          # help text 3/4
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>\t\t\n" \
-                "For <b>Mount Point</b>, enter the path in the local " \
-                "file system where the directory should be mounted. With\n" \
-                "<b>Browse</b>, select your mount point\n" \
-                "interactively.</p>"
-            )
-          )
-          # help text 4/4
-          helptext = Ops.add(
-            helptext,
-            _(
-              "<p>For a list of <b>Options</b>,\nread the man page mount(8).</p>"
-            )
-          )
+        when :help
+          helptext = form.help
           # popup heading
           Popup.LongText(_("Help"), RichText(helptext), 50, 18)
+        else
+          form.handle({ "ID" => ret })
         end
-        break if ret == :ok || ret == :cancel
+        break if [:ok, :cancel].include?(ret)
       end
 
       UI.CloseDialog
@@ -477,12 +172,9 @@ module Yast
 
       return nil if ret == :cancel
 
-      # New entries are identify by "new" key in the hash. This is useful to detect which entries are
-      # not created but updated. Note that this is important to keep the current mount point status of
-      # updated entries.
-      fstab_ent["new"] = new_entry
+      fstab_ent = storage_to_fstab(form.nfs.to_hash)
+      return fstab_ent if ret == :ok
 
-      return deep_copy(fstab_ent) if ret == :ok
       nil
     end
 
@@ -607,11 +299,10 @@ module Yast
           "ID" => widget
         )
       end
-      if UI.WidgetExists(Id(:fstable))
-        entryno = Convert.to_integer(UI.QueryWidget(Id(:fstable), :CurrentItem))
-      end
+      entryno = Convert.to_integer(UI.QueryWidget(Id(:fstable), :CurrentItem)) if UI.WidgetExists(Id(:fstable))
 
-      if widget == :newbut
+      case widget
+      when :newbut
         entry = GetFstabEntry(nil, @nfs_entries)
 
         if entry
@@ -623,21 +314,10 @@ module Yast
         end
 
         UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
-      elsif widget == :editbut
-        # Handle situations in which edit is called with no entry selected
-        # (caused by a bug in yast2-storage-ng)
-        return EnableDisableButtons() if entryno.nil?
-
+      when :editbut
         source_entry = @nfs_entries[entryno] || {}
-        if !legacy_entry?(source_entry) || edit_legacy?
-          edit_entry(source_entry, entryno)
-        end
-      elsif widget == :delbut
-        # Handle unexpected delete request. The delete button shouldn't be
-        # enabled if there are no entries, but it can happen due to a bug
-        # in yast2-storage-ng
-        return EnableDisableButtons() if @nfs_entries.empty? || entryno.nil?
-
+        edit_entry(source_entry, entryno)
+      when :delbut
         share = Ops.get(@nfs_entries, entryno, {})
         if Popup.YesNo(
           Builtins.sformat(
@@ -652,16 +332,16 @@ module Yast
 
           Nfs.SetModified
         end
-      elsif widget == :enable_nfs4
+      when :enable_nfs4
         enabled = Convert.to_boolean(UI.QueryWidget(Id(:enable_nfs4), :Value))
         UI.ChangeWidget(Id(:nfs4_domain), :Enabled, enabled)
         Nfs.SetModified
-      elsif widget == :settings
+      when :settings
         SaveFstabEntries()
         UI.ReplaceWidget(Id(:rp), SettingsTab())
         InitSettings()
         Wizard.SetHelpText(@help_text2)
-      elsif widget == :overview
+      when :overview
         SaveSettings("ID" => widget)
         UI.ReplaceWidget(Id(:rp), FstabTab())
         InitFstabEntries()
@@ -721,71 +401,25 @@ module Yast
       Convert.to_symbol(ret)
     end
 
-    # Scans the server and lets the user to select the export
-    # @param server [String] server hostname
-    # @param v4 [Boolen] if true use NFSv4, NFSv3 otherwise
-    def scan_exports(server, v4)
-      msg = Builtins.sformat(_("Getting directory list for \"%1\"..."), server)
-      dirs = Yast2::Feedback.show(msg) do
-        Nfs.ProbeExports(server, v4)
-      end
-
-      if dirs
-        dir = ChooseExport(dirs)
-        UI.ChangeWidget(Id(:pathent), :Value, dir) if dir
-      else
-        # TRANSLATORS: Error message, scanning the NFS server failed
-        Report.Error(_("The NFS scan failed."))
-      end
-    end
-
   private
-
-    # Widget to select the version of the NFS protocol to use in a mount that is
-    # being created or edited.
-    def version_widget(current_version)
-      items = Y2NfsClient::NfsVersion.all.map do |vers|
-        Item(Id(vers.widget_id), vers.widget_text, current_version == vers)
-      end
-      ComboBox(Id(:nfs_version), _("NFS &Version"), items)
-    end
-
-    # Version of the NFS protocol selected in the corresponding widget.
-    #
-    # @return [Y2NfsClient::NfsVersion]
-    def version_from_widget
-      id = UI.QueryWidget(Id(:nfs_version), :Value).to_sym
-      Y2NfsClient::NfsVersion.all.find { |v| v.widget_id == id }
-    end
 
     # @see #HandleEvent
     def edit_entry(source_entry, entryno)
       entry = GetFstabEntry(source_entry, Builtins.remove(@nfs_entries, entryno))
 
-      if entry
-        count2 = 0
-        @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
-          count2 = Ops.add(count2, 1)
-          next deep_copy(ent) if Ops.subtract(count2, 1) != entryno
-          deep_copy(entry)
-        end
+      return unless entry
 
-        @modify_line = deep_copy(entry)
-        UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
-        Nfs.SetModified
+      count2 = 0
+      @nfs_entries = Builtins.maplist(@nfs_entries) do |ent|
+        count2 = Ops.add(count2, 1)
+        next deep_copy(ent) if Ops.subtract(count2, 1) != entryno
+
+        deep_copy(entry)
       end
-    end
 
-    def edit_legacy?
-      msg = _(
-        "This entry uses old ways of specifying the NFS protocol version that\n" \
-        "do not longer work as they used to do it (like the usage of 'nfs4' as\n" \
-        "file system type or the usage of 'minorversion' in the mount options).\n\n" \
-        "Editing the entry will change how the version is specified, with no\n" \
-        "possibility to use old outdated method again.\n\n" \
-        "Proceed and edit?"
-      )
-      Yast2::Popup.show(msg, buttons: :continue_cancel) == :continue
+      @modify_line = deep_copy(entry)
+      UI.ChangeWidget(Id(:fstable), :Items, FstabTableItems(@nfs_entries))
+      Nfs.SetModified
     end
   end
 end

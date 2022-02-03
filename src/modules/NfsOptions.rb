@@ -1,7 +1,6 @@
-# encoding: utf-8
-
 require "yast"
-require "y2nfs_client/nfs_version"
+require "y2storage/filesystems/nfs_version"
+require "y2storage/filesystems/nfs_options"
 
 # YaST namespace
 module Yast
@@ -128,25 +127,6 @@ module Yast
       textdomain "nfs"
     end
 
-    # Parse to an internal representation:
-    # Simply split by commas, but "defaults" is represented by the empty list
-    # @param [String] options a fstab option string
-    # @return [Array<String>] of individual options
-    def from_string(options)
-      return [] if options == "defaults"
-
-      options.split(",")
-    end
-
-    # Convert list of individual options to a fstab option string
-    # @param [Array<String>] option_list list of individual options
-    # @return [String] a fstab option string
-    def to_string(option_list)
-      return "defaults" if option_list.empty?
-
-      option_list.join(",")
-    end
-
     def non_value_option?(option)
       NEGATABLE_OPTIONS.include?(option) || NEGATED_OPTIONS.include?(option) || SIMPLE_OPTIONS.include?(option)
     end
@@ -161,26 +141,29 @@ module Yast
 
       error_message = ""
 
-      from_string(options).each do |opt|
+      nfs_options = Y2Storage::Filesystems::NfsOptions.create_from_fstab(options)
+
+      nfs_options.options.each do |opt|
         key, value, *rest = opt.split("=")
 
         # Known options without any expected value
         if non_value_option?(key)
           next if value.nil?
+
           # To translators: error popup
-          error_message = _("Unexpected value '%{value}' for option '%{key}'") % { value: value, key: key }
+          error_message = format(_("Unexpected value '%{value}' for option '%{key}'"), value: value, key: key)
         # All unknown options
         elsif !OPTIONS_WITH_VALUE.include?(key)
           # To translators: error popup
-          error_message = _("Unknown option: '%{key}'") % { key: key }
+          error_message = format(_("Unknown option: '%{key}'"), key: key)
         # All known ones with badly specified values
         elsif !rest.empty?
           # To translators: error popup
-          error_message = _("Invalid option: '%{opt}'") % { opt: opt }
+          error_message = format(_("Invalid option: '%{opt}'"), opt: opt)
         # All options missing a value
         elsif value.nil?
           # To translators: error popup
-          error_message = _("Empty value for option: '%{key}'") % { key: key }
+          error_message = format(_("Empty value for option: '%{key}'"), key: key)
         end
 
         break unless error_message.empty?
@@ -198,46 +181,29 @@ module Yast
     #
     # @param options [String] mount options in the comma-separated format used
     #   by mount and /etc/fstab
-    # @raise [ArgumentError] if no matching version is found
-    # @return [Y2NfsClient::NfsVersion]
+    # @return [Y2Storage::Filesystems::NfsVersion]
     def nfs_version(options)
-      option_list = from_string(options)
-      Y2NfsClient::NfsVersion.for_mntops_value(relevant_version_value(option_list))
+      nfs_options = Y2Storage::Filesystems::NfsOptions.create_from_fstab(options)
+
+      nfs_options.version
     end
 
-    # Returns a copy of the mount options with the changes needed to ensure the
-    # given NFS protocol version.
-    #
-    # This method modifies or deletes the existing 'nfsvers' or 'vers' option
-    # (deleting always the surplus options). If no option is present and one
-    # must be added, 'nfsvers' is used.
+    # Generates mount options with the changes needed to ensure the given NFS protocol version
     #
     # Although it can handle several wrong or legacy configurations, this method
     # will not work if the mount options string is malformed.
     #
     # @param options [String] mount options in the comma-separated format used
     #   by mount and /etc/fstab
-    # @param version [Y2NfsClient::NfsVersion]
+    # @param version [Y2Storage::Filesystems::NfsVersion]
+    #
+    # @return [String]
     def set_nfs_version(options, version)
-      option_list = from_string(options)
-      without_option = version.mntops_value.nil?
+      nfs_options = Y2Storage::Filesystems::NfsOptions.create_from_fstab(options)
 
-      # Cleanup minorversion, it should never be used
-      option_list.delete_if { |opt| opt.start_with?("minorversion=") }
+      nfs_options.version = version
 
-      # Cleanup surplus options
-      option_to_keep = without_option ? nil : relevant_version_option(option_list)
-      option_list.delete_if { |opt| version_option?(opt) && !opt.equal?(option_to_keep) }
-
-      return to_string(option_list) if without_option
-
-      if option_to_keep
-        option_to_keep.gsub!(/=.*$/, "=#{version.mntops_value}")
-      else
-        option_list << "nfsvers=#{version.mntops_value}"
-      end
-
-      to_string(option_list)
+      nfs_options.to_fstab
     end
 
     # Whether the given mount options correspond to a NFSv4.1 mount
@@ -249,7 +215,7 @@ module Yast
     #   by mount and /etc/fstab
     # @return [Boolean] is version >= 4.1 enabled
     def get_nfs41(options)
-      nfs_version(options).mntops_value == "4.1"
+      nfs_version(options).value == "4.1"
     end
 
     # Modifies the mount options to make sure NFSv4.1 is used (or to make sure
@@ -265,61 +231,16 @@ module Yast
     #   options will be configured to use any NFS version.
     # @return [String] new fstab option string
     def set_nfs41(options, nfs41)
-      version_string = nfs41 ? "4.1" : nil
-      version = Y2NfsClient::NfsVersion.for_mntops_value(version_string)
-      set_nfs_version(options, version)
-    end
+      value = nfs41 ? "4.1" : "any"
 
-    # Checks whether some of the old options that used to work to configure
-    # the NFS version (but do not longer work now) is used.
-    #
-    # Basically, this checks for the presence of minorversion
-    #
-    # @param options [String] mount options in the comma-separated format used
-    #   by mount and /etc/fstab
-    # @return [Boolean]
-    def legacy?(options)
-      option_list = from_string(options)
-      option_list.any? { |opt| opt.start_with?("minorversion=") }
+      version = Y2Storage::Filesystems::NfsVersion.find_by_value(value)
+
+      set_nfs_version(options, version)
     end
 
     publish function: :validate, type: "string (string)"
     publish function: :get_nfs41, type: "boolean (string)"
     publish function: :set_nfs41, type: "string (string, boolean)"
-
-  private
-
-    # Option used to set the NFS protocol version
-    #
-    # @param option_list [Array<String>]
-    # @return [String, nil] contains the whole 'option=value' string
-    def relevant_version_option(option_list)
-      # According to manual tests and documentation, none of the forms has higher precedence.
-      # Use #reverse_each because in case of conflicting options, the latest one is used by mount
-      option_list.reverse_each.find do |opt|
-        version_option?(opt)
-      end
-    end
-
-    # Value part for {#relevant_version_option}
-    #
-    # @param option_list [Array<String>]
-    # @return [String, nil]
-    def relevant_version_value(option_list)
-      relevant_option = relevant_version_option(option_list)
-      return nil unless relevant_option
-      parts = relevant_option.split("=")
-      return nil if parts.size != 2
-      parts.last
-    end
-
-    # Checks if a given option is used to configure the NFS protocol version
-    #
-    # @param [String]
-    # @return [Boolean]
-    def version_option?(option)
-      option.start_with?("nfsvers=", "vers=")
-    end
   end
 
   NfsOptions = NfsOptionsClass.new

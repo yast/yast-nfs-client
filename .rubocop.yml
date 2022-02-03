@@ -1,5 +1,5 @@
 inherit_from:
-  /usr/share/YaST2/data/devtools/data/rubocop_yast_style.yml
+  /usr/share/YaST2/data/devtools/data/rubocop-1.24.1_yast_style.yml
 
 # Offense count: 34
 Metrics/AbcSize:
@@ -30,6 +30,12 @@ Metrics/MethodLength:
 # Offense count: 13
 Metrics/PerceivedComplexity:
   Max: 35
+
+# This cop should be moved to the yast rubocop style.
+# Note that frozen string literals was not finally the default in ruby 3,
+# see https://github.com/rubocop/rubocop/issues/7197.
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
 Style/Documentation:
   Exclude:
