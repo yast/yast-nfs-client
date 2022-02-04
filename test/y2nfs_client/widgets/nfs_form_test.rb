@@ -29,7 +29,7 @@ require "y2storage/filesystems/nfs_version"
 Yast.import "Nfs"
 
 describe Y2NfsClient::Widgets::NfsForm do
-  subject { described_class.new(nfs, nfs_entries) }
+  subject { described_class.new(nfs, nfs_entries, hosts: hosts) }
 
   let(:entry) do
     {
@@ -40,6 +40,7 @@ describe Y2NfsClient::Widgets::NfsForm do
 
   let(:nfs) { Y2Storage::Filesystems::LegacyNfs.new_from_hash(entry) }
   let(:nfs_entries) { [] }
+  let(:hosts) { nil }
 
   before do
     allow(Yast::UI).to receive(:QueryWidget).and_return("")
@@ -133,49 +134,64 @@ describe Y2NfsClient::Widgets::NfsForm do
 
       let(:servers) { ["nfs.example.com"] }
 
-      it "scans servers" do
-        expect(Yast::Nfs).to receive(:ProbeServers)
+      context "if the list of hosts is unknown" do
+        let(:hosts) { nil }
 
-        subject.handle(event)
-      end
-
-      context "when scan succeeds" do
-        let(:servers) { ["nfs1.example.com", "nfs2.example.com"] }
-
-        context "and the user selects a server" do
-          let(:input) { :ok }
-
-          let(:server) { servers.first }
-
-          before do
-            allow(Yast::UI).to receive(:QueryWidget).with(Id(:items), :CurrentItem).and_return(server)
-          end
-
-          it "sets the server selected by the user" do
-            expect(Yast::UI).to receive(:ChangeWidget).with(Id(:serverent), :Value, server)
-
-            subject.handle(event)
-          end
-        end
-
-        context "and the user cancels the selection" do
-          let(:input) { :cancel }
-
-          it "does not change server" do
-            expect(Yast::UI).to_not receive(:ChangeWidget).with(Id(:serverent), any_args)
-
-            subject.handle(event)
-          end
-        end
-      end
-
-      context "when scan fails" do
-        let(:servers) { [] }
-
-        it "reports an error" do
-          expect(Yast::Report).to receive(:Error).with(/No NFS server/)
+        it "scans servers" do
+          expect(Yast::Nfs).to receive(:ProbeServers)
 
           subject.handle(event)
+        end
+
+        context "when scan succeeds" do
+          let(:servers) { ["nfs1.example.com", "nfs2.example.com"] }
+
+          context "and the user selects a server" do
+            let(:input) { :ok }
+
+            let(:server) { servers.first }
+
+            before do
+              allow(Yast::UI).to receive(:QueryWidget).with(Id(:items), :CurrentItem).and_return(server)
+            end
+
+            it "sets the server selected by the user" do
+              expect(Yast::UI).to receive(:ChangeWidget).with(Id(:serverent), :Value, server)
+
+              subject.handle(event)
+            end
+          end
+
+          context "and the user cancels the selection" do
+            let(:input) { :cancel }
+
+            it "does not change server" do
+              expect(Yast::UI).to_not receive(:ChangeWidget).with(Id(:serverent), any_args)
+
+              subject.handle(event)
+            end
+          end
+        end
+
+        context "when scan fails" do
+          let(:servers) { [] }
+
+          it "reports an error" do
+            expect(Yast::Report).to receive(:Error).with(/No NFS server/)
+
+            subject.handle(event)
+          end
+        end
+
+        context "if the list of hosts is already known" do
+          let(:hosts) { ["nfs.example.com"] }
+
+          it "does not scan servers" do
+            expect(Yast::Nfs).to_not receive(:ProbeServers)
+
+            subject.handle(event)
+          end
+
         end
       end
     end
