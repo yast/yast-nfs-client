@@ -47,7 +47,6 @@ module Yast
       Yast.include include_target, "nfs/routines.rb"
 
       # Caches names of nfs servers for GetFstabEntry
-
       @hosts = nil
 
       # List of already defined nfs mount points
@@ -124,7 +123,7 @@ module Yast
         nfs.fstopt = "defaults"
       end
 
-      form = Y2NfsClient::Widgets::NfsForm.new(nfs, nfs_entries)
+      form = Y2NfsClient::Widgets::NfsForm.new(nfs, nfs_entries, hosts: @hosts)
       return nil unless form.run?
 
       UI.OpenDialog(
@@ -166,6 +165,8 @@ module Yast
         end
         break if [:ok, :cancel].include?(ret)
       end
+
+      @hosts = form.hosts
 
       UI.CloseDialog
       Wizard.RestoreScreenShotName

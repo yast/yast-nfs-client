@@ -32,12 +32,19 @@ module Y2NfsClient
     class NfsForm < CWM::CustomWidget
       Yast.import "NfsOptions"
 
+      # List of cached hosts
+      #
+      # @return [Array<String>, nil]
+      attr_reader :hosts
+
       # Constructor
       #
       # @param nfs [Y2Storage::Filesystems::LegacyNfs] Object representing a nfs entry. This object is
       #   modified in #store method.
       # @param nfs_entries [Array<Y2Storage::Filesystems::LegacyNfs>] The rest of entries
-      def initialize(nfs, nfs_entries)
+      # @param hosts [Array<String>, nil] List of cached hosts. Passing a list avoids to perform a new
+      #   search.
+      def initialize(nfs, nfs_entries, hosts: nil)
         super()
 
         Yast.import "Nfs"
@@ -56,6 +63,7 @@ module Y2NfsClient
         @mount_options = nfs.fstopt || ""
 
         @nfs_entries = nfs_entries
+        @hosts = hosts
       end
 
       # NFS being created or edited
@@ -305,8 +313,8 @@ module Y2NfsClient
         Yast::UI.QueryWidget(Id(:optionsent), :Value).strip
       end
 
+      # FIXME: Hosts are not correctly found, see bsc#1167589
       def handle_choose
-        # FIXME: @hosts is supposed to be a cache for the whole module execution
         if @hosts.nil?
           # label message
           Yast::UI.OpenDialog(Label(_("Scanning for hosts on this LAN...")))
