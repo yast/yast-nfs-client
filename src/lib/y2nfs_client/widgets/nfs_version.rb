@@ -27,10 +27,7 @@ module Y2NfsClient
     # Widget to select a NFS version
     class NfsVersion
       include Yast::UIShortcuts
-      extend Yast::I18n
       include Yast::I18n
-
-      textdomain "nfs"
 
       # Constructor
       #
@@ -87,15 +84,15 @@ module Y2NfsClient
       def label_for(version)
         case version.value
         when "any"
-          N_("Any (Highest Available)")
+          _("Any (Highest Available)")
         when "3"
-          N_("Force NFSv3")
+          _("Force NFSv3")
         when "4"
-          N_("Force NFSv4")
+          _("Force NFSv4")
         when "4.1"
-          N_("Force pNFS (v4.1)")
+          _("Force pNFS (v4.1)")
         when "4.2"
-          N_("Force NFSv4.2")
+          _("Force NFSv4.2")
         else
           version.value
         end
