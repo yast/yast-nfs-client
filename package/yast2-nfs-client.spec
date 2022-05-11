@@ -17,7 +17,7 @@
 
 
 Name:           yast2-nfs-client
-Version:        4.4.4
+Version:        4.4.5
 Release:        0
 Url:            https://github.com/yast/yast-nfs-client
 Summary:        YaST2 - NFS Configuration
