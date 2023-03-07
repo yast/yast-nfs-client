@@ -52,6 +52,7 @@ describe "Yast::Nfs" do
     add_nfs_devices
 
     subject.skip_fstab = false
+    allow_read_side_effects
     subject.Read
   end
 
