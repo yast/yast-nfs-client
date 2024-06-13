@@ -259,8 +259,6 @@ module Yast
     def InitSettings
       CWMFirewallInterfaces.OpenFirewallInit(@fw_cwm_widget, "")
       UI.ChangeWidget(Id(:enable_nfs4), :Value, Nfs.nfs4_enabled != false)
-      UI.ChangeWidget(Id(:nfs4_domain), :Enabled, Nfs.nfs4_enabled != false)
-      UI.ChangeWidget(Id(:nfs4_domain), :Value, Nfs.idmapd_domain)
       UI.ChangeWidget(Id(:enable_nfs_gss), :Value, Nfs.nfs_gss_enabled != false)
 
       nil
@@ -280,9 +278,6 @@ module Yast
       )
       Nfs.nfs_gss_enabled = Convert.to_boolean(
         UI.QueryWidget(Id(:enable_nfs_gss), :Value)
-      )
-      Nfs.idmapd_domain = Convert.to_string(
-        UI.QueryWidget(Id(:nfs4_domain), :Value)
       )
 
       nil
