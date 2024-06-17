@@ -78,9 +78,7 @@ module Yast
       @help_text2 = Ops.add(
         _(
           "<p>If you need to access NFSv4 shares (NFSv4 is a newer version of the NFS\n" \
-          "protocol), check the <b>NFS version</b> option. In that case, you might need\n" \
-          "to supply an specific <b>NFSv4 Domain Name</b> required for the correct setting\n" \
-          "of file/directory access rights.</p>\n"
+          "protocol), check the <b>NFS version</b> option."
         ),
         Ops.get_string(@fw_cwm_widget, "help", "")
       )
@@ -220,7 +218,6 @@ module Yast
       settings_content = VBox(
         HBox(
           Left(CheckBox(Id(:enable_nfs4), Opt(:notify), _("Enable NFSv4"))),
-          Left(InputField(Id(:nfs4_domain), _("NFSv4 Domain Name"))),
           HStretch()
         ),
         VSpacing(1),
@@ -329,8 +326,7 @@ module Yast
           Nfs.SetModified
         end
       when :enable_nfs4
-        enabled = Convert.to_boolean(UI.QueryWidget(Id(:enable_nfs4), :Value))
-        UI.ChangeWidget(Id(:nfs4_domain), :Enabled, enabled)
+        Convert.to_boolean(UI.QueryWidget(Id(:enable_nfs4), :Value))
         Nfs.SetModified
       when :settings
         SaveFstabEntries()
