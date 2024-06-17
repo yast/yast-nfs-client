@@ -31,7 +31,6 @@ describe "Yast::Nfs" do
   def allow_read_side_effects
     allow(subject).to receive(:ReadNfs4)
     allow(subject).to receive(:ReadNfsGss)
-    allow(subject).to receive(:ReadIdmapd)
     allow(subject).to receive(:FindPortmapper).and_return("rpcbind")
     allow(subject).to receive(:firewalld).and_return(firewalld)
     allow(firewalld).to receive(:read)
@@ -96,7 +95,7 @@ describe "Yast::Nfs" do
       [
         {
           "enable_nfs_gss" => true,
-          "idmapd_domain"  => "example.com"
+          "enable_nfs4"    => "example.com"
         },
         {
           "server_path" => "data.example.com:/mirror",
@@ -127,7 +126,6 @@ describe "Yast::Nfs" do
       it "imports the global options when defined as a map" do
         subject.Import(profile_SLE11)
         expect(subject.nfs_gss_enabled).to eql(true)
-        expect(subject.idmapd_domain).to eql("example.com")
       end
 
       context "and some of the entries defines the nfs_version=4 in the nfs_options" do
@@ -159,14 +157,12 @@ describe "Yast::Nfs" do
       mock_entries
       subject.nfs4_enabled = true
       subject.nfs_gss_enabled = false
-      subject.idmapd_domain = "example.com"
     end
 
     let(:expected_profile) do
       {
         "enable_nfs4"    => true,
         "enable_nfs_gss" => false,
-        "idmapd_domain"  => "example.com",
         "nfs_entries"    => [
           {
             "server_path" => "nfs.example.com:/foo",
@@ -262,8 +258,6 @@ describe "Yast::Nfs" do
         .with(path(".target.mkdir"), anything).and_return(true)
       allow(Yast::SCR).to receive(:Write)
         .with(path_matching(/^\.sysconfig\.nfs/), any_args)
-      allow(Yast::SCR).to receive(:Write)
-        .with(path_matching(/^\.etc\.idmapd_conf/), any_args)
       allow(firewalld).to receive(:installed?).and_return(true)
       allow(firewalld).to receive(:read)
       allow(firewalld).to receive(:write_only)

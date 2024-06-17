@@ -27,7 +27,6 @@ nfs_sle11_sp2 =
 nfs_global_options_content = (
     element enable_nfs4 { BOOLEAN }? &
     element enable_nfs_gss { BOOLEAN }? &
-    element idmapd_domain { text }?
 )
 
 nfs_os113_123 =

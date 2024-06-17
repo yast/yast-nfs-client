@@ -64,8 +64,6 @@ module Yast
 
       @nfs_gss_enabled = nil
 
-      @idmapd_domain = ""
-
       @portmapper = ""
 
       # list of created directories
@@ -98,10 +96,6 @@ module Yast
       SCR.Read(path(".sysconfig.nfs.NFS_SECURITY_GSS")) == "yes"
     end
 
-    def ReadIdmapd
-      Convert.to_string(SCR.Read(path(".etc.idmapd_conf.value.General.Domain")))
-    end
-
     def ValidateAyNfsEntry(entry)
       entry = deep_copy(entry)
       valid = true
@@ -116,8 +110,7 @@ module Yast
 
     def GetOptionsAndEntriesSLE11(settings, global_options, entries)
       settings = deep_copy(settings)
-      if Builtins.haskey(Ops.get(settings, 0, {}), "enable_nfs4") ||
-          Builtins.haskey(Ops.get(settings, 0, {}), "idmapd_domain")
+      if Builtins.haskey(Ops.get(settings, 0, {}), "enable_nfs4")
         global_options.value = Ops.get(settings, 0, {})
         settings = Builtins.remove(settings, 0)
       end
@@ -211,9 +204,6 @@ module Yast
       @nfs_gss_enabled = Ops.get_boolean(global_options, "enable_nfs_gss") do
         ReadNfsGss()
       end
-      @idmapd_domain = Ops.get_string(global_options, "idmapd_domain") do
-        ReadIdmapd()
-      end
 
       # vfstype can override a missing enable_nfs4
       @nfs4_enabled = true if Builtins.find(entries) do |entry|
@@ -254,7 +244,6 @@ module Yast
 
       Ops.set(settings, "enable_nfs4", @nfs4_enabled)
       Ops.set(settings, "enable_nfs_gss", @nfs_gss_enabled)
-      Ops.set(settings, "idmapd_domain", @idmapd_domain)
 
       entries = Builtins.maplist(@nfs_entries) do |entry|
         {
@@ -291,7 +280,6 @@ module Yast
 
       @nfs4_enabled = ReadNfs4()
       @nfs_gss_enabled = ReadNfsGss()
-      @idmapd_domain = ReadIdmapd()
       @portmapper = FindPortmapper()
 
       firewalld.read
@@ -343,9 +331,6 @@ module Yast
 
       if @nfs4_enabled
         SCR.Write(path(".sysconfig.nfs.NFS4_SUPPORT"), "yes")
-        SCR.Write(path(".etc.idmapd_conf.value.General.Domain"), @idmapd_domain)
-        # flush the changes
-        SCR.Write(path(".etc.idmapd_conf"), nil)
       else
         SCR.Write(path(".sysconfig.nfs.NFS4_SUPPORT"), "no")
       end
@@ -609,7 +594,6 @@ module Yast
     publish variable: :nfs_entries, type: "list <map <string, any>>"
     publish variable: :nfs4_enabled, type: "boolean"
     publish variable: :nfs_gss_enabled, type: "boolean"
-    publish variable: :idmapd_domain, type: "string"
     publish function: :Import, type: "boolean (map <string, any>)"
     publish function: :Export, type: "map ()"
     publish function: :FindPortmapper, type: "string ()"
